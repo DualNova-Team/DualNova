@@ -1,5 +1,5 @@
 @echo off
-TITLE Elywing server software for Minecraft: Pocket Edition // No Real utility
+TITLE DualNova server software for Minecraft: Pocket Edition // No Real utility
 cd /d %~dp0
 
 if exist bin\php\php.exe (
@@ -9,7 +9,9 @@ if exist bin\php\php.exe (
 	set PHP_BINARY=php
 )
 
-if exist PocketMine-MP.phar (
+if exist DualNova.phar (
+	set POCKETMINE_FILE=DualNova.phar
+) else if exist PocketMine-MP.phar (
 	set POCKETMINE_FILE=PocketMine-MP.phar
 ) else (
 	if exist src\pocketmine\PocketMine.php (
