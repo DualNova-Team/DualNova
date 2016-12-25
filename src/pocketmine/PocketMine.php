@@ -74,7 +74,7 @@ namespace pocketmine {
 
 	const VERSION = "1.0"; //will be set by CI to a git hash
 	const API_VERSION = "2.1.0";
-	const CODENAME = "Birpen";
+	const CODENAME = "DualNova";
 	const MINECRAFT_VERSION = "v1.0.0 alpha";
 	const MINECRAFT_VERSION_NETWORK = "1.0.0";
 	const GENISYS_API_VERSION = '1.9.3';

@@ -380,7 +380,7 @@ class Server{
 	 * @return string
 	 */
 	public function getName() : string{
-		return "Elywing";
+		return "DualNova";
 	}
 
 	/**
@@ -1562,19 +1562,18 @@ class Server{
 	}
 
 	public function about(){
-		$string = "§b
-                ____          
-               |  __|_              _
-               | |__| |      _    _(_)_ __   ___
-               |  __| |_   _| |  | | | '_ \ / _ \
-               | |__| | | | | |/\| | | | | | (_) |
-               |____|_|\ \/ \__/\__/_|_| |_|\___ |
-                       _|  /                 __| |
-                      |___/                 |___/
+		$string = "§4
+                ____               _   ___     _
+               |  _ \             |　| |   \   | |
+               | | | |_   _  ____ | | | |\ \  | | _____    ______
+               | | | | | | |/ _  \| | | | \ \ | |/ _ \ \  / / _  \
+               | |_| | |_| | (_)  | |_| |  \ \| | (_) \ \/ / (_)  |
+               |____/\_____|\___|_\___|_|   \___|\___/ \__/ \___|_|
+
 
 	§fA stable §e" . \pocketmine\MINECRAFT_VERSION . "§f fork of §3PocketMine-MP (pmmp)§f.
-			§fModified by §bH§e4§3PM§f.
-	    Source code: §3https://github.com/H4PM/Elywing§f
+			§fModified by §4DualNova§f-§bTeam§f.
+	    Source code: §3https://github.com/DualNova-Team/DualNova§f
 	";
 	
 		$this->getLogger()->info($string);
