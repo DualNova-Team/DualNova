@@ -2,22 +2,23 @@
 
 /*
  *
- *  _____   _____   __   _   _   _____  __    __  _____
- * /  ___| | ____| |  \ | | | | /  ___/ \ \  / / /  ___/
- * | |     | |__   |   \| | | | | |___   \ \/ /  | |___
- * | |  _  |  __|  | |\   | | | \___  \   \  /   \___  \
- * | |_| | | |___  | | \  | | |  ___| |   / /     ___| |
- * \_____/ |_____| |_|  \_| |_| /_____/  /_/     /_____/
+ *  ____               _   ___     _
+ * |  _ \             |　| |   \   | |
+ * | | | |_   _  ____ | | | |\ \  | | _____    ______
+ * | | | | | | |/ _  \| | | | \ \ | |/ _ \ \  / / _  \
+ * | |_| | |_| | (_)  | |_| |  \ \| | (_) \ \/ / (_)  |
+ * |____/\_____|\___|_\___|_|   \___|\___/ \__/ \___|_|
+ *
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * @author iTX Technologies
- * @link https://itxtech.org
+ * @author DualNova-Team
+ * 
  *
- */
+*/
 
 namespace pocketmine\block;
 
@@ -28,6 +29,15 @@ class EndGateway extends Transparent{
 
 	protected $id = self::END_GATEWAY;
 
+	/** @var  Vector3 */
+	private $temporalVector = null;
+	
+	public function __construct(){
+		if($this->temporalVector === null){
+			$this->temporalVector = new Vector3(0, 0, 0);
+		}
+	}
+	
 	public function __construct($meta = 0){
 		$this->meta = $meta;
 	}

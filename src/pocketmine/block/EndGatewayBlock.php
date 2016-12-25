@@ -22,32 +22,16 @@
 
 namespace pocketmine\block;
 
-use pocketmine\item\Item;
-use pocketmine\item\Tool;
+class EndGatewayBlock extends Solid{
 
-class PurpurStairs extends Stair{
-
-	protected $id = self::PURPUR_STAIRS;
+	protected $id = self::END_GATEWAY_BLOCK;
 
 	public function __construct($meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function getName() : string{
-		return "Purpur Stairs";
+	public function getName(){
+        return "End Gateway Block";
 	}
 
-	public function getToolType(){
-		return Tool::TYPE_PICKAXE;
-	}
-
-	public function getDrops(Item $item) : array {
-		return [
-			[$this->id, 0, 1],
-		];
-	}
-
-	public function getHardness() {
-		return 1.5;
-	}
 }
