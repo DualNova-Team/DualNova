@@ -61,13 +61,14 @@ class EndRod extends Flowable{
 	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
 		$below = $this->getSide(0);
 
-		if($target->isTransparent() === false and $face !== 0){
+		if($target->isTransparent() === false){
 			$faces = [
+				0 => 0,
 				1 => 1,
-				2 => 2,
-				3 => 3,
-				4 => 4,
-				5 => 5,
+				2 => 3,
+				3 => 2,
+				4 => 5,
+				5 => 4
 			];
 			$this->meta = $faces[$face];
 			$this->getLevel()->setBlock($block, $this, true, true);
