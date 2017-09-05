@@ -19,9 +19,12 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\command\defaults;
 
 use pocketmine\command\CommandSender;
+use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\event\TranslationContainer;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
@@ -33,20 +36,18 @@ class TellCommand extends VanillaCommand{
 			$name,
 			"%pocketmine.command.tell.description",
 			"%commands.message.usage",
-			["w", "whisper", "msg", "m"]
+			["w", "msg"]
 		);
 		$this->setPermission("pocketmine.command.tell");
 	}
 
-	public function execute(CommandSender $sender, $currentAlias, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
 			return true;
 		}
 
 		if(count($args) < 2){
-			$sender->sendMessage(new TranslationContainer("commands.generic.usage", [$this->usageMessage]));
-
-			return false;
+			throw new InvalidCommandSyntaxException();
 		}
 
 		$name = strtolower(array_shift($args));
@@ -59,8 +60,9 @@ class TellCommand extends VanillaCommand{
 		}
 
 		if($player instanceof Player){
-			$sender->sendMessage("[".$sender->getName()." -> " . $player->getDisplayName() . "] " . implode(" ", $args));
-			$player->sendMessage("[" . ($sender instanceof Player ? $sender->getDisplayName() : $sender->getName()) . " -> ".$player->getName()."] " . implode(" ", $args));
+			$sender->sendMessage("[{$sender->getName()} -> {$player->getDisplayName()}] " . implode(" ", $args));
+			$name = $sender instanceof Player ? $sender->getDisplayName() : $sender->getName();
+			$player->sendMessage("[$name -> {$player->getName()}] " . implode(" ", $args));
 		}else{
 			$sender->sendMessage(new TranslationContainer("commands.generic.player.notFound"));
 		}

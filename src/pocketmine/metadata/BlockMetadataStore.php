@@ -19,6 +19,8 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\metadata;
 
 use pocketmine\Block\Block;
@@ -33,7 +35,7 @@ class BlockMetadataStore extends MetadataStore{
 		$this->owningLevel = $owningLevel;
 	}
 
-	public function disambiguate(Metadatable $block, $metadataKey){
+	public function disambiguate(Metadatable $block, string $metadataKey) : string{
 		if(!($block instanceof Block)){
 			throw new \InvalidArgumentException("Argument must be a Block instance");
 		}
@@ -68,7 +70,7 @@ class BlockMetadataStore extends MetadataStore{
 			throw new \InvalidArgumentException("Object must be a Block");
 		}
 		if($block->getLevel() === $this->owningLevel){
-			parent::hasMetadata($block, $metadataKey, $owningPlugin);
+			parent::removeMetadata($block, $metadataKey, $owningPlugin);
 		}else{
 			throw new \InvalidStateException("Block does not belong to world " . $this->owningLevel->getName());
 		}

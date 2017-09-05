@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  *
  *  ____            _        _   __  __ _                  __  __ ____
  * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
@@ -14,10 +14,12 @@
  * (at your option) any later version.
  *
  * @author PocketMine Team
- * @link   http://www.pocketmine.net/
+ * @link http://www.pocketmine.net/
  *
  *
- */
+*/
+
+declare(strict_types=1);
 
 namespace pocketmine\event\entity;
 
@@ -65,7 +67,7 @@ class EntityShootBowEvent extends EntityEvent implements Cancellable{
 	}
 
 	/**
-	 * @return Entity|Projectile
+	 * @return Entity
 	 */
 	public function getProjectile(){
 		return $this->projectile;

@@ -19,6 +19,8 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\entity;
 
 class AttributeMap implements \ArrayAccess{
@@ -38,7 +40,10 @@ class AttributeMap implements \ArrayAccess{
 		return $this->attributes[$id] ?? null;
 	}
 
-	public function getAll(): array{
+	/**
+	 * @return Attribute[]
+	 */
+	public function getAll() : array{
 		return $this->attributes;
 	}
 
@@ -46,7 +51,7 @@ class AttributeMap implements \ArrayAccess{
 	 * @return Attribute[]
 	 */
 	public function needSend() : array{
-		return array_filter($this->attributes, function (Attribute $attribute){
+		return array_filter($this->attributes, function(Attribute $attribute){
 			return $attribute->isSyncable() and $attribute->isDesynchronized();
 		});
 	}

@@ -19,6 +19,8 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\metadata;
 
 use pocketmine\plugin\Plugin;
@@ -51,7 +53,7 @@ interface Metadatable{
 	 *
 	 * @param string $metadataKey
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function hasMetadata($metadataKey);
 

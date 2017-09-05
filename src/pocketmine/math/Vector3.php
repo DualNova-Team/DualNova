@@ -19,9 +19,9 @@
  *
 */
 
-namespace pocketmine\math;
+declare(strict_types=1);
 
-use pocketmine\utils\Random;
+namespace pocketmine\math;
 
 class Vector3{
 
@@ -132,8 +132,10 @@ class Vector3{
 		return new Vector3((int) floor($this->x), (int) floor($this->y), (int) floor($this->z));
 	}
 
-	public function round(){
-		return new Vector3((int) round($this->x), (int) round($this->y), (int) round($this->z));
+	public function round(int $precision = 0, int $mode = PHP_ROUND_HALF_UP){
+		return $precision > 0 ?
+			new Vector3(round($this->x, $precision, $mode), round($this->y, $precision, $mode), round($this->z, $precision, $mode)) :
+			new Vector3((int) round($this->x, $precision, $mode), (int) round($this->y, $precision, $mode), (int) round($this->z, $precision, $mode));
 	}
 
 	public function abs(){
@@ -159,23 +161,29 @@ class Vector3{
 		}
 	}
 
-	public static function getOppositeSide($side){
-		switch((int) $side){
-			case Vector3::SIDE_DOWN:
-				return Vector3::SIDE_UP;
-			case Vector3::SIDE_UP:
-				return Vector3::SIDE_DOWN;
-			case Vector3::SIDE_NORTH:
-				return Vector3::SIDE_SOUTH;
-			case Vector3::SIDE_SOUTH:
-				return Vector3::SIDE_NORTH;
-			case Vector3::SIDE_WEST:
-				return Vector3::SIDE_EAST;
-			case Vector3::SIDE_EAST:
-				return Vector3::SIDE_WEST;
-			default:
-				return -1;
+	/**
+	 * Return a Vector3 instance
+	 *
+	 * @return Vector3
+	 */
+	public function asVector3() : Vector3{
+		return new Vector3($this->x, $this->y, $this->z);
+	}
+
+	/**
+	 * Returns the Vector3 side number opposite the specified one
+	 *
+	 * @param int $side 0-5 one of the Vector3::SIDE_* constants
+	 * @return int
+	 *
+	 * @throws \InvalidArgumentException if an invalid side is supplied
+	 */
+	public static function getOppositeSide(int $side) : int{
+		if($side >= 0 and $side <= 5){
+			return $side ^ 0x01;
 		}
+
+		throw new \InvalidArgumentException("Invalid side $side given to getOppositeSide");
 	}
 
 	public function distance(Vector3 $pos){
@@ -183,7 +191,7 @@ class Vector3{
 	}
 
 	public function distanceSquared(Vector3 $pos){
-		return pow($this->x - $pos->x, 2) + pow($this->y - $pos->y, 2) + pow($this->z - $pos->z, 2);
+		return (($this->x - $pos->x) ** 2) + (($this->y - $pos->y) ** 2) + (($this->z - $pos->z) ** 2);
 	}
 
 	public function maxPlainDistance($x = 0, $z = 0){
@@ -228,7 +236,7 @@ class Vector3{
 		);
 	}
 
-	public function equals(Vector3 $v){
+	public function equals(Vector3 $v) : bool{
 		return $this->x == $v->x and $this->y == $v->y and $this->z == $v->z;
 	}
 
@@ -239,7 +247,7 @@ class Vector3{
 	 * @param Vector3 $v
 	 * @param float   $x
 	 *
-	 * @return Vector3
+	 * @return Vector3|null
 	 */
 	public function getIntermediateWithXValue(Vector3 $v, $x){
 		$xDiff = $v->x - $this->x;
@@ -255,7 +263,7 @@ class Vector3{
 		if($f < 0 or $f > 1){
 			return null;
 		}else{
-			return new Vector3($this->x + $xDiff * $f, $this->y + $yDiff * $f, $this->z + $zDiff * $f);
+			return new Vector3($x, $this->y + $yDiff * $f, $this->z + $zDiff * $f);
 		}
 	}
 
@@ -266,7 +274,7 @@ class Vector3{
 	 * @param Vector3 $v
 	 * @param float   $y
 	 *
-	 * @return Vector3
+	 * @return Vector3|null
 	 */
 	public function getIntermediateWithYValue(Vector3 $v, $y){
 		$xDiff = $v->x - $this->x;
@@ -282,7 +290,7 @@ class Vector3{
 		if($f < 0 or $f > 1){
 			return null;
 		}else{
-			return new Vector3($this->x + $xDiff * $f, $this->y + $yDiff * $f, $this->z + $zDiff * $f);
+			return new Vector3($this->x + $xDiff * $f, $y, $this->z + $zDiff * $f);
 		}
 	}
 
@@ -293,7 +301,7 @@ class Vector3{
 	 * @param Vector3 $v
 	 * @param float   $z
 	 *
-	 * @return Vector3
+	 * @return Vector3|null
 	 */
 	public function getIntermediateWithZValue(Vector3 $v, $z){
 		$xDiff = $v->x - $this->x;
@@ -309,7 +317,7 @@ class Vector3{
 		if($f < 0 or $f > 1){
 			return null;
 		}else{
-			return new Vector3($this->x + $xDiff * $f, $this->y + $yDiff * $f, $this->z + $zDiff * $f);
+			return new Vector3($this->x + $xDiff * $f, $this->y + $yDiff * $f, $z);
 		}
 	}
 
@@ -327,26 +335,8 @@ class Vector3{
 		return $this;
 	}
 
-	/**
-	 * @param Vector3 $pos
-	 * @param         $x
-	 * @param         $y
-	 * @param         $z
-	 *
-	 * @return $this
-	 */
-	public function fromObjectAdd(Vector3 $pos, $x, $y, $z){
-		$this->x = $pos->x + $x;
-		$this->y = $pos->y + $y;
-		$this->z = $pos->z + $z;
-		return $this;
-	}
-
 	public function __toString(){
 		return "Vector3(x=" . $this->x . ",y=" . $this->y . ",z=" . $this->z . ")";
 	}
 
-	public static function createRandomDirection(Random $random){
-		return VectorMath::getDirection3D($random->nextFloat() * 2 * pi(), $random->nextFloat() * 2 * pi());
-	}
 }

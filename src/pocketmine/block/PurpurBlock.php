@@ -3,7 +3,7 @@
 /*
  *
  *  ____               _   ___     _
- * |  _ \             |　| |   \   | |
+ * |  _ \             | | |   \   | |
  * | | | |_   _  ____ | | | |\ \  | | _____    ______
  * | | | | | | |/ _  \| | | | \ \ | |/ _ \ \  / / _  \
  * | |_| | |_| | (_)  | |_| |  \ \| | (_) \ \/ / (_)  |
@@ -27,7 +27,7 @@ use pocketmine\item\Tool;
 use pocketmine\Player;
 
 class PurpurBlock extends Solid{
-
+	
 	const PURPUR_NORMAL = 0;
 	const PURPUR_NORMAL2 = 1;
 	const PURPUR_PILLAR = 2;
@@ -53,7 +53,6 @@ class PurpurBlock extends Solid{
 
 	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
 		if($this->meta === 2){
-
 			$faces = [
 				0 => 0,
 				1 => 0,
@@ -73,12 +72,12 @@ class PurpurBlock extends Solid{
 	}
 
 	public function getDrops(Item $item) : array {
-		if($item->isPickaxe() >= 1){
+		if($item->isPickaxe() >= Tool::TIER_WOODEN){
 			return [
 				[Item::PURPUR_BLOCK, $this->meta & 0x03, 1],
 			];
 		}else{
 			return [];
 		}
-	}	
+	}
 }

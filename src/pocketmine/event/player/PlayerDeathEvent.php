@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  *
  *  ____            _        _   __  __ _                  __  __ ____
  * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
@@ -14,10 +14,12 @@
  * (at your option) any later version.
  *
  * @author PocketMine Team
- * @link   http://www.pocketmine.net/
+ * @link http://www.pocketmine.net/
  *
  *
- */
+*/
+
+declare(strict_types=1);
 
 namespace pocketmine\event\player;
 
@@ -32,7 +34,6 @@ class PlayerDeathEvent extends EntityDeathEvent{
 	/** @var TextContainer|string */
 	private $deathMessage;
 	private $keepInventory = false;
-	private $keepExperience = false;
 
 	/**
 	 * @param Player               $entity
@@ -47,14 +48,14 @@ class PlayerDeathEvent extends EntityDeathEvent{
 	/**
 	 * @return Player
 	 */
-	public function getEntity(){
+	public function getEntity() : Player{
 		return $this->entity;
 	}
 
 	/**
 	 * @return Player
 	 */
-	public function getPlayer(){
+	public function getPlayer() : Player{
 		return $this->entity;
 	}
 
@@ -66,7 +67,7 @@ class PlayerDeathEvent extends EntityDeathEvent{
 	}
 
 	/**
-	 * @param string|TextContainer $deathMessage
+	 * @param TextContainer|string $deathMessage
 	 */
 	public function setDeathMessage($deathMessage){
 		$this->deathMessage = $deathMessage;
@@ -80,11 +81,4 @@ class PlayerDeathEvent extends EntityDeathEvent{
 		$this->keepInventory = $keepInventory;
 	}
 
-	public function getKeepExperience() : bool{
-		return $this->keepExperience;
-	}
-
-	public function setKeepExperience(bool $keepExperience){
-		$this->keepExperience = $keepExperience;
-	}
 }

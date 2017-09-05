@@ -14,10 +14,12 @@
  * (at your option) any later version.
  *
  * @author PocketMine Team
- * @link   http://www.pocketmine.net/
+ * @link http://www.pocketmine.net/
  *
  *
- */
+*/
+
+declare(strict_types=1);
 
 namespace pocketmine\event\player;
 
@@ -30,9 +32,13 @@ use pocketmine\Player;
 class PlayerAnimationEvent extends PlayerEvent implements Cancellable{
 	public static $handlerList = null;
 
+	/**
+	 * @deprecated This is dependent on the protocol and should not be here.
+	 * Use the constants in {@link pocketmine\network\mcpe\protocol\AnimatePacket} instead.
+	 */
 	const ARM_SWING = 1;
-	const WAKE_UP = 3;
 
+	/** @var int */
 	private $animationType;
 
 	/**
@@ -47,7 +53,7 @@ class PlayerAnimationEvent extends PlayerEvent implements Cancellable{
 	/**
 	 * @return int
 	 */
-	public function getAnimationType(){
+	public function getAnimationType() : int{
 		return $this->animationType;
 	}
 

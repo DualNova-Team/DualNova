@@ -19,8 +19,9 @@
  *
 */
 
-namespace pocketmine\command;
+declare(strict_types=1);
 
+namespace pocketmine\command;
 
 use pocketmine\event\TextContainer;
 
@@ -43,7 +44,7 @@ class RemoteConsoleCommandSender extends ConsoleCommandSender{
 		return $this->messages;
 	}
 
-	public function getName() : string{
+	public function getName(){
 		return "Rcon";
 	}
 

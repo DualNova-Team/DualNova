@@ -19,10 +19,13 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\command\defaults;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\event\TranslationContainer;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
@@ -39,15 +42,16 @@ class TeleportCommand extends VanillaCommand{
 		$this->setPermission("pocketmine.command.teleport");
 	}
 
-	public function execute(CommandSender $sender, $currentAlias, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
 			return true;
 		}
 
+		$args = array_filter($args, function($arg){
+			return strlen($arg) > 0;
+		});
 		if(count($args) < 1 or count($args) > 6){
-			$sender->sendMessage(new TranslationContainer("commands.generic.usage", [$this->usageMessage]));
-
-			return true;
+			throw new InvalidCommandSyntaxException();
 		}
 
 		$target = null;
@@ -100,14 +104,14 @@ class TeleportCommand extends VanillaCommand{
 			}
 
 			$x = $this->getRelativeDouble($target->x, $sender, $args[$pos++]);
-			$y = $this->getRelativeDouble($target->y, $sender, $args[$pos++], 0, 128);
+			$y = $this->getRelativeDouble($target->y, $sender, $args[$pos++], 0, 256);
 			$z = $this->getRelativeDouble($target->z, $sender, $args[$pos++]);
 			$yaw = $target->getYaw();
 			$pitch = $target->getPitch();
 
 			if(count($args) === 6 or (count($args) === 5 and $pos === 3)){
-				$yaw = $args[$pos++];
-				$pitch = $args[$pos++];
+				$yaw = (float) $args[$pos++];
+				$pitch = (float) $args[$pos++];
 			}
 
 			$target->teleport(new Vector3($x, $y, $z), $yaw, $pitch);
@@ -116,8 +120,6 @@ class TeleportCommand extends VanillaCommand{
 			return true;
 		}
 
-		$sender->sendMessage(new TranslationContainer("commands.generic.usage", [$this->usageMessage]));
-
-		return true;
+		throw new InvalidCommandSyntaxException();
 	}
 }

@@ -1,5 +1,4 @@
 <?php
-
 /*
  *
  *  ____               _   ___     _
@@ -19,7 +18,6 @@
  * 
  *
 */
-
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
@@ -44,7 +42,7 @@ class DoubleSlab2 extends Solid{
 		];
 		return "Double " . $names[$this->meta & 0x07] . " Slab";
 	}
-
+	
 	public function getDrops(Item $item) : array {
 		if($item->isPickaxe() >= 1){
 			return [
@@ -54,5 +52,4 @@ class DoubleSlab2 extends Solid{
 			return [];
 		}
 	}
-
 }

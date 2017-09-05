@@ -2,11 +2,11 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____  
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
  * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,9 +15,11 @@
  *
  * @author PocketMine Team
  * @link http://www.pocketmine.net/
- * 
+ *
  *
 */
+
+declare(strict_types=1);
 
 /**
  * Event related classes
@@ -30,20 +32,20 @@ abstract class Event{
 	 * Any callable event must declare the static variable
 	 *
 	 * public static $handlerList = null;
-	 * public static $eventPool = [];
-	 * public static $nextEvent = 0;
 	 *
 	 * Not doing so will deny the proper event initialization
 	 */
 
+	/** @var string|null */
 	protected $eventName = null;
+	/** @var bool */
 	private $isCancelled = false;
 
 	/**
 	 * @return string
 	 */
-	final public function getEventName(){
-		return $this->eventName === null ? get_class($this) : $this->eventName;
+	final public function getEventName() : string{
+		return $this->eventName ?? get_class($this);
 	}
 
 	/**
@@ -51,7 +53,7 @@ abstract class Event{
 	 *
 	 * @throws \BadMethodCallException
 	 */
-	public function isCancelled(){
+	public function isCancelled() : bool{
 		if(!($this instanceof Cancellable)){
 			throw new \BadMethodCallException("Event is not Cancellable");
 		}
@@ -63,23 +65,21 @@ abstract class Event{
 	/**
 	 * @param bool $value
 	 *
-	 * @return bool
-	 *
 	 * @throws \BadMethodCallException
 	 */
-	public function setCancelled($value = true){
+	public function setCancelled(bool $value = true){
 		if(!($this instanceof Cancellable)){
 			throw new \BadMethodCallException("Event is not Cancellable");
 		}
 
 		/** @var Event $this */
-		$this->isCancelled = (bool) $value;
+		$this->isCancelled = $value;
 	}
 
 	/**
 	 * @return HandlerList
 	 */
-	public function getHandlers(){
+	public function getHandlers() : HandlerList{
 		if(static::$handlerList === null){
 			static::$handlerList = new HandlerList();
 		}

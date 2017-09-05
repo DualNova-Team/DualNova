@@ -19,9 +19,11 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\block;
 
-class DaylightSensor extends Solid{
+class DaylightSensor extends Transparent{
 
 	protected $id = self::DAYLIGHT_SENSOR;
 
@@ -31,5 +33,9 @@ class DaylightSensor extends Solid{
 
 	public function getName(){
 		return "Daylight Sensor";
+	}
+
+	public function getHardness(){
+		return 0.2;
 	}
 }

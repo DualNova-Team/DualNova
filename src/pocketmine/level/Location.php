@@ -2,11 +2,11 @@
 
 /*
  *
- *  ____            _        _   __  __ _                  __  __ ____  
- * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \ 
+ *  ____            _        _   __  __ _                  __  __ ____
+ * |  _ \ ___   ___| | _____| |_|  \/  (_)_ __   ___      |  \/  |  _ \
  * | |_) / _ \ / __| |/ / _ \ __| |\/| | | '_ \ / _ \_____| |\/| | |_) |
- * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/ 
- * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_| 
+ * |  __/ (_) | (__|   <  __/ |_| |  | | | | | |  __/_____| |  | |  __/
+ * |_|   \___/ \___|_|\_\___|\__|_|  |_|_|_| |_|\___|     |_|  |_|_|
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,9 +15,11 @@
  *
  * @author PocketMine Team
  * @link http://www.pocketmine.net/
- * 
+ *
  *
 */
+
+declare(strict_types=1);
 
 namespace pocketmine\level;
 
@@ -53,16 +55,17 @@ class Location extends Position{
 	 *
 	 * @return Location
 	 */
-	public static function fromObject(Vector3 $pos, Level $level = null, $yaw = 0.0, $pitch = 0.0){
+	public static function fromObject(Vector3 $pos, Level $level = null, $yaw = 0.0, $pitch = 0.0) : Location{
 		return new Location($pos->x, $pos->y, $pos->z, $yaw, $pitch, $level ?? (($pos instanceof Position) ? $pos->level : null));
 	}
 
-	public function add($x, $y = 0, $z = 0, $yaw = 0, $pitch = 0){
-		if($x instanceof Location){
-			return new Location($this->x + $x->x, $this->y + $x->y, $this->z + $x->z, $this->yaw + $x->yaw, $this->pitch + $x->pitch, $this->level);
-		}else{
-			return new Location($this->x + $x, $this->y + $y, $this->z + $z, $this->yaw + $yaw, $this->pitch + $pitch, $this->level);
-		}
+	/**
+	 * Return a Location instance
+	 *
+	 * @return Location
+	 */
+	public function asLocation() : Location{
+		return new Location($this->x, $this->y, $this->z, $this->yaw, $this->pitch, $this->level);
 	}
 
 	public function getYaw(){
@@ -73,16 +76,14 @@ class Location extends Position{
 		return $this->pitch;
 	}
 
-	public function fromObjectAdd(Vector3 $pos, $x, $y, $z){
-		if($pos instanceof Location){
-			$this->yaw = $pos->yaw;
-			$this->pitch = $pos->pitch;
-		}
-		parent::fromObjectAdd($pos, $x, $y, $z);
-		return $this;
-	}
-
 	public function __toString(){
 		return "Location (level=" . ($this->isValid() ? $this->getLevel()->getName() : "null") . ", x=$this->x, y=$this->y, z=$this->z, yaw=$this->yaw, pitch=$this->pitch)";
+	}
+
+	public function equals(Vector3 $v) : bool{
+		if($v instanceof Location){
+			return parent::equals($v) and $v->yaw == $this->yaw and $v->pitch == $this->pitch;
+		}
+		return parent::equals($v);
 	}
 }

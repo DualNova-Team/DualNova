@@ -19,11 +19,12 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\command\defaults;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\ConsoleCommandSender;
 use pocketmine\event\TranslationContainer;
 use pocketmine\utils\TextFormat;
 
@@ -39,7 +40,7 @@ class HelpCommand extends VanillaCommand{
 		$this->setPermission("pocketmine.command.help");
 	}
 
-	public function execute(CommandSender $sender, $currentAlias, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
 			return true;
 		}
@@ -58,11 +59,7 @@ class HelpCommand extends VanillaCommand{
 			$pageNumber = 1;
 		}
 
-		if($sender instanceof ConsoleCommandSender){
-			$pageHeight = PHP_INT_MAX;
-		}else{
-			$pageHeight = 7;
-		}
+		$pageHeight = $sender->getScreenLineHeight();
 
 		if($command === ""){
 			/** @var Command[][] $commands */

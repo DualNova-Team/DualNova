@@ -19,13 +19,15 @@
  *
 */
 
+declare(strict_types=1);
+
 /**
  * Saves extra data on runtime for different items
  */
 namespace pocketmine\metadata;
 
 use pocketmine\plugin\Plugin;
-use pocketmine\utils\PluginException;
+use pocketmine\plugin\PluginException;
 
 abstract class MetadataStore{
 	/** @var \WeakMap[] */
@@ -136,5 +138,5 @@ abstract class MetadataStore{
 	 *
 	 * @throws \InvalidArgumentException
 	 */
-	public abstract function disambiguate(Metadatable $subject, $metadataKey);
+	abstract public function disambiguate(Metadatable $subject, string $metadataKey) : string;
 }

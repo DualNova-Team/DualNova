@@ -3,7 +3,7 @@
 /*
  *
  *  ____               _   ___     _
- * |  _ \             |　| |   \   | |
+ * |  _ \             | | |   \   | |
  * | | | |_   _  ____ | | | |\ \  | | _____    ______
  * | | | | | | |/ _  \| | | | \ \ | |/ _ \ \  / / _  \
  * | |_| | |_| | (_)  | |_| |  \ \| | (_) \ \/ / (_)  |
@@ -24,21 +24,18 @@ namespace pocketmine\block;
 
 use pocketmine\item\Item;
 use pocketmine\item\Tool;
+use pocketmine\math\Vector3;
 
 class EndGateway extends Transparent{
 
 	protected $id = self::END_GATEWAY;
-
 	/** @var  Vector3 */
 	private $temporalVector = null;
 	
-	public function __construct(){
+	public function __construct($meta = 0){
 		if($this->temporalVector === null){
 			$this->temporalVector = new Vector3(0, 0, 0);
 		}
-	}
-	
-	public function __construct($meta = 0){
 		$this->meta = $meta;
 	}
 
@@ -65,7 +62,7 @@ class EndGateway extends Transparent{
 	public function hasEntityCollision(){
 		return true;
 	}
-
+	
 	public function getDrops(Item $item) : array {
 		return [];
 	}

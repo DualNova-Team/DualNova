@@ -19,9 +19,11 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\block;
 
-class LitRedstoneLamp extends Solid{
+class LitRedstoneLamp extends RedstoneLamp{
 
 	protected $id = self::LIT_REDSTONE_LAMP;
 

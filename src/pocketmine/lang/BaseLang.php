@@ -19,21 +19,57 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\lang;
 
 use pocketmine\event\TextContainer;
 use pocketmine\event\TranslationContainer;
+use pocketmine\utils\MainLogger;
 
 class BaseLang{
 
 	const FALLBACK_LANGUAGE = "eng";
 
+	public static function getLanguageList(string $path = "") : array{
+		if($path === ""){
+			$path = \pocketmine\PATH . "src/pocketmine/lang/locale/";
+		}
+
+		if(is_dir($path)){
+			$allFiles = scandir($path, SCANDIR_SORT_NONE);
+
+			if($allFiles !== false){
+				$files = array_filter($allFiles, function($filename){
+					return substr($filename, -4) === ".ini";
+				});
+
+				$result = [];
+
+				foreach($files as $file){
+					$strings = [];
+					self::loadLang($path . $file, $strings);
+					if(isset($strings["language.name"])){
+						$result[substr($file, 0, -4)] = $strings["language.name"];
+					}
+				}
+
+				return $result;
+			}
+		}
+
+		return [];
+	}
+
+	/** @var string */
 	protected $langName;
 
+	/** @var string[] */
 	protected $lang = [];
+	/** @var string[] */
 	protected $fallbackLang = [];
 
-	public function __construct($lang, $path = null, $fallback = self::FALLBACK_LANGUAGE){
+	public function __construct(string $lang, string $path = null, string $fallback = self::FALLBACK_LANGUAGE){
 
 		$this->langName = strtolower($lang);
 
@@ -41,50 +77,39 @@ class BaseLang{
 			$path = \pocketmine\PATH . "src/pocketmine/lang/locale/";
 		}
 
-		$this->loadLang($path . $this->langName . ".ini", $this->lang);
-		$this->loadLang($path . $fallback . ".ini", $this->fallbackLang);
+		if(!self::loadLang($file = $path . $this->langName . ".ini", $this->lang)){
+			MainLogger::getLogger()->error("Missing required language file $file");
+		}
+		if(!self::loadLang($file = $path . $fallback . ".ini", $this->fallbackLang)){
+			MainLogger::getLogger()->error("Missing required language file $file");
+		}
 	}
 
 	public function getName() : string{
 		return $this->get("language.name");
 	}
 
-	public function getLang(){
+	public function getLang() : string{
 		return $this->langName;
 	}
 
-	protected function loadLang($path, array &$d){
-		if(file_exists($path) and strlen($content = file_get_contents($path)) > 0){
-			foreach(explode("\n", $content) as $line){
-				$line = trim($line);
-				if($line === "" or $line{0} === "#"){
-					continue;
-				}
-
-				$t = explode("=", $line);
-				if(count($t) < 2){
-					continue;
-				}
-
-				$key = trim(array_shift($t));
-				$value = trim(implode("=", $t));
-
-				if($value === ""){
-					continue;
-				}
-
-				$d[$key] = $value;
-			}
+	protected static function loadLang(string $path, array &$d){
+		if(file_exists($path)){
+			$d = parse_ini_file($path, false, INI_SCANNER_RAW);
+			return true;
+		}else{
+			return false;
 		}
 	}
 
 	/**
-	 * @param string   $str
-	 * @param string[] $params
+	 * @param string      $str
+	 * @param string[]    $params
+	 * @param string|null $onlyPrefix
 	 *
 	 * @return string
 	 */
-	public function translateString($str, array $params = [], $onlyPrefix = null){
+	public function translateString(string $str, array $params = [], string $onlyPrefix = null) : string{
 		$baseText = $this->get($str);
 		$baseText = $this->parseTranslation(($baseText !== null and ($onlyPrefix === null or strpos($str, $onlyPrefix) === 0)) ? $baseText : $str, $onlyPrefix);
 
@@ -98,7 +123,7 @@ class BaseLang{
 	public function translate(TextContainer $c){
 		if($c instanceof TranslationContainer){
 			$baseText = $this->internalGet($c->getText());
-			$baseText = $this->parseTranslation($baseText !== null ? $baseText : $c->getText());
+			$baseText = $this->parseTranslation($baseText ?? $c->getText());
 
 			foreach($c->getParameters() as $i => $p){
 				$baseText = str_replace("{%$i}", $this->parseTranslation($p), $baseText);
@@ -110,7 +135,12 @@ class BaseLang{
 		return $baseText;
 	}
 
-	public function internalGet($id){
+	/**
+	 * @param string $id
+	 *
+	 * @return string|null
+	 */
+	public function internalGet(string $id){
 		if(isset($this->lang[$id])){
 			return $this->lang[$id];
 		}elseif(isset($this->fallbackLang[$id])){
@@ -120,7 +150,12 @@ class BaseLang{
 		return null;
 	}
 
-	public function get($id){
+	/**
+	 * @param string $id
+	 *
+	 * @return string
+	 */
+	public function get(string $id) : string{
 		if(isset($this->lang[$id])){
 			return $this->lang[$id];
 		}elseif(isset($this->fallbackLang[$id])){
@@ -130,7 +165,13 @@ class BaseLang{
 		return $id;
 	}
 
-	protected function parseTranslation($text, $onlyPrefix = null){
+	/**
+	 * @param string      $text
+	 * @param string|null $onlyPrefix
+	 *
+	 * @return string
+	 */
+	protected function parseTranslation(string $text, string $onlyPrefix = null) : string{
 		$newString = "";
 
 		$replaceString = null;

@@ -56,20 +56,13 @@ class ServerHandler{
 		$this->server->pushMainToThreadPacket($buffer);
 	}
 
-	public function unblockAddress($address){
-		$buffer = chr(RakLib::PACKET_UNBLOCK_ADDRESS) . chr(strlen($address)) . $address;
-		$this->server->pushMainToThreadPacket($buffer);
-	}
-
 	public function shutdown(){
 		$buffer = chr(RakLib::PACKET_SHUTDOWN);
 		$this->server->pushMainToThreadPacket($buffer);
 		$this->server->shutdown();
-		$this->server->synchronized(function(){
-			if($this->server !== null){ #pthreadssucks
-				$this->server->wait(20000);
-			}
-		});
+		$this->server->synchronized(function(RakLibServer $server){
+			$server->wait(20000);
+		}, $this->server);
 		$this->server->join();
 	}
 

@@ -19,11 +19,13 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\block;
 
-class WeightedPressurePlateLight extends Solid{
+class WeightedPressurePlateLight extends Transparent{
 
-	protected $id = self::WEIGHTED_PRESSURE_PLATE_LIGHT;
+	protected $id = self::LIGHT_WEIGHTED_PRESSURE_PLATE;
 
 	public function __construct($meta = 0){
 		$this->meta = $meta;
@@ -31,5 +33,13 @@ class WeightedPressurePlateLight extends Solid{
 
 	public function getName(){
 		return "Weighted Pressure Plate Light";
+	}
+
+	public function isSolid(){
+		return false;
+	}
+
+	public function getHardness(){
+		return 0.5;
 	}
 }

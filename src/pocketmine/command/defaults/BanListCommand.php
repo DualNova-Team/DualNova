@@ -19,12 +19,14 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace pocketmine\command\defaults;
 
 use pocketmine\command\CommandSender;
+use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\event\TranslationContainer;
-use pocketmine\Server;
-
+use pocketmine\permission\BanEntry;
 
 class BanListCommand extends VanillaCommand{
 
@@ -37,40 +39,37 @@ class BanListCommand extends VanillaCommand{
 		$this->setPermission("pocketmine.command.ban.list");
 	}
 
-	public function execute(CommandSender $sender, $currentAlias, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
 			return true;
 		}
-		
-		$args[0] = (isset($args[0]) ? strtolower($args[0]): "");
-		$title = "";
-		
-		switch($args[0]){
-			case "ips":
-				$list = $sender->getServer()->getIPBans();	
-				$title = "commands.banlist.ips";
-				break;
-			case "cids":
-				$list = $list = $sender->getServer()->getCIDBans(); 
-				$title = "commands.banlist.cids";
-				break;
-			case "players":
+
+		if(isset($args[0])){
+			$args[0] = strtolower($args[0]);
+			if($args[0] === "ips"){
+				$list = $sender->getServer()->getIPBans();
+			}elseif($args[0] === "players"){
 				$list = $sender->getServer()->getNameBans();
-				$title = "commands.banlist.players";
-				break;
-			default:
-				$sender->sendMessage(new TranslationContainer("commands.generic.usage", [$this->usageMessage]));
-				return false;			
+			}else{
+				throw new InvalidCommandSyntaxException();
+			}
+		}else{
+			$list = $sender->getServer()->getNameBans();
+			$args[0] = "players";
 		}
-		
-		$message = "";
+
 		$list = $list->getEntries();
-		foreach($list as $entry){
-			$message .= $entry->getName() . ", ";
+		$message = implode(", ", array_map(function(BanEntry $entry){
+			return $entry->getName();
+		}, $list));
+
+		if($args[0] === "ips"){
+			$sender->sendMessage(new TranslationContainer("commands.banlist.ips", [count($list)]));
+		}else{
+			$sender->sendMessage(new TranslationContainer("commands.banlist.players", [count($list)]));
 		}
-		
-		$sender->sendMessage(Server::getInstance()->getLanguage()->translateString($title, [count($list)]));
-		$sender->sendMessage(\substr($message, 0, -2));
+
+		$sender->sendMessage($message);
 
 		return true;
 	}

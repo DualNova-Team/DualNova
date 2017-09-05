@@ -40,7 +40,7 @@ class EndStoneBricks extends Solid{
 	public function getName() : string{
 		return "End Stone Bricks";
 	}
-
+	
 	public function getToolType(){
 		return Tool::TYPE_PICKAXE;
 	}

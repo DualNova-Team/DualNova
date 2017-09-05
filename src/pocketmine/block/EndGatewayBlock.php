@@ -3,7 +3,7 @@
 /*
  *
  *  ____               _   ___     _
- * |  _ \             |　| |   \   | |
+ * |  _ \             | | |   \   | |
  * | | | |_   _  ____ | | | |\ \  | | _____    ______
  * | | | | | | |/ _  \| | | | \ \ | |/ _ \ \  / / _  \
  * | |_| | |_| | (_)  | |_| |  \ \| | (_) \ \/ / (_)  |
@@ -33,5 +33,4 @@ class EndGatewayBlock extends Solid{
 	public function getName(){
         return "End Gateway Block";
 	}
-
 }
