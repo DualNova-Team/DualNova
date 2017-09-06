@@ -26,7 +26,7 @@ namespace pocketmine\block;
 
 use pocketmine\item\Tool;
 
-class ConcretePowder extends Solid{
+class ConcretePowder extends Fallable{
 
 	protected $id = self::CONCRETE_POWDER;
 
