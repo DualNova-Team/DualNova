@@ -23,24 +23,26 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 use pocketmine\network\mcpe\NetworkSession;
 
 class TransferPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::TRANSFER_PACKET;
 
+	/** @var string */
 	public $address;
+	/** @var int */
 	public $port = 19132;
 
-	public function decodePayload(){
+	protected function decodePayload(){
 		$this->address = $this->getString();
-		$this->port = $this->getLShort();
+		$this->port = ((\unpack("v", $this->get(2))[1]));
 	}
 
-	public function encodePayload(){
+	protected function encodePayload(){
 		$this->putString($this->address);
-		$this->putLShort($this->port);
+		($this->buffer .= (\pack("v", $this->port)));
 	}
 
 	public function handle(NetworkSession $session) : bool{

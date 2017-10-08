@@ -25,7 +25,7 @@ namespace pocketmine\nbt\tag;
 
 use pocketmine\nbt\NBT;
 
-#include <rules/NBT.h>
+use pocketmine\utils\Binary;
 
 class LongTag extends NamedTag{
 
@@ -43,13 +43,11 @@ class LongTag extends NamedTag{
 		return NBT::TAG_Long;
 	}
 
-	//TODO: check if this also changed to varint
-
-	public function read(NBT $nbt, bool $network = false){
-		$this->value = $nbt->getLong();
+	public function read(NBT $nbt, bool $network = \false){
+		$this->value = ($network === \true ? Binary::readVarLong($nbt->buffer, $nbt->offset) : ($nbt->endianness === 1 ? Binary::readLong($nbt->get(8)) : Binary::readLLong($nbt->get(8))));
 	}
 
-	public function write(NBT $nbt, bool $network = false){
-		$nbt->putLong($this->value);
+	public function write(NBT $nbt, bool $network = \false){
+		($nbt->buffer .=  $network === \true ? Binary::writeVarLong($this->value) : ($nbt->endianness === 1 ? (\pack("NN", $this->value >> 32, $this->value & 0xFFFFFFFF)) : (\pack("VV", $this->value & 0xFFFFFFFF, $this->value >> 32))));
 	}
 }

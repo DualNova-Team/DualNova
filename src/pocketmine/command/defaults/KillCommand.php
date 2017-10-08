@@ -33,7 +33,7 @@ use pocketmine\utils\TextFormat;
 
 class KillCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.kill.description",
@@ -45,18 +45,18 @@ class KillCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
-		if(count($args) >= 2){
+		if(\count($args) >= 2){
 			throw new InvalidCommandSyntaxException();
 		}
 
-		if(count($args) === 1){
+		if(\count($args) === 1){
 			if(!$sender->hasPermission("pocketmine.command.kill.other")){
 				$sender->sendMessage(new TranslationContainer(TextFormat::RED . "%commands.generic.permission"));
 
-				return true;
+				return \true;
 			}
 
 			$player = $sender->getServer()->getPlayer($args[0]);
@@ -65,7 +65,7 @@ class KillCommand extends VanillaCommand{
 				$sender->getServer()->getPluginManager()->callEvent($ev = new EntityDamageEvent($player, EntityDamageEvent::CAUSE_SUICIDE, 1000));
 
 				if($ev->isCancelled()){
-					return true;
+					return \true;
 				}
 
 				$player->setLastDamageCause($ev);
@@ -76,20 +76,20 @@ class KillCommand extends VanillaCommand{
 				$sender->sendMessage(new TranslationContainer(TextFormat::RED . "%commands.generic.player.notFound"));
 			}
 
-			return true;
+			return \true;
 		}
 
 		if($sender instanceof Player){
 			if(!$sender->hasPermission("pocketmine.command.kill.self")){
 				$sender->sendMessage(new TranslationContainer(TextFormat::RED . "%commands.generic.permission"));
 
-				return true;
+				return \true;
 			}
 
 			$sender->getServer()->getPluginManager()->callEvent($ev = new EntityDamageEvent($sender, EntityDamageEvent::CAUSE_SUICIDE, 1000));
 
 			if($ev->isCancelled()){
-				return true;
+				return \true;
 			}
 
 			$sender->setLastDamageCause($ev);
@@ -99,6 +99,6 @@ class KillCommand extends VanillaCommand{
 			throw new InvalidCommandSyntaxException();
 		}
 
-		return true;
+		return \true;
 	}
 }

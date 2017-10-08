@@ -29,7 +29,7 @@ use pocketmine\event\TranslationContainer;
 
 class StopCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.stop.description",
@@ -40,13 +40,13 @@ class StopCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
 		Command::broadcastCommandMessage($sender, new TranslationContainer("commands.stop.start"));
 
 		$sender->getServer()->shutdown();
 
-		return true;
+		return \true;
 	}
 }

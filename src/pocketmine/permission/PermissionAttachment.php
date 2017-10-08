@@ -28,7 +28,7 @@ use pocketmine\plugin\PluginException;
 
 class PermissionAttachment{
 	/** @var PermissionRemovedExecutor */
-	private $removed = null;
+	private $removed = \null;
 
 	/**
 	 * @var bool[]

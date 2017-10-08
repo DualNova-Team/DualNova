@@ -35,6 +35,11 @@ use pocketmine\Player;
 interface SourceInterface{
 
 	/**
+	 * Performs actions needed to start the interface after it is registered.
+	 */
+	public function start();
+
+	/**
 	 * Sends a DataPacket to the interface, returns an unique identifier for the packet if $needACK is true
 	 *
 	 * @param Player     $player
@@ -44,7 +49,7 @@ interface SourceInterface{
 	 *
 	 * @return int|null
 	 */
-	public function putPacket(Player $player, DataPacket $packet, bool $needACK = false, bool $immediate = true);
+	public function putPacket(Player $player, DataPacket $packet, bool $needACK = \false, bool $immediate = \true);
 
 	/**
 	 * Terminates the connection

@@ -31,51 +31,51 @@ use pocketmine\utils\Utils;
 abstract class UPnP{
 
 	public static function PortForward(int $port) : bool{
-		if(Utils::$online === false){
-			return false;
+		if(Utils::$online === \false){
+			return \false;
 		}
-		if(Utils::getOS() != "win" or !class_exists("COM")){
-			return false;
+		if(Utils::getOS() != "win" or !\class_exists("COM")){
+			return \false;
 		}
 
-		$myLocalIP = gethostbyname(trim(`hostname`));
+		$myLocalIP = \gethostbyname(\trim(`hostname`));
 		try{
 			/** @noinspection PhpUndefinedClassInspection */
 			$com = new \COM("HNetCfg.NATUPnP");
 			/** @noinspection PhpUndefinedFieldInspection */
-			if($com === false or !is_object($com->StaticPortMappingCollection)){
-				return false;
+			if($com === \false or !\is_object($com->StaticPortMappingCollection)){
+				return \false;
 			}
 			/** @noinspection PhpUndefinedFieldInspection */
-			$com->StaticPortMappingCollection->Add($port, "UDP", $port, $myLocalIP, true, "PocketMine-MP");
+			$com->StaticPortMappingCollection->Add($port, "UDP", $port, $myLocalIP, \true, "PocketMine-MP");
 		}catch(\Throwable $e){
-			return false;
+			return \false;
 		}
 
-		return true;
+		return \true;
 	}
 
 	public static function RemovePortForward(int $port) : bool{
-		if(Utils::$online === false){
-			return false;
+		if(Utils::$online === \false){
+			return \false;
 		}
-		if(Utils::getOS() != "win" or !class_exists("COM")){
-			return false;
+		if(Utils::getOS() != "win" or !\class_exists("COM")){
+			return \false;
 		}
 
 		try{
 			/** @noinspection PhpUndefinedClassInspection */
-			$com = new \COM("HNetCfg.NATUPnP") or false;
+			$com = new \COM("HNetCfg.NATUPnP") or \false;
 			/** @noinspection PhpUndefinedFieldInspection */
-			if($com === false or !is_object($com->StaticPortMappingCollection)){
-				return false;
+			if($com === \false or !\is_object($com->StaticPortMappingCollection)){
+				return \false;
 			}
 			/** @noinspection PhpUndefinedFieldInspection */
 			$com->StaticPortMappingCollection->Remove($port, "UDP");
 		}catch(\Throwable $e){
-			return false;
+			return \false;
 		}
 
-		return true;
+		return \true;
 	}
 }

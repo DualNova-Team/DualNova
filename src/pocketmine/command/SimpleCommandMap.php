@@ -88,51 +88,55 @@ class SimpleCommandMap implements CommandMap{
 	}
 
 	private function setDefaultCommands(){
-		$this->register("pocketmine", new VersionCommand("version"));
-		$this->register("pocketmine", new PluginsCommand("plugins"));
-		$this->register("pocketmine", new SeedCommand("seed"));
-		$this->register("pocketmine", new HelpCommand("help"));
-		$this->register("pocketmine", new StopCommand("stop"));
-		$this->register("pocketmine", new TellCommand("tell"));
-		$this->register("pocketmine", new DefaultGamemodeCommand("defaultgamemode"));
-		$this->register("pocketmine", new BanCommand("ban"));
-		$this->register("pocketmine", new BanIpCommand("ban-ip"));
-		$this->register("pocketmine", new BanListCommand("banlist"));
-		$this->register("pocketmine", new PardonCommand("pardon"));
-		$this->register("pocketmine", new PardonIpCommand("pardon-ip"));
-		$this->register("pocketmine", new SayCommand("say"));
-		$this->register("pocketmine", new MeCommand("me"));
-		$this->register("pocketmine", new ListCommand("list"));
-		$this->register("pocketmine", new DifficultyCommand("difficulty"));
-		$this->register("pocketmine", new KickCommand("kick"));
-		$this->register("pocketmine", new OpCommand("op"));
-		$this->register("pocketmine", new DeopCommand("deop"));
-		$this->register("pocketmine", new WhitelistCommand("whitelist"));
-		$this->register("pocketmine", new SaveOnCommand("save-on"));
-		$this->register("pocketmine", new SaveOffCommand("save-off"));
-		$this->register("pocketmine", new SaveCommand("save-all"));
-		$this->register("pocketmine", new GiveCommand("give"));
-		$this->register("pocketmine", new EffectCommand("effect"));
-		$this->register("pocketmine", new EnchantCommand("enchant"));
-		$this->register("pocketmine", new ParticleCommand("particle"));
-		$this->register("pocketmine", new GamemodeCommand("gamemode"));
-		$this->register("pocketmine", new KillCommand("kill"));
-		$this->register("pocketmine", new SpawnpointCommand("spawnpoint"));
-		$this->register("pocketmine", new SetWorldSpawnCommand("setworldspawn"));
-		$this->register("pocketmine", new TeleportCommand("tp"));
-		$this->register("pocketmine", new TimeCommand("time"));
-		$this->register("pocketmine", new TimingsCommand("timings"));
-		$this->register("pocketmine", new TitleCommand("title"));
-		$this->register("pocketmine", new ReloadCommand("reload"));
-		$this->register("pocketmine", new TransferServerCommand("transferserver"));
-		$this->register("pocketmine", new ExtractPluginCommand("extractplugin"));
-		$this->register("pocketmine", new MakePluginCommand("makeplugin"));
-		$this->register("pocketmine", new MakeServerCommand("makeserver"));
+		$this->registerAll("pocketmine", [
+			new BanCommand("ban"),
+			new BanIpCommand("ban-ip"),
+			new BanListCommand("banlist"),
+			new DefaultGamemodeCommand("defaultgamemode"),
+			new DeopCommand("deop"),
+			new DifficultyCommand("difficulty"),
+			new EffectCommand("effect"),
+			new EnchantCommand("enchant"),
+			new GamemodeCommand("gamemode"),
+			new GiveCommand("give"),
+			new HelpCommand("help"),
+			new KickCommand("kick"),
+			new KillCommand("kill"),
+			new ListCommand("list"),
+			new MeCommand("me"),
+			new OpCommand("op"),
+			new PardonCommand("pardon"),
+			new PardonIpCommand("pardon-ip"),
+			new ParticleCommand("particle"),
+			new PluginsCommand("plugins"),
+			new ReloadCommand("reload"),
+			new SaveCommand("save-all"),
+			new SaveOffCommand("save-off"),
+			new SaveOnCommand("save-on"),
+			new SayCommand("say"),
+			new SeedCommand("seed"),
+			new SetWorldSpawnCommand("setworldspawn"),
+			new SpawnpointCommand("spawnpoint"),
+			new StopCommand("stop"),
+			new TeleportCommand("tp"),
+			new TellCommand("tell"),
+			new TimeCommand("time"),
+			new TimingsCommand("timings"),
+			new TitleCommand("title"),
+			new TransferServerCommand("transferserver"),
+			new VersionCommand("version"),
+			new WhitelistCommand("whitelist"),
+			new ExtractPluginCommand("extractplugin"),
+			new MakePluginCommand("makeplugin"),
+			new MakeServerCommand("makeserver"),
+		]);
 
-		if($this->server->getProperty("debug.commands", false)){
-			$this->register("pocketmine", new StatusCommand("status"));
-			$this->register("pocketmine", new GarbageCollectorCommand("gc"));
-			$this->register("pocketmine", new DumpMemoryCommand("dumpmemory"));
+		if($this->server->getProperty("debug.commands", \false)){
+			$this->registerAll("pocketmine", [
+				new StatusCommand("status"),
+				new GarbageCollectorCommand("gc"),
+				new DumpMemoryCommand("dumpmemory")
+			]);
 		}
 	}
 
@@ -150,18 +154,18 @@ class SimpleCommandMap implements CommandMap{
 	 *
 	 * @return bool
 	 */
-	public function register(string $fallbackPrefix, Command $command, string $label = null) : bool{
-		if($label === null){
+	public function register(string $fallbackPrefix, Command $command, string $label = \null) : bool{
+		if($label === \null){
 			$label = $command->getName();
 		}
-		$label = trim($label);
-		$fallbackPrefix = strtolower(trim($fallbackPrefix));
+		$label = \trim($label);
+		$fallbackPrefix = \strtolower(\trim($fallbackPrefix));
 
-		$registered = $this->registerAlias($command, false, $fallbackPrefix, $label);
+		$registered = $this->registerAlias($command, \false, $fallbackPrefix, $label);
 
 		$aliases = $command->getAliases();
 		foreach($aliases as $index => $alias){
-			if(!$this->registerAlias($command, true, $fallbackPrefix, $alias)){
+			if(!$this->registerAlias($command, \true, $fallbackPrefix, $alias)){
 				unset($aliases[$index]);
 			}
 		}
@@ -187,11 +191,11 @@ class SimpleCommandMap implements CommandMap{
 	private function registerAlias(Command $command, bool $isAlias, string $fallbackPrefix, string $label) : bool{
 		$this->knownCommands[$fallbackPrefix . ":" . $label] = $command;
 		if(($command instanceof VanillaCommand or $isAlias) and isset($this->knownCommands[$label])){
-			return false;
+			return \false;
 		}
 
-		if(isset($this->knownCommands[$label]) and $this->knownCommands[$label]->getLabel() !== null and $this->knownCommands[$label]->getLabel() === $label){
-			return false;
+		if(isset($this->knownCommands[$label]) and $this->knownCommands[$label]->getLabel() !== \null and $this->knownCommands[$label]->getLabel() === $label){
+			return \false;
 		}
 
 		if(!$isAlias){
@@ -200,7 +204,7 @@ class SimpleCommandMap implements CommandMap{
 
 		$this->knownCommands[$label] = $command;
 
-		return true;
+		return \true;
 	}
 
 	/**
@@ -214,10 +218,10 @@ class SimpleCommandMap implements CommandMap{
 	 * @return Command|null
 	 */
 	public function matchCommand(string &$commandName, array &$args){
-		$count = min(count($args), 255);
+		$count = \min(\count($args), 255);
 
 		for($i = 0; $i < $count; ++$i){
-			$commandName .= array_shift($args);
+			$commandName .= \array_shift($args);
 			if(($command = $this->getCommand($commandName)) instanceof Command){
 				return $command;
 			}
@@ -225,16 +229,16 @@ class SimpleCommandMap implements CommandMap{
 			$commandName .= " ";
 		}
 
-		return null;
+		return \null;
 	}
 
 	public function dispatch(CommandSender $sender, string $commandLine) : bool{
-		$args = explode(" ", $commandLine);
+		$args = \array_map("stripslashes", \str_getcsv($commandLine, " "));
 		$sentCommandLabel = "";
 		$target = $this->matchCommand($sentCommandLabel, $args);
 
-		if($target === null){
-			return false;
+		if($target === \null){
+			return \false;
 		}
 
 		$target->timings->startTiming();
@@ -251,7 +255,7 @@ class SimpleCommandMap implements CommandMap{
 
 		$target->timings->stopTiming();
 
-		return true;
+		return \true;
 	}
 
 	public function clearCommands(){
@@ -263,7 +267,7 @@ class SimpleCommandMap implements CommandMap{
 	}
 
 	public function getCommand(string $name){
-		return $this->knownCommands[$name] ?? null;
+		return $this->knownCommands[$name] ?? \null;
 	}
 
 	/**
@@ -281,7 +285,7 @@ class SimpleCommandMap implements CommandMap{
 		$values = $this->server->getCommandAliases();
 
 		foreach($values as $alias => $commandStrings){
-			if(strpos($alias, ":") !== false){
+			if(\strpos($alias, ":") !== \false){
 				$this->server->getLogger()->warning($this->server->getLanguage()->translateString("pocketmine.command.alias.illegal", [$alias]));
 				continue;
 			}
@@ -291,13 +295,13 @@ class SimpleCommandMap implements CommandMap{
 			$bad = "";
 			$recursive = "";
 			foreach($commandStrings as $commandString){
-				$args = explode(" ", $commandString);
+				$args = \explode(" ", $commandString);
 				$commandName = "";
 				$command = $this->matchCommand($commandName, $args);
 
 
-				if($command === null){
-					if(strlen($bad) > 0){
+				if($command === \null){
+					if(\strlen($bad) > 0){
 						$bad .= ", ";
 					}
 					$bad .= $commandString;
@@ -316,16 +320,16 @@ class SimpleCommandMap implements CommandMap{
 				continue;
 			}
 
-			if(strlen($bad) > 0){
+			if(\strlen($bad) > 0){
 				$this->server->getLogger()->warning($this->server->getLanguage()->translateString("pocketmine.command.alias.notFound", [$alias, $bad]));
 				continue;
 			}
 
 			//These registered commands have absolute priority
-			if(count($targets) > 0){
-				$this->knownCommands[strtolower($alias)] = new FormattedCommandAlias(strtolower($alias), $targets);
+			if(\count($targets) > 0){
+				$this->knownCommands[\strtolower($alias)] = new FormattedCommandAlias(\strtolower($alias), $targets);
 			}else{
-				unset($this->knownCommands[strtolower($alias)]);
+				unset($this->knownCommands[\strtolower($alias)]);
 			}
 
 		}

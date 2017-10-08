@@ -25,15 +25,16 @@ namespace pocketmine\item;
 
 use pocketmine\block\Block;
 use pocketmine\level\Level;
+use pocketmine\math\Vector3;
 use pocketmine\Player;
 
 class Painting extends Item{
-	public function __construct($meta = 0, $count = 1){
-		parent::__construct(self::PAINTING, $meta, $count, "Painting");
+	public function __construct(int $meta = 0){
+		parent::__construct(self::PAINTING, $meta, "Painting");
 	}
 
-	public function onActivate(Level $level, Player $player, Block $block, Block $target, $face, $fx, $fy, $fz){
-		if($target->isTransparent() === false and $face > 1 and $block->isSolid() === false){
+	public function onActivate(Level $level, Player $player, Block $block, Block $target, int $face, Vector3 $facePos) : bool{
+		if($target->isTransparent() === \false and $face > 1 and $block->isSolid() === \false){
 			$faces = [
 				2 => 1,
 				3 => 3,
@@ -62,7 +63,7 @@ class Painting extends Item{
 				["Stage", 2, 2],
 				["Void", 2, 2],
 				["SkullAndRoses", 2, 2],
-				["Wither", 2, 2],
+				//array("Wither", 2, 2),
 				["Fighters", 4, 2],
 				["Skeleton", 4, 3],
 				["DonkeyKong", 4, 3],
@@ -70,7 +71,7 @@ class Painting extends Item{
 				["Pigscene", 4, 4],
 				["Flaming Skull", 4, 4],
 			];
-			$motive = $motives[mt_rand(0, count($motives) - 1)];
+			$motive = $motives[\mt_rand(0, \count($motives) - 1)];
 			$data = [
 				"x" => $target->x,
 				"y" => $target->y,
@@ -85,10 +86,10 @@ class Painting extends Item{
 				$player->removeItem(Item::get($this->getId(), $this->getDamage(), 1));
 			}*/
 
-			return true;
+			return \true;
 		}
 
-		return false;
+		return \false;
 	}
 
 }

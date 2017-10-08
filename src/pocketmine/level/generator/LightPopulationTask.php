@@ -41,7 +41,7 @@ class LightPopulationTask extends AsyncTask{
 	public function onRun(){
 		/** @var Chunk $chunk */
 		$chunk = Chunk::fastDeserialize($this->chunk);
-		if($chunk === null){
+		if($chunk === \null){
 			//TODO error
 			return;
 		}
@@ -55,10 +55,10 @@ class LightPopulationTask extends AsyncTask{
 
 	public function onCompletion(Server $server){
 		$level = $server->getLevel($this->levelId);
-		if($level !== null){
+		if($level !== \null){
 			/** @var Chunk $chunk */
 			$chunk = Chunk::fastDeserialize($this->chunk);
-			if($chunk === null){
+			if($chunk === \null){
 				//TODO error
 				return;
 			}

@@ -15,7 +15,7 @@
 
 namespace raklib\protocol;
 
-#include <rules/RakLibPacket.h>
+use raklib\Binary;
 
 
 use raklib\RakLib;
@@ -30,17 +30,17 @@ class OPEN_CONNECTION_REQUEST_2 extends Packet{
 
 	public function encode(){
 		parent::encode();
-		$this->put(RakLib::MAGIC);
+		($this->buffer .= RakLib::MAGIC);
 		$this->putAddress($this->serverAddress, $this->serverPort, 4);
-		$this->putShort($this->mtuSize);
-		$this->putLong($this->clientID);
+		($this->buffer .= (\pack("n", $this->mtuSize)));
+		($this->buffer .= (\pack("NN", $this->clientID >> 32, $this->clientID & 0xFFFFFFFF)));
 	}
 
 	public function decode(){
 		parent::decode();
 		$this->offset += 16; //Magic
 		$this->getAddress($this->serverAddress, $this->serverPort);
-		$this->mtuSize = $this->getShort();
-		$this->clientID = $this->getLong();
+		$this->mtuSize = ((\unpack("n", $this->get(2))[1]));
+		$this->clientID = (Binary::readLong($this->get(8)));
 	}
 }

@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -34,38 +34,48 @@ class UpdateTradePacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::UPDATE_TRADE_PACKET;
 
 	//TODO: find fields
+
+	/** @var int */
 	public $windowId;
+	/** @var int */
 	public $windowType = WindowTypes::TRADING; //Mojang hardcoded this -_-
+	/** @var int */
 	public $varint1;
+	/** @var int */
 	public $varint2;
+	/** @var bool */
 	public $isWilling;
+	/** @var int */
 	public $traderEid;
+	/** @var int */
 	public $playerEid;
+	/** @var string */
 	public $displayName;
+	/** @var string */
 	public $offers;
 
-	public function decodePayload(){
-		$this->windowId = $this->getByte();
-		$this->windowType = $this->getByte();
+	protected function decodePayload(){
+		$this->windowId = (\ord($this->get(1)));
+		$this->windowType = (\ord($this->get(1)));
 		$this->varint1 = $this->getVarInt();
 		$this->varint2 = $this->getVarInt();
-		$this->isWilling = $this->getBool();
+		$this->isWilling = (($this->get(1) !== "\x00"));
 		$this->traderEid = $this->getEntityUniqueId();
 		$this->playerEid = $this->getEntityUniqueId();
 		$this->displayName = $this->getString();
 		$this->offers = $this->getRemaining();
 	}
 
-	public function encodePayload(){
-		$this->putByte($this->windowId);
-		$this->putByte($this->windowType);
+	protected function encodePayload(){
+		($this->buffer .= \chr($this->windowId));
+		($this->buffer .= \chr($this->windowType));
 		$this->putVarInt($this->varint1);
 		$this->putVarInt($this->varint2);
-		$this->putBool($this->isWilling);
+		($this->buffer .= ($this->isWilling ? "\x01" : "\x00"));
 		$this->putEntityUniqueId($this->traderEid);
 		$this->putEntityUniqueId($this->playerEid);
 		$this->putString($this->displayName);
-		$this->put($this->offers);
+		($this->buffer .= $this->offers);
 	}
 
 	public function handle(NetworkSession $session) : bool{

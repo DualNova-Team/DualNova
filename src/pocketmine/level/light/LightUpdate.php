@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\level\light;
 
-use pocketmine\block\Block;
+use pocketmine\block\BlockFactory;
 use pocketmine\level\ChunkManager;
 use pocketmine\level\Level;
 
@@ -66,7 +66,7 @@ abstract class LightUpdate{
 			throw new \InvalidArgumentException("Coordinates x=$x, y=$y, z=$z are out of range");
 		}
 
-		if(isset($this->spreadVisited[$index = Level::blockHash($x, $y, $z)]) or isset($this->removalVisited[$index])){
+		if(isset($this->spreadVisited[$index = ((($x) & 0xFFFFFFF) << 36) | ((( $y) & 0xff) << 28) | (( $z) & 0xFFFFFFF)]) or isset($this->removalVisited[$index])){
 			throw new \InvalidArgumentException("Already have a visit ready for this block");
 		}
 
@@ -75,10 +75,10 @@ abstract class LightUpdate{
 		if($oldLevel !== $newLevel){
 			$this->setLight($x, $y, $z, $newLevel);
 			if($oldLevel < $newLevel){ //light increased
-				$this->spreadVisited[$index] = true;
+				$this->spreadVisited[$index] = \true;
 				$this->spreadQueue->enqueue([$x, $y, $z]);
 			}else{ //light removed
-				$this->removalVisited[$index] = true;
+				$this->removalVisited[$index] = \true;
 				$this->removalQueue->enqueue([$x, $y, $z, $oldLevel]);
 			}
 		}
@@ -137,15 +137,15 @@ abstract class LightUpdate{
 		if($current !== 0 and $current < $oldAdjacentLevel){
 			$this->setLight($x, $y, $z, 0);
 
-			if(!isset($this->removalVisited[$index = Level::blockHash($x, $y, $z)])){
-				$this->removalVisited[$index] = true;
+			if(!isset($this->removalVisited[$index = ((($x) & 0xFFFFFFF) << 36) | ((( $y) & 0xff) << 28) | (( $z) & 0xFFFFFFF)])){
+				$this->removalVisited[$index] = \true;
 				if($current > 1){
 					$this->removalQueue->enqueue([$x, $y, $z, $current]);
 				}
 			}
 		}elseif($current >= $oldAdjacentLevel){
-			if(!isset($this->spreadVisited[$index = Level::blockHash($x, $y, $z)])){
-				$this->spreadVisited[$index] = true;
+			if(!isset($this->spreadVisited[$index = ((($x) & 0xFFFFFFF) << 36) | ((( $y) & 0xff) << 28) | (( $z) & 0xFFFFFFF)])){
+				$this->spreadVisited[$index] = \true;
 				$this->spreadQueue->enqueue([$x, $y, $z]);
 			}
 		}
@@ -153,13 +153,13 @@ abstract class LightUpdate{
 
 	protected function computeSpreadLight(int $x, int $y, int $z, int $newAdjacentLevel){
 		$current = $this->getLight($x, $y, $z);
-		$potentialLight = $newAdjacentLevel - Block::$lightFilter[$this->level->getBlockIdAt($x, $y, $z)];
+		$potentialLight = $newAdjacentLevel - BlockFactory::$lightFilter[$this->level->getBlockIdAt($x, $y, $z)];
 
 		if($current < $potentialLight){
 			$this->setLight($x, $y, $z, $potentialLight);
 
-			if(!isset($this->spreadVisited[$index = Level::blockHash($x, $y, $z)])){
-				$this->spreadVisited[$index] = true;
+			if(!isset($this->spreadVisited[$index = ((($x) & 0xFFFFFFF) << 36) | ((( $y) & 0xff) << 28) | (( $z) & 0xFFFFFFF)])){
+				$this->spreadVisited[$index] = \true;
 				if($potentialLight > 1){
 					$this->spreadQueue->enqueue([$x, $y, $z]);
 				}

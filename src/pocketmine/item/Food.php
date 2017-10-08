@@ -31,7 +31,7 @@ use pocketmine\Player;
 
 abstract class Food extends Item implements FoodSource{
 	public function canBeConsumed() : bool{
-		return true;
+		return \true;
 	}
 
 	public function canBeConsumedBy(Entity $entity) : bool{
@@ -40,7 +40,7 @@ abstract class Food extends Item implements FoodSource{
 
 	public function getResidue(){
 		if($this->getCount() === 1){
-			return Item::get(0);
+			return ItemFactory::get(0);
 		}else{
 			$new = clone $this;
 			$new->count--;

@@ -38,7 +38,7 @@ class Pond{
 	}
 
 	public function canPlaceObject(ChunkManager $level, Vector3 $pos) : bool{
-		return false;
+		return \false;
 	}
 
 	public function placeObject(ChunkManager $level, Vector3 $pos){

@@ -2,12 +2,11 @@
 
 /*
  *
- *  ____               _   ___     _
- * |  _ \             | | |   \   | |
- * | | | |_   _  ____ | | | |\ \  | | _____    ______
- * | | | | | | |/ _  \| | | | \ \ | |/ _ \ \  / / _  \
- * | |_| | |_| | (_)  | |_| |  \ \| | (_) \ \/ / (_)  |
- * |____/\_____|\___|_\___|_|   \___|\___/ \__/ \___|_|
+ *  ____               _   ___    _
+ * |  _ \ _   _  ____ | | |   \  | | _____    ______
+ * | | | | | | |/ _  \| | | |\ \ | |/ _ \ \  / / _  \
+ * | |_| | |_| | (_)  | |_| | \ \| | (_) \ \/ / (_)  |
+ * |____/\_____|\___|_\___|_|  \___|\___/ \__/ \___|_|
  *
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,8 +21,10 @@
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\PillarRotationHelper;
 use pocketmine\item\Item;
 use pocketmine\item\Tool;
+use pocketmine\math\Vector3;
 use pocketmine\Player;
 
 class PurpurBlock extends Solid{
@@ -38,7 +39,7 @@ class PurpurBlock extends Solid{
 		$this->meta = $meta;
 	}
 
-	public function getHardness() {
+	public function getHardness() : float{
 		return 1.5;
 	}
 
@@ -51,33 +52,22 @@ class PurpurBlock extends Solid{
 		return $names[$this->meta & 0x03];
 	}
 
-	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
-		if($this->meta === 2){
-			$faces = [
-				0 => 0,
-				1 => 0,
-				2 => 0b1000,
-				3 => 0b1000,
-				4 => 0b0100,
-				5 => 0b0100,
-			];
-			$this->meta = ($this->meta & 0x03) | $faces[$face];
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $facePos, Player $player = \null) : bool{
+		if($this->meta !== self::PURPUR_NORMAL){
+			$this->meta = PillarRotationHelper::getMetaFromFace($this->meta, $face);
 		}
-		$this->getLevel()->setBlock($block, $this, true, true);
-		return true;
+		return $this->getLevel()->setBlock($blockReplace, $this, \true, \true);
 	}
 
-	public function getToolType(){
+	public function getToolType() : int{
 		return Tool::TYPE_PICKAXE;
 	}
-
-	public function getDrops(Item $item) : array {
+	
+	public function getDrops(Item $item) : array{
 		if($item->isPickaxe() >= Tool::TIER_WOODEN){
-			return [
-				[Item::PURPUR_BLOCK, $this->meta & 0x03, 1],
-			];
-		}else{
-			return [];
+			return parent::getDrops($item);
 		}
+
+		return [];
 	}
 }

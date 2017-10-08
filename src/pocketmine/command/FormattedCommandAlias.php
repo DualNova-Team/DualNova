@@ -42,7 +42,7 @@ class FormattedCommandAlias extends Command{
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 
 		$commands = [];
-		$result = false;
+		$result = \false;
 
 		foreach($this->formatStrings as $formatString){
 			try{
@@ -55,7 +55,7 @@ class FormattedCommandAlias extends Command{
 					$sender->getServer()->getLogger()->logException($e);
 				}
 
-				return false;
+				return \false;
 			}
 		}
 
@@ -73,18 +73,18 @@ class FormattedCommandAlias extends Command{
 	 * @return string
 	 */
 	private function buildCommand(string $formatString, array $args) : string{
-		$index = strpos($formatString, '$');
-		while($index !== false){
+		$index = \strpos($formatString, '$');
+		while($index !== \false){
 			$start = $index;
 			if($index > 0 and $formatString{$start - 1} === "\\"){
-				$formatString = substr($formatString, 0, $start - 1) . substr($formatString, $start);
-				$index = strpos($formatString, '$', $index);
+				$formatString = \substr($formatString, 0, $start - 1) . \substr($formatString, $start);
+				$index = \strpos($formatString, '$', $index);
 				continue;
 			}
 
-			$required = false;
+			$required = \false;
 			if($formatString{$index + 1} == '$'){
-				$required = true;
+				$required = \true;
 
 				++$index;
 			}
@@ -93,7 +93,7 @@ class FormattedCommandAlias extends Command{
 
 			$argStart = $index;
 
-			while($index < strlen($formatString) and self::inRange(ord($formatString{$index}) - 48, 0, 9)){
+			while($index < \strlen($formatString) and self::inRange(\ord($formatString{$index}) - 48, 0, 9)){
 				++$index;
 			}
 
@@ -101,7 +101,7 @@ class FormattedCommandAlias extends Command{
 				throw new \InvalidArgumentException("Invalid replacement token");
 			}
 
-			$position = (int) substr($formatString, $argStart, $index);
+			$position = (int) \substr($formatString, $argStart, $index);
 
 			if($position === 0){
 				throw new \InvalidArgumentException("Invalid replacement token");
@@ -109,37 +109,37 @@ class FormattedCommandAlias extends Command{
 
 			--$position;
 
-			$rest = false;
+			$rest = \false;
 
-			if($index < strlen($formatString) and $formatString{$index} === "-"){
-				$rest = true;
+			if($index < \strlen($formatString) and $formatString{$index} === "-"){
+				$rest = \true;
 				++$index;
 			}
 
 			$end = $index;
 
-			if($required and $position >= count($args)){
+			if($required and $position >= \count($args)){
 				throw new \InvalidArgumentException("Missing required argument " . ($position + 1));
 			}
 
 			$replacement = "";
-			if($rest and $position < count($args)){
-				for($i = $position, $c = count($args); $i < $c; ++$i){
+			if($rest and $position < \count($args)){
+				for($i = $position, $c = \count($args); $i < $c; ++$i){
 					if($i !== $position){
 						$replacement .= " ";
 					}
 
 					$replacement .= $args[$i];
 				}
-			}elseif($position < count($args)){
+			}elseif($position < \count($args)){
 				$replacement .= $args[$position];
 			}
 
-			$formatString = substr($formatString, 0, $start) . $replacement . substr($formatString, $end);
+			$formatString = \substr($formatString, 0, $start) . $replacement . \substr($formatString, $end);
 
-			$index = $start + strlen($replacement);
+			$index = $start + \strlen($replacement);
 
-			$index = strpos($formatString, '$', $index);
+			$index = \strpos($formatString, '$', $index);
 		}
 
 		return $formatString;

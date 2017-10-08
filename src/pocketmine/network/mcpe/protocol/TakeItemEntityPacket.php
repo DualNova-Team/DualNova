@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -31,14 +31,16 @@ use pocketmine\network\mcpe\NetworkSession;
 class TakeItemEntityPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::TAKE_ITEM_ENTITY_PACKET;
 
+	/** @var int */
 	public $target;
+	/** @var int */
 	public $eid;
 
-	public function decodePayload(){
+	protected function decodePayload(){
 
 	}
 
-	public function encodePayload(){
+	protected function encodePayload(){
 		$this->putEntityRuntimeId($this->target);
 		$this->putEntityRuntimeId($this->eid);
 	}

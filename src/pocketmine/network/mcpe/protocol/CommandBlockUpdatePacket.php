@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -32,31 +32,42 @@ use pocketmine\network\mcpe\NetworkSession;
 class CommandBlockUpdatePacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::COMMAND_BLOCK_UPDATE_PACKET;
 
+	/** @var bool */
 	public $isBlock;
 
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
+	/** @var int */
 	public $commandBlockMode;
+	/** @var bool */
 	public $isRedstoneMode;
+	/** @var bool */
 	public $isConditional;
 
+	/** @var int */
 	public $minecartEid;
 
+	/** @var string */
 	public $command;
+	/** @var string */
 	public $lastOutput;
+	/** @var string */
 	public $name;
-
+	/** @var bool */
 	public $shouldTrackOutput;
 
-	public function decodePayload(){
-		$this->isBlock = $this->getBool();
+	protected function decodePayload(){
+		$this->isBlock = (($this->get(1) !== "\x00"));
 
 		if($this->isBlock){
 			$this->getBlockPosition($this->x, $this->y, $this->z);
 			$this->commandBlockMode = $this->getUnsignedVarInt();
-			$this->isRedstoneMode = $this->getBool();
-			$this->isConditional = $this->getBool();
+			$this->isRedstoneMode = (($this->get(1) !== "\x00"));
+			$this->isConditional = (($this->get(1) !== "\x00"));
 		}else{
 			//Minecart with command block
 			$this->minecartEid = $this->getEntityRuntimeId();
@@ -66,17 +77,17 @@ class CommandBlockUpdatePacket extends DataPacket{
 		$this->lastOutput = $this->getString();
 		$this->name = $this->getString();
 
-		$this->shouldTrackOutput = $this->getBool();
+		$this->shouldTrackOutput = (($this->get(1) !== "\x00"));
 	}
 
-	public function encodePayload(){
-		$this->putBool($this->isBlock);
+	protected function encodePayload(){
+		($this->buffer .= ($this->isBlock ? "\x01" : "\x00"));
 
 		if($this->isBlock){
 			$this->putBlockPosition($this->x, $this->y, $this->z);
 			$this->putUnsignedVarInt($this->commandBlockMode);
-			$this->putBool($this->isRedstoneMode);
-			$this->putBool($this->isConditional);
+			($this->buffer .= ($this->isRedstoneMode ? "\x01" : "\x00"));
+			($this->buffer .= ($this->isConditional ? "\x01" : "\x00"));
 		}else{
 			$this->putEntityRuntimeId($this->minecartEid);
 		}
@@ -85,7 +96,7 @@ class CommandBlockUpdatePacket extends DataPacket{
 		$this->putString($this->lastOutput);
 		$this->putString($this->name);
 
-		$this->putBool($this->shouldTrackOutput);
+		($this->buffer .= ($this->shouldTrackOutput ? "\x01" : "\x00"));
 	}
 
 	public function handle(NetworkSession $session) : bool{

@@ -25,7 +25,7 @@ namespace pocketmine\nbt\tag;
 
 use pocketmine\nbt\NBT;
 
-#include <rules/NBT.h>
+use pocketmine\utils\Binary;
 
 class StringTag extends NamedTag{
 
@@ -43,11 +43,11 @@ class StringTag extends NamedTag{
 		return NBT::TAG_String;
 	}
 
-	public function read(NBT $nbt, bool $network = false){
+	public function read(NBT $nbt, bool $network = \false){
 		$this->value = $nbt->getString($network);
 	}
 
-	public function write(NBT $nbt, bool $network = false){
+	public function write(NBT $nbt, bool $network = \false){
 		$nbt->putString($this->value, $network);
 	}
 
@@ -64,8 +64,8 @@ class StringTag extends NamedTag{
 	 * @throws \TypeError
 	 */
 	public function setValue($value){
-		if(!is_string($value)){
-			throw new \TypeError("ShortTag value must be of type int, " . gettype($value) . " given");
+		if(!\is_string($value)){
+			throw new \TypeError("ShortTag value must be of type int, " . \gettype($value) . " given");
 		}
 		parent::setValue($value);
 	}

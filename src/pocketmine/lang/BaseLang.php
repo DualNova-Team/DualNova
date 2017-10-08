@@ -36,12 +36,12 @@ class BaseLang{
 			$path = \pocketmine\PATH . "src/pocketmine/lang/locale/";
 		}
 
-		if(is_dir($path)){
-			$allFiles = scandir($path, SCANDIR_SORT_NONE);
+		if(\is_dir($path)){
+			$allFiles = \scandir($path, SCANDIR_SORT_NONE);
 
-			if($allFiles !== false){
-				$files = array_filter($allFiles, function($filename){
-					return substr($filename, -4) === ".ini";
+			if($allFiles !== \false){
+				$files = \array_filter($allFiles, function($filename){
+					return \substr($filename, -4) === ".ini";
 				});
 
 				$result = [];
@@ -50,7 +50,7 @@ class BaseLang{
 					$strings = [];
 					self::loadLang($path . $file, $strings);
 					if(isset($strings["language.name"])){
-						$result[substr($file, 0, -4)] = $strings["language.name"];
+						$result[\substr($file, 0, -4)] = $strings["language.name"];
 					}
 				}
 
@@ -69,11 +69,11 @@ class BaseLang{
 	/** @var string[] */
 	protected $fallbackLang = [];
 
-	public function __construct(string $lang, string $path = null, string $fallback = self::FALLBACK_LANGUAGE){
+	public function __construct(string $lang, string $path = \null, string $fallback = self::FALLBACK_LANGUAGE){
 
-		$this->langName = strtolower($lang);
+		$this->langName = \strtolower($lang);
 
-		if($path === null){
+		if($path === \null){
 			$path = \pocketmine\PATH . "src/pocketmine/lang/locale/";
 		}
 
@@ -94,11 +94,11 @@ class BaseLang{
 	}
 
 	protected static function loadLang(string $path, array &$d){
-		if(file_exists($path)){
-			$d = parse_ini_file($path, false, INI_SCANNER_RAW);
-			return true;
+		if(\file_exists($path)){
+			$d = \parse_ini_file($path, \false, INI_SCANNER_RAW);
+			return \true;
 		}else{
-			return false;
+			return \false;
 		}
 	}
 
@@ -109,15 +109,15 @@ class BaseLang{
 	 *
 	 * @return string
 	 */
-	public function translateString(string $str, array $params = [], string $onlyPrefix = null) : string{
+	public function translateString(string $str, array $params = [], string $onlyPrefix = \null) : string{
 		$baseText = $this->get($str);
-		$baseText = $this->parseTranslation(($baseText !== null and ($onlyPrefix === null or strpos($str, $onlyPrefix) === 0)) ? $baseText : $str, $onlyPrefix);
+		$baseText = $this->parseTranslation(($baseText !== \null and ($onlyPrefix === \null or \strpos($str, $onlyPrefix) === 0)) ? $baseText : $str, $onlyPrefix);
 
 		foreach($params as $i => $p){
-			$baseText = str_replace("{%$i}", $this->parseTranslation((string) $p), $baseText, $onlyPrefix);
+			$baseText = \str_replace("{%$i}", $this->parseTranslation((string) $p), $baseText, $onlyPrefix);
 		}
 
-		return str_replace("%0", "", $baseText); //fixes a client bug where %0 in translation will cause freeze
+		return \str_replace("%0", "", $baseText); //fixes a client bug where %0 in translation will cause freeze
 	}
 
 	public function translate(TextContainer $c){
@@ -126,7 +126,7 @@ class BaseLang{
 			$baseText = $this->parseTranslation($baseText ?? $c->getText());
 
 			foreach($c->getParameters() as $i => $p){
-				$baseText = str_replace("{%$i}", $this->parseTranslation($p), $baseText);
+				$baseText = \str_replace("{%$i}", $this->parseTranslation($p), $baseText);
 			}
 		}else{
 			$baseText = $this->parseTranslation($c->getText());
@@ -147,7 +147,7 @@ class BaseLang{
 			return $this->fallbackLang[$id];
 		}
 
-		return null;
+		return \null;
 	}
 
 	/**
@@ -171,16 +171,16 @@ class BaseLang{
 	 *
 	 * @return string
 	 */
-	protected function parseTranslation(string $text, string $onlyPrefix = null) : string{
+	protected function parseTranslation(string $text, string $onlyPrefix = \null) : string{
 		$newString = "";
 
-		$replaceString = null;
+		$replaceString = \null;
 
-		$len = strlen($text);
+		$len = \strlen($text);
 		for($i = 0; $i < $len; ++$i){
 			$c = $text{$i};
-			if($replaceString !== null){
-				$ord = ord($c);
+			if($replaceString !== \null){
+				$ord = \ord($c);
 				if(
 					($ord >= 0x30 and $ord <= 0x39) // 0-9
 					or ($ord >= 0x41 and $ord <= 0x5a) // A-Z
@@ -189,12 +189,12 @@ class BaseLang{
 				){
 					$replaceString .= $c;
 				}else{
-					if(($t = $this->internalGet(substr($replaceString, 1))) !== null and ($onlyPrefix === null or strpos($replaceString, $onlyPrefix) === 1)){
+					if(($t = $this->internalGet(\substr($replaceString, 1))) !== \null and ($onlyPrefix === \null or \strpos($replaceString, $onlyPrefix) === 1)){
 						$newString .= $t;
 					}else{
 						$newString .= $replaceString;
 					}
-					$replaceString = null;
+					$replaceString = \null;
 
 					if($c === "%"){
 						$replaceString = $c;
@@ -209,8 +209,8 @@ class BaseLang{
 			}
 		}
 
-		if($replaceString !== null){
-			if(($t = $this->internalGet(substr($replaceString, 1))) !== null and ($onlyPrefix === null or strpos($replaceString, $onlyPrefix) === 1)){
+		if($replaceString !== \null){
+			if(($t = $this->internalGet(\substr($replaceString, 1))) !== \null and ($onlyPrefix === \null or \strpos($replaceString, $onlyPrefix) === 1)){
 				$newString .= $t;
 			}else{
 				$newString .= $replaceString;

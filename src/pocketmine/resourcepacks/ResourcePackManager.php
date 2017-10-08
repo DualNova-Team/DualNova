@@ -40,7 +40,7 @@ class ResourcePackManager{
 	private $resourcePacksConfig;
 
 	/** @var bool */
-	private $serverForceResources = false;
+	private $serverForceResources = \false;
 
 	/** @var ResourcePack[] */
 	private $resourcePacks = [];
@@ -56,30 +56,30 @@ class ResourcePackManager{
 		$this->server = $server;
 		$this->path = $path;
 
-		if(!file_exists($this->path)){
+		if(!\file_exists($this->path)){
 			$this->server->getLogger()->debug("Resource packs path $path does not exist, creating directory");
-			mkdir($this->path);
-		}elseif(!is_dir($this->path)){
+			\mkdir($this->path);
+		}elseif(!\is_dir($this->path)){
 			throw new \InvalidArgumentException("Resource packs path $path exists and is not a directory");
 		}
 
-		if(!file_exists($this->path . "resource_packs.yml")){
-			copy($this->server->getFilePath() . "src/pocketmine/resources/resource_packs.yml", $this->path . "resource_packs.yml");
+		if(!\file_exists($this->path . "resource_packs.yml")){
+			\copy($this->server->getFilePath() . "src/pocketmine/resources/resource_packs.yml", $this->path . "resource_packs.yml");
 		}
 
 		$this->resourcePacksConfig = new Config($this->path . "resource_packs.yml", Config::YAML, []);
 
-		$this->serverForceResources = (bool) $this->resourcePacksConfig->get("force_resources", false);
+		$this->serverForceResources = (bool) $this->resourcePacksConfig->get("force_resources", \false);
 
 		$this->server->getLogger()->info("Loading resource packs...");
 
 		foreach($this->resourcePacksConfig->get("resource_stack", []) as $pos => $pack){
 			try{
 				$packPath = $this->path . DIRECTORY_SEPARATOR . $pack;
-				if(file_exists($packPath)){
-					$newPack = null;
+				if(\file_exists($packPath)){
+					$newPack = \null;
 					//Detect the type of resource pack.
-					if(is_dir($packPath)){
+					if(\is_dir($packPath)){
 						$this->server->getLogger()->warning("Skipped resource entry $pack due to directory resource packs currently unsupported");
 					}else{
 						$info = new \SplFileInfo($packPath);
@@ -106,7 +106,7 @@ class ResourcePackManager{
 			}
 		}
 
-		$this->server->getLogger()->debug("Successfully loaded " . count($this->resourcePacks) . " resource packs");
+		$this->server->getLogger()->debug("Successfully loaded " . \count($this->resourcePacks) . " resource packs");
 	}
 
 	/**
@@ -132,7 +132,7 @@ class ResourcePackManager{
 	 * @return ResourcePack|null
 	 */
 	public function getPackById(string $id){
-		return $this->uuidList[$id] ?? null;
+		return $this->uuidList[$id] ?? \null;
 	}
 
 	/**
@@ -140,6 +140,6 @@ class ResourcePackManager{
 	 * @return string[]
 	 */
 	public function getPackIdList() : array{
-		return array_keys($this->uuidList);
+		return \array_keys($this->uuidList);
 	}
 }

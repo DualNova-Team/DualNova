@@ -1,12 +1,12 @@
 <?php
+
 /*
  *
- *  ____               _   ___     _
- * |  _ \             |　| |   \   | |
- * | | | |_   _  ____ | | | |\ \  | | _____    ______
- * | | | | | | |/ _  \| | | | \ \ | |/ _ \ \  / / _  \
- * | |_| | |_| | (_)  | |_| |  \ \| | (_) \ \/ / (_)  |
- * |____/\_____|\___|_\___|_|   \___|\___/ \__/ \___|_|
+ *  ____               _   ___    _
+ * |  _ \ _   _  ____ | | |   \  | | _____    ______
+ * | | | | | | |/ _  \| | | |\ \ | |/ _ \ \  / / _  \
+ * | |_| | |_| | (_)  | |_| | \ \| | (_) \ \/ / (_)  |
+ * |____/\_____|\___|_\___|_|  \___|\___/ \__/ \___|_|
  *
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,6 +18,7 @@
  * 
  *
 */
+
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
@@ -25,13 +26,13 @@ use pocketmine\item\Tool;
 
 class DoubleSlab2 extends Solid{
 
-	protected $id = self::DOUBLE_SLAB2;
+	protected $id = self::DOUBLE_STONE_SLAB2;
 
 	public function __construct($meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function getHardness() {
+	public function getHardness() : float{
 		return 2;
 	}
 

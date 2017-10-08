@@ -28,7 +28,7 @@ use pocketmine\event\Cancellable;
 use pocketmine\event\entity\EntityEvent;
 
 class PlayerExhaustEvent extends EntityEvent implements Cancellable{
-	public static $handlerList = null;
+	public static $handlerList = \null;
 
 	const CAUSE_ATTACK = 1;
 	const CAUSE_DAMAGE = 2;

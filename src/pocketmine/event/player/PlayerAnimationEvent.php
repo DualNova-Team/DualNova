@@ -30,7 +30,7 @@ use pocketmine\Player;
  * Called when a player does an animation
  */
 class PlayerAnimationEvent extends PlayerEvent implements Cancellable{
-	public static $handlerList = null;
+	public static $handlerList = \null;
 
 	/**
 	 * @deprecated This is dependent on the protocol and should not be here.
@@ -45,7 +45,7 @@ class PlayerAnimationEvent extends PlayerEvent implements Cancellable{
 	 * @param Player $player
 	 * @param int    $animation
 	 */
-	public function __construct(Player $player, $animation = self::ARM_SWING){
+	public function __construct(Player $player, int $animation){
 		$this->player = $player;
 		$this->animationType = $animation;
 	}

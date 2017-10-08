@@ -91,5 +91,5 @@ interface Logger{
 	 * @param Throwable $e
 	 * @param $trace
 	 */
-	public function logException(\Throwable $e, $trace = null);
+	public function logException(\Throwable $e, $trace = \null);
 }

@@ -15,7 +15,7 @@
 
 namespace raklib\protocol;
 
-#include <rules/RakLibPacket.h>
+use raklib\Binary;
 
 
 use raklib\RakLib;
@@ -29,16 +29,16 @@ class UNCONNECTED_PONG extends Packet{
 
 	public function encode(){
 		parent::encode();
-		$this->putLong($this->pingID);
-		$this->putLong($this->serverID);
-		$this->put(RakLib::MAGIC);
+		($this->buffer .= (\pack("NN", $this->pingID >> 32, $this->pingID & 0xFFFFFFFF)));
+		($this->buffer .= (\pack("NN", $this->serverID >> 32, $this->serverID & 0xFFFFFFFF)));
+		($this->buffer .= RakLib::MAGIC);
 		$this->putString($this->serverName);
 	}
 
 	public function decode(){
 		parent::decode();
-		$this->pingID = $this->getLong();
-		$this->serverID = $this->getLong();
+		$this->pingID = (Binary::readLong($this->get(8)));
+		$this->serverID = (Binary::readLong($this->get(8)));
 		$this->offset += 16; //magic
 		$this->serverName = $this->getString();
 	}

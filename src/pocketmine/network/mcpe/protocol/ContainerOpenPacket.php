@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -31,23 +31,29 @@ use pocketmine\network\mcpe\NetworkSession;
 class ContainerOpenPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::CONTAINER_OPEN_PACKET;
 
-	public $windowid;
+	/** @var int */
+	public $windowId;
+	/** @var int */
 	public $type;
+	/** @var int */
 	public $x;
+	/** @var int */
 	public $y;
+	/** @var int */
 	public $z;
+	/** @var int */
 	public $entityUniqueId = -1;
 
-	public function decodePayload(){
-		$this->windowid = $this->getByte();
-		$this->type = $this->getByte();
+	protected function decodePayload(){
+		$this->windowId = (\ord($this->get(1)));
+		$this->type = (\ord($this->get(1)));
 		$this->getBlockPosition($this->x, $this->y, $this->z);
 		$this->entityUniqueId = $this->getEntityUniqueId();
 	}
 
-	public function encodePayload(){
-		$this->putByte($this->windowid);
-		$this->putByte($this->type);
+	protected function encodePayload(){
+		($this->buffer .= \chr($this->windowId));
+		($this->buffer .= \chr($this->type));
 		$this->putBlockPosition($this->x, $this->y, $this->z);
 		$this->putEntityUniqueId($this->entityUniqueId);
 	}

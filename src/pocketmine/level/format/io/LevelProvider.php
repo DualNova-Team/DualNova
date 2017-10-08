@@ -98,7 +98,7 @@ interface LevelProvider{
 	 *
 	 * @return Chunk|null
 	 */
-	public function getChunk(int $chunkX, int $chunkZ, bool $create = false);
+	public function getChunk(int $chunkX, int $chunkZ, bool $create = \false);
 
 	/**
 	 * @param int   $chunkX
@@ -124,7 +124,7 @@ interface LevelProvider{
 	 *
 	 * @return bool
 	 */
-	public function loadChunk(int $chunkX, int $chunkZ, bool $create = false) : bool;
+	public function loadChunk(int $chunkX, int $chunkZ, bool $create = \false) : bool;
 
 	/**
 	 * @param int  $chunkX
@@ -133,7 +133,7 @@ interface LevelProvider{
 	 *
 	 * @return bool
 	 */
-	public function unloadChunk(int $chunkX, int $chunkZ, bool $safe = true) : bool;
+	public function unloadChunk(int $chunkX, int $chunkZ, bool $safe = \true) : bool;
 
 	public function unloadChunks();
 
@@ -177,24 +177,24 @@ interface LevelProvider{
 	public function getName() : string;
 
 	/**
-	 * @return int|string int, or the string numeric representation of a long in 32-bit systems
+	 * @return int
 	 */
-	public function getTime();
+	public function getTime() : int;
 
 	/**
-	 * @param int|string $value int, or the string numeric representation of a long in 32-bit systems
+	 * @param int
 	 */
-	public function setTime($value);
+	public function setTime(int $value);
 
 	/**
-	 * @return int|string int, or the string numeric representation of a long in 32-bit systems
+	 * @return int
 	 */
-	public function getSeed();
+	public function getSeed() : int;
 
 	/**
-	 * @param int|string $value int, or the string numeric representation of a long in 32-bit systems
+	 * @param int
 	 */
-	public function setSeed($value);
+	public function setSeed(int $value);
 
 	/**
 	 * @return Vector3

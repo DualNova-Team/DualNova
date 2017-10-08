@@ -26,8 +26,8 @@ namespace pocketmine\item;
 use pocketmine\entity\Effect;
 
 class RawChicken extends Food{
-	public function __construct($meta = 0, $count = 1){
-		parent::__construct(self::RAW_CHICKEN, $meta, $count, "Raw Chicken");
+	public function __construct(int $meta = 0){
+		parent::__construct(self::RAW_CHICKEN, $meta, "Raw Chicken");
 	}
 
 	public function getFoodRestore() : int{
@@ -39,7 +39,7 @@ class RawChicken extends Food{
 	}
 
 	public function getAdditionalEffects() : array{
-		return mt_rand(0, 9) < 3 ? [Effect::getEffect(Effect::HUNGER)->setDuration(600)] : [];
+		return \mt_rand(0, 9) < 3 ? [Effect::getEffect(Effect::HUNGER)->setDuration(600)] : [];
 	}
 }
 

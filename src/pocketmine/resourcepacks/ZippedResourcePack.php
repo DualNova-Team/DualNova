@@ -36,7 +36,7 @@ class ZippedResourcePack implements ResourcePack{
 	 */
 	public static function verifyManifest(\stdClass $manifest) : bool{
 		if(!isset($manifest->format_version) or !isset($manifest->header) or !isset($manifest->modules)){
-			return false;
+			return \false;
 		}
 
 		//Right now we don't care about anything else, only the stuff we're sending to clients.
@@ -45,7 +45,7 @@ class ZippedResourcePack implements ResourcePack{
 			isset($manifest->header->name) and
 			isset($manifest->header->uuid) and
 			isset($manifest->header->version) and
-			count($manifest->header->version) === 3;
+			\count($manifest->header->version) === 3;
 	}
 
 	/** @var string */
@@ -55,7 +55,7 @@ class ZippedResourcePack implements ResourcePack{
 	protected $manifest;
 
 	/** @var string */
-	protected $sha256 = null;
+	protected $sha256 = \null;
 
 	/** @var resource */
 	protected $fileResource;
@@ -66,17 +66,17 @@ class ZippedResourcePack implements ResourcePack{
 	public function __construct(string $zipPath){
 		$this->path = $zipPath;
 
-		if(!file_exists($zipPath)){
+		if(!\file_exists($zipPath)){
 			throw new \InvalidArgumentException("Could not open resource pack $zipPath: file not found");
 		}
 
 		$archive = new \ZipArchive();
-		if(($openResult = $archive->open($zipPath)) !== true){
+		if(($openResult = $archive->open($zipPath)) !== \true){
 			throw new \InvalidStateException("Encountered ZipArchive error code $openResult while trying to open $zipPath");
 		}
 
-		if(($manifestData = $archive->getFromName("manifest.json")) === false){
-			if($archive->locateName("pack_manifest.json") !== false){
+		if(($manifestData = $archive->getFromName("manifest.json")) === \false){
+			if($archive->locateName("pack_manifest.json") !== \false){
 				throw new \InvalidStateException("Could not load resource pack from $zipPath: unsupported old pack format");
 			}else{
 				throw new \InvalidStateException("Could not load resource pack from $zipPath: manifest.json not found in the archive root");
@@ -85,18 +85,18 @@ class ZippedResourcePack implements ResourcePack{
 
 		$archive->close();
 
-		$manifest = json_decode($manifestData);
+		$manifest = \json_decode($manifestData);
 		if(!self::verifyManifest($manifest)){
 			throw new \InvalidStateException("Could not load resource pack from $zipPath: manifest.json is invalid or incomplete");
 		}
 
 		$this->manifest = $manifest;
 
-		$this->fileResource = fopen($zipPath, "rb");
+		$this->fileResource = \fopen($zipPath, "rb");
 	}
 
 	public function __destruct(){
-		fclose($this->fileResource);
+		\fclose($this->fileResource);
 	}
 
 	public function getPackName() : string{
@@ -104,7 +104,7 @@ class ZippedResourcePack implements ResourcePack{
 	}
 
 	public function getPackVersion() : string{
-		return implode(".", $this->manifest->header->version);
+		return \implode(".", $this->manifest->header->version);
 	}
 
 	public function getPackId() : string{
@@ -112,21 +112,21 @@ class ZippedResourcePack implements ResourcePack{
 	}
 
 	public function getPackSize() : int{
-		return filesize($this->path);
+		return \filesize($this->path);
 	}
 
-	public function getSha256(bool $cached = true) : string{
-		if($this->sha256 === null or !$cached){
-			$this->sha256 = hash_file("sha256", $this->path, true);
+	public function getSha256(bool $cached = \true) : string{
+		if($this->sha256 === \null or !$cached){
+			$this->sha256 = \hash_file("sha256", $this->path, \true);
 		}
 		return $this->sha256;
 	}
 
 	public function getPackChunk(int $start, int $length) : string{
-		fseek($this->fileResource, $start);
-		if(feof($this->fileResource)){
+		\fseek($this->fileResource, $start);
+		if(\feof($this->fileResource)){
 			throw new \RuntimeException("Requested a resource pack chunk with invalid start offset");
 		}
-		return fread($this->fileResource, $length);
+		return \fread($this->fileResource, $length);
 	}
 }

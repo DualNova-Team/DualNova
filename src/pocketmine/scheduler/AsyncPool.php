@@ -47,9 +47,11 @@ class AsyncPool{
 		$this->server = $server;
 		$this->size = $size;
 
+		$memoryLimit = (int) \max(-1, (int) $this->server->getProperty("memory.async-worker-hard-limit", 1024));
+
 		for($i = 0; $i < $this->size; ++$i){
 			$this->workerUsage[$i] = 0;
-			$this->workers[$i] = new AsyncWorker($this->server->getLogger(), $i + 1);
+			$this->workers[$i] = new AsyncWorker($this->server->getLogger(), $i + 1, $memoryLimit);
 			$this->workers[$i]->setClassLoader($this->server->getLoader());
 			$this->workers[$i]->start();
 		}
@@ -61,9 +63,12 @@ class AsyncPool{
 
 	public function increaseSize(int $newSize){
 		if($newSize > $this->size){
+
+			$memoryLimit = (int) \max(-1, (int) $this->server->getProperty("memory.async-worker-hard-limit", 1024));
+
 			for($i = $this->size; $i < $newSize; ++$i){
 				$this->workerUsage[$i] = 0;
-				$this->workers[$i] = new AsyncWorker($this->server->getLogger(), $i + 1);
+				$this->workers[$i] = new AsyncWorker($this->server->getLogger(), $i + 1, $memoryLimit);
 				$this->workers[$i]->setClassLoader($this->server->getLoader());
 				$this->workers[$i]->start();
 			}
@@ -87,12 +92,12 @@ class AsyncPool{
 		$this->taskWorkers[$task->getTaskId()] = $worker;
 	}
 
-	public function submitTask(AsyncTask $task){
+	public function submitTask(AsyncTask $task) : int{
 		if(isset($this->tasks[$task->getTaskId()]) or $task->isGarbage()){
-			return;
+			return -1;
 		}
 
-		$selectedWorker = mt_rand(0, $this->size - 1);
+		$selectedWorker = \mt_rand(0, $this->size - 1);
 		$selectedTasks = $this->workerUsage[$selectedWorker];
 		for($i = 0; $i < $this->size; ++$i){
 			if($this->workerUsage[$i] < $selectedTasks){
@@ -102,9 +107,10 @@ class AsyncPool{
 		}
 
 		$this->submitTaskToWorker($task, $selectedWorker);
+		return $selectedWorker;
 	}
 
-	private function removeTask(AsyncTask $task, bool $force = false){
+	private function removeTask(AsyncTask $task, bool $force = \false){
 		if(isset($this->taskWorkers[$task->getTaskId()])){
 			if(!$force and ($task->isRunning() or !$task->isGarbage())){
 				return;
@@ -125,10 +131,10 @@ class AsyncPool{
 				$this->removeTask($task);
 			}
 
-			if(count($this->tasks) > 0){
+			if(\count($this->tasks) > 0){
 				Server::microSleep(25000);
 			}
-		}while(count($this->tasks) > 0);
+		}while(\count($this->tasks) > 0);
 
 		for($i = 0; $i < $this->size; ++$i){
 			$this->workerUsage[$i] = 0;
@@ -162,7 +168,7 @@ class AsyncPool{
 				$this->removeTask($task);
 			}elseif($task->isTerminated() or $task->isCrashed()){
 				$this->server->getLogger()->critical("Could not execute asynchronous task " . (new \ReflectionClass($task))->getShortName() . ": Task crashed");
-				$this->removeTask($task, true);
+				$this->removeTask($task, \true);
 			}
 		}
 

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace pocketmine\tile;
 
 use pocketmine\item\Item;
+use pocketmine\item\ItemFactory;
 use pocketmine\level\Level;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
@@ -43,13 +44,13 @@ class FlowerPot extends Spawnable{
 
 	public function canAddItem(Item $item) : bool{
 		if(!$this->isEmpty()){
-			return false;
+			return \false;
 		}
 		switch($item->getId()){
 			/** @noinspection PhpMissingBreakStatementInspection */
 			case Item::TALL_GRASS:
 				if($item->getDamage() === 1){
-					return false;
+					return \false;
 				}
 			case Item::SAPLING:
 			case Item::DEAD_BUSH:
@@ -58,14 +59,14 @@ class FlowerPot extends Spawnable{
 			case Item::BROWN_MUSHROOM:
 			case Item::RED_MUSHROOM:
 			case Item::CACTUS:
-				return true;
+				return \true;
 			default:
-				return false;
+				return \false;
 		}
 	}
 
 	public function getItem() : Item{
-		return Item::get($this->namedtag->item->getValue(), $this->namedtag->mData->getValue(), 1);
+		return ItemFactory::get($this->namedtag->item->getValue(), $this->namedtag->mData->getValue(), 1);
 	}
 
 	public function setItem(Item $item){
@@ -75,11 +76,11 @@ class FlowerPot extends Spawnable{
 	}
 
 	public function removeItem(){
-		$this->setItem(Item::get(Item::AIR));
+		$this->setItem(ItemFactory::get(Item::AIR, 0, 0));
 	}
 
 	public function isEmpty() : bool{
-		return $this->getItem()->getId() === Item::AIR;
+		return $this->getItem()->isNull();
 	}
 
 	public function addAdditionalSpawnData(CompoundTag $nbt){

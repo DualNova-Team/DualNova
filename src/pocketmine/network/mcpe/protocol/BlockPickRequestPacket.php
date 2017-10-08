@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -32,19 +32,27 @@ use pocketmine\network\mcpe\NetworkSession;
 class BlockPickRequestPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::BLOCK_PICK_REQUEST_PACKET;
 
-	public $tileX;
-	public $tileY;
-	public $tileZ;
+	/** @var int */
+	public $blockX;
+	/** @var int */
+	public $blockY;
+	/** @var int */
+	public $blockZ;
+	/** @var bool */
+	public $addUserData = \false;
+	/** @var int */
 	public $hotbarSlot;
 
-	public function decodePayload(){
-		$this->getSignedBlockPosition($this->tileX, $this->tileY, $this->tileZ);
-		$this->hotbarSlot = $this->getByte();
+	protected function decodePayload(){
+		$this->getSignedBlockPosition($this->blockX, $this->blockY, $this->blockZ);
+		$this->addUserData = (($this->get(1) !== "\x00"));
+		$this->hotbarSlot = (\ord($this->get(1)));
 	}
 
-	public function encodePayload(){
-		$this->putSignedBlockPosition($this->tileX, $this->tileY, $this->tileZ);
-		$this->putByte($this->hotbarSlot);
+	protected function encodePayload(){
+		$this->putSignedBlockPosition($this->blockX, $this->blockY, $this->blockZ);
+		($this->buffer .= ($this->addUserData ? "\x01" : "\x00"));
+		($this->buffer .= \chr($this->hotbarSlot));
 	}
 
 	public function handle(NetworkSession $session) : bool{

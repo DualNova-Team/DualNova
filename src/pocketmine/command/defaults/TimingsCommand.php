@@ -35,7 +35,7 @@ class TimingsCommand extends VanillaCommand{
 
 	public static $timingStart = 0;
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.timings.description",
@@ -46,31 +46,31 @@ class TimingsCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
-		if(count($args) !== 1){
+		if(\count($args) !== 1){
 			throw new InvalidCommandSyntaxException();
 		}
 
-		$mode = strtolower($args[0]);
+		$mode = \strtolower($args[0]);
 
 		if($mode === "on"){
-			$sender->getServer()->getPluginManager()->setUseTimings(true);
+			$sender->getServer()->getPluginManager()->setUseTimings(\true);
 			TimingsHandler::reload();
 			$sender->sendMessage(new TranslationContainer("pocketmine.command.timings.enable"));
 
-			return true;
+			return \true;
 		}elseif($mode === "off"){
-			$sender->getServer()->getPluginManager()->setUseTimings(false);
+			$sender->getServer()->getPluginManager()->setUseTimings(\false);
 			$sender->sendMessage(new TranslationContainer("pocketmine.command.timings.disable"));
-			return true;
+			return \true;
 		}
 
 		if(!$sender->getServer()->getPluginManager()->useTimings()){
 			$sender->sendMessage(new TranslationContainer("pocketmine.command.timings.timingsDisabled"));
 
-			return true;
+			return \true;
 		}
 
 		$paste = $mode === "paste";
@@ -80,32 +80,32 @@ class TimingsCommand extends VanillaCommand{
 			$sender->sendMessage(new TranslationContainer("pocketmine.command.timings.reset"));
 		}elseif($mode === "merged" or $mode === "report" or $paste){
 
-			$sampleTime = microtime(true) - self::$timingStart;
+			$sampleTime = \microtime(\true) - self::$timingStart;
 			$index = 0;
 			$timingFolder = $sender->getServer()->getDataPath() . "timings/";
 
-			if(!file_exists($timingFolder)){
-				mkdir($timingFolder, 0777);
+			if(!\file_exists($timingFolder)){
+				\mkdir($timingFolder, 0777);
 			}
 			$timings = $timingFolder . "timings.txt";
-			while(file_exists($timings)){
+			while(\file_exists($timings)){
 				$timings = $timingFolder . "timings" . (++$index) . ".txt";
 			}
 
-			$fileTimings = $paste ? fopen("php://temp", "r+b") : fopen($timings, "a+b");
+			$fileTimings = $paste ? \fopen("php://temp", "r+b") : \fopen($timings, "a+b");
 
 			TimingsHandler::printTimings($fileTimings);
 
-			fwrite($fileTimings, "Sample time " . round($sampleTime * 1000000000) . " (" . $sampleTime . "s)" . PHP_EOL);
+			\fwrite($fileTimings, "Sample time " . \round($sampleTime * 1000000000) . " (" . $sampleTime . "s)" . \PHP_EOL);
 
 			if($paste){
-				fseek($fileTimings, 0);
+				\fseek($fileTimings, 0);
 				$data = [
 					"syntax" => "text",
 					"poster" => $sender->getServer()->getName(),
-					"content" => stream_get_contents($fileTimings)
+					"content" => \stream_get_contents($fileTimings)
 				];
-				fclose($fileTimings);
+				\fclose($fileTimings);
 
 				$sender->getServer()->getScheduler()->scheduleAsyncTask(new class([
 					["page" => "http://paste.ubuntu.com", "extraOpts" => [
@@ -126,7 +126,7 @@ class TimingsCommand extends VanillaCommand{
 						}
 						list(, $headers) = $result;
 						foreach($headers as $headerGroup){
-							if(isset($headerGroup["location"]) and preg_match('#^http://paste\\.ubuntu\\.com/([0-9]{1,})/#', trim($headerGroup["location"]), $match)){
+							if(isset($headerGroup["location"]) and \preg_match('#^http://paste\\.ubuntu\\.com/([0-9]{1,})/#', \trim($headerGroup["location"]), $match)){
 								$pasteId = $match[1];
 								break;
 							}
@@ -142,11 +142,11 @@ class TimingsCommand extends VanillaCommand{
 				});
 
 			}else{
-				fclose($fileTimings);
+				\fclose($fileTimings);
 				$sender->sendMessage(new TranslationContainer("pocketmine.command.timings.timingsWrite", [$timings]));
 			}
 		}
 
-		return true;
+		return \true;
 	}
 }

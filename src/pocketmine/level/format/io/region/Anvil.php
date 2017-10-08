@@ -71,7 +71,7 @@ class Anvil extends McRegion{
 		$entities = [];
 
 		foreach($chunk->getEntities() as $entity){
-			if(!($entity instanceof Player) and !$entity->closed){
+			if(!($entity instanceof Player) and !$entity->isClosed()){
 				$entity->saveNBT();
 				$entities[] = $entity->namedtag;
 			}
@@ -142,13 +142,13 @@ class Anvil extends McRegion{
 				$biomeIds,
 				isset($chunk->HeightMap) ? $chunk->HeightMap->getValue() : []
 			);
-			$result->setLightPopulated(isset($chunk->LightPopulated) ? ((bool) $chunk->LightPopulated->getValue()) : false);
-			$result->setPopulated(isset($chunk->TerrainPopulated) ? ((bool) $chunk->TerrainPopulated->getValue()) : false);
-			$result->setGenerated(true);
+			$result->setLightPopulated(isset($chunk->LightPopulated) ? ((bool) $chunk->LightPopulated->getValue()) : \false);
+			$result->setPopulated(isset($chunk->TerrainPopulated) ? ((bool) $chunk->TerrainPopulated->getValue()) : \false);
+			$result->setGenerated(\true);
 			return $result;
 		}catch(\Throwable $e){
 			MainLogger::getLogger()->logException($e);
-			return null;
+			return \null;
 		}
 	}
 

@@ -29,7 +29,7 @@ interface SubChunkInterface{
 	 * @param bool $checkLight
 	 * @return bool
 	 */
-	public function isEmpty(bool $checkLight = true) : bool;
+	public function isEmpty(bool $checkLight = \true) : bool;
 
 	/**
 	 * @param int $x
@@ -87,7 +87,7 @@ interface SubChunkInterface{
 	 *
 	 * @return bool
 	 */
-	public function setBlock(int $x, int $y, int $z, $id = null, $data = null) : bool;
+	public function setBlock(int $x, int $y, int $z, $id = \null, $data = \null) : bool;
 
 	/**
 	 * @param int $x

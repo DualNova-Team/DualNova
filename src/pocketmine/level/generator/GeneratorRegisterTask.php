@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\level\generator;
 
-use pocketmine\block\Block;
+use pocketmine\block\BlockFactory;
 use pocketmine\level\generator\biome\Biome;
 use pocketmine\level\Level;
 use pocketmine\level\SimpleChunkManager;
@@ -39,21 +39,21 @@ class GeneratorRegisterTask extends AsyncTask{
 	public $worldHeight = Level::Y_MAX;
 
 	public function __construct(Level $level, Generator $generator){
-		$this->generator = get_class($generator);
-		$this->settings = serialize($generator->getSettings());
+		$this->generator = \get_class($generator);
+		$this->settings = \serialize($generator->getSettings());
 		$this->seed = $level->getSeed();
 		$this->levelId = $level->getId();
 		$this->worldHeight = $level->getWorldHeight();
 	}
 
 	public function onRun(){
-		Block::init();
+		BlockFactory::init();
 		Biome::init();
 		$manager = new SimpleChunkManager($this->seed, $this->worldHeight);
 		$this->saveToThreadStore("generation.level{$this->levelId}.manager", $manager);
 		/** @var Generator $generator */
 		$generator = $this->generator;
-		$generator = new $generator(unserialize($this->settings));
+		$generator = new $generator(\unserialize($this->settings));
 		$generator->init($manager, new Random($manager->getSeed()));
 		$this->saveToThreadStore("generation.level{$this->levelId}.generator", $generator);
 	}

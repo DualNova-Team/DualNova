@@ -37,7 +37,7 @@ class AttributeMap implements \ArrayAccess{
 	 * @return Attribute|null
 	 */
 	public function getAttribute(int $id){
-		return $this->attributes[$id] ?? null;
+		return $this->attributes[$id] ?? \null;
 	}
 
 	/**
@@ -51,7 +51,7 @@ class AttributeMap implements \ArrayAccess{
 	 * @return Attribute[]
 	 */
 	public function needSend() : array{
-		return array_filter($this->attributes, function(Attribute $attribute){
+		return \array_filter($this->attributes, function(Attribute $attribute){
 			return $attribute->isSyncable() and $attribute->isDesynchronized();
 		});
 	}

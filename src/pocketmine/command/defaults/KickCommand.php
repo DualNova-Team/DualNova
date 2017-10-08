@@ -32,7 +32,7 @@ use pocketmine\utils\TextFormat;
 
 class KickCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.kick.description",
@@ -43,15 +43,15 @@ class KickCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
-		if(count($args) === 0){
+		if(\count($args) === 0){
 			throw new InvalidCommandSyntaxException();
 		}
 
-		$name = array_shift($args);
-		$reason = trim(implode(" ", $args));
+		$name = \array_shift($args);
+		$reason = \trim(\implode(" ", $args));
 
 		if(($player = $sender->getServer()->getPlayer($name)) instanceof Player){
 			$player->kick($reason);
@@ -65,6 +65,6 @@ class KickCommand extends VanillaCommand{
 		}
 
 
-		return true;
+		return \true;
 	}
 }

@@ -31,7 +31,7 @@ use pocketmine\Player;
  * Allows the creation of players overriding the base Player class
  */
 class PlayerCreationEvent extends Event{
-	public static $handlerList = null;
+	public static $handlerList = \null;
 
 	/** @var SourceInterface */
 	private $interface;
@@ -61,13 +61,13 @@ class PlayerCreationEvent extends Event{
 		$this->address = $address;
 		$this->port = $port;
 
-		if(!is_a($baseClass, Player::class, true)){
+		if(!\is_a($baseClass, Player::class, \true)){
 			throw new \RuntimeException("Base class $baseClass must extend " . Player::class);
 		}
 
 		$this->baseClass = $baseClass;
 
-		if(!is_a($playerClass, Player::class, true)){
+		if(!\is_a($playerClass, Player::class, \true)){
 			throw new \RuntimeException("Class $playerClass must extend " . Player::class);
 		}
 
@@ -113,7 +113,7 @@ class PlayerCreationEvent extends Event{
 	 * @param Player::class $class
 	 */
 	public function setBaseClass($class){
-		if(!is_a($class, $this->baseClass, true)){
+		if(!\is_a($class, $this->baseClass, \true)){
 			throw new \RuntimeException("Base class $class must extend " . $this->baseClass);
 		}
 
@@ -131,7 +131,7 @@ class PlayerCreationEvent extends Event{
 	 * @param Player::class $class
 	 */
 	public function setPlayerClass($class){
-		if(!is_a($class, $this->baseClass, true)){
+		if(!\is_a($class, $this->baseClass, \true)){
 			throw new \RuntimeException("Class $class must extend " . $this->baseClass);
 		}
 

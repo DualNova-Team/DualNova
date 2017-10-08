@@ -33,7 +33,7 @@ use pocketmine\Server;
  * Called when a player's data is about to be saved to disk.
  */
 class PlayerDataSaveEvent extends Event implements Cancellable{
-	public static $handlerList = null;
+	public static $handlerList = \null;
 
 	/** @var CompoundTag */
 	protected $data;

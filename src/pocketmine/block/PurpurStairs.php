@@ -2,12 +2,11 @@
 
 /*
  *
- *  ____               _   ___     _
- * |  _ \             | | |   \   | |
- * | | | |_   _  ____ | | | |\ \  | | _____    ______
- * | | | | | | |/ _  \| | | | \ \ | |/ _ \ \  / / _  \
- * | |_| | |_| | (_)  | |_| |  \ \| | (_) \ \/ / (_)  |
- * |____/\_____|\___|_\___|_|   \___|\___/ \__/ \___|_|
+ *  ____               _   ___    _
+ * |  _ \ _   _  ____ | | |   \  | | _____    ______
+ * | | | | | | |/ _  \| | | |\ \ | |/ _ \ \  / / _  \
+ * | |_| | |_| | (_)  | |_| | \ \| | (_) \ \/ / (_)  |
+ * |____/\_____|\___|_\___|_|  \___|\___/ \__/ \___|_|
  *
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,7 +36,7 @@ class PurpurStairs extends Stair{
 		return "Purpur Stairs";
 	}
 
-	public function getToolType(){
+	public function getToolType() : int{
 		return Tool::TYPE_PICKAXE;
 	}
 
@@ -47,7 +46,7 @@ class PurpurStairs extends Stair{
 		];
 	}
 	
-	public function getHardness() {
+	public function getHardness() : float{
 		return 1.5;
 	}
 }

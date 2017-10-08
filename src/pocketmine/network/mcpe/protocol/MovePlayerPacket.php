@@ -23,9 +23,10 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkSession;
 
 class MovePlayerPacket extends DataPacket{
@@ -36,46 +37,54 @@ class MovePlayerPacket extends DataPacket{
 	const MODE_TELEPORT = 2;
 	const MODE_PITCH = 3; //facepalm Mojang
 
+	/** @var int */
 	public $entityRuntimeId;
-	public $x;
-	public $y;
-	public $z;
+	/** @var Vector3 */
+	public $position;
+	/** @var float */
 	public $yaw;
+	/** @var float */
 	public $bodyYaw;
+	/** @var float */
 	public $pitch;
+	/** @var int */
 	public $mode = self::MODE_NORMAL;
-	public $onGround = false; //TODO
+	/** @var bool */
+	public $onGround = \false; //TODO
+	/** @var int */
 	public $ridingEid = 0;
+	/** @var int */
 	public $int1 = 0;
+	/** @var int */
 	public $int2 = 0;
 
-	public function decodePayload(){
+	protected function decodePayload(){
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
-		$this->getVector3f($this->x, $this->y, $this->z);
-		$this->pitch = $this->getLFloat();
-		$this->yaw = $this->getLFloat();
-		$this->bodyYaw = $this->getLFloat();
-		$this->mode = $this->getByte();
-		$this->onGround = $this->getBool();
+		$this->position = $this->getVector3Obj();
+		$this->pitch = ((\unpack("g", $this->get(4))[1]));
+		$this->yaw = ((\unpack("g", $this->get(4))[1]));
+		$this->bodyYaw = ((\unpack("g", $this->get(4))[1]));
+		$this->mode = (\ord($this->get(1)));
+		$this->onGround = (($this->get(1) !== "\x00"));
 		$this->ridingEid = $this->getEntityRuntimeId();
 		if($this->mode === MovePlayerPacket::MODE_TELEPORT){
-			$this->int1 = $this->getLInt();
-			$this->int2 = $this->getLInt();
+			$this->int1 = ((\unpack("V", $this->get(4))[1] << 32 >> 32));
+			$this->int2 = ((\unpack("V", $this->get(4))[1] << 32 >> 32));
 		}
 	}
 
-	public function encodePayload(){
+	protected function encodePayload(){
 		$this->putEntityRuntimeId($this->entityRuntimeId);
-		$this->putVector3f($this->x, $this->y, $this->z);
-		$this->putLFloat($this->pitch);
-		$this->putLFloat($this->yaw);
-		$this->putLFloat($this->bodyYaw); //TODO
-		$this->putByte($this->mode);
-		$this->putBool($this->onGround);
+		$this->putVector3Obj($this->position);
+		($this->buffer .= (\pack("g", $this->pitch)));
+		($this->buffer .= (\pack("g", $this->yaw)));
+		($this->buffer .= (\pack("g", $this->bodyYaw))); //TODO
+		($this->buffer .= \chr($this->mode));
+		($this->buffer .= ($this->onGround ? "\x01" : "\x00"));
 		$this->putEntityRuntimeId($this->ridingEid);
 		if($this->mode === MovePlayerPacket::MODE_TELEPORT){
-			$this->putLInt($this->int1);
-			$this->putLInt($this->int2);
+			($this->buffer .= (\pack("V", $this->int1)));
+			($this->buffer .= (\pack("V", $this->int2)));
 		}
 	}
 

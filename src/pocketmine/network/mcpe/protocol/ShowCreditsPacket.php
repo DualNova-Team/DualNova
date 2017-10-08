@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -35,15 +35,17 @@ class ShowCreditsPacket extends DataPacket{
 	const STATUS_START_CREDITS = 0;
 	const STATUS_END_CREDITS = 1;
 
+	/** @var int */
 	public $playerEid;
+	/** @var int */
 	public $status;
 
-	public function decodePayload(){
+	protected function decodePayload(){
 		$this->playerEid = $this->getEntityRuntimeId();
 		$this->status = $this->getVarInt();
 	}
 
-	public function encodePayload(){
+	protected function encodePayload(){
 		$this->putEntityRuntimeId($this->playerEid);
 		$this->putVarInt($this->status);
 	}

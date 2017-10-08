@@ -23,25 +23,33 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\utils\Utils;
 
 class LoginPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::LOGIN_PACKET;
 
 	const EDITION_POCKET = 0;
 
+	/** @var string */
 	public $username;
+	/** @var int */
 	public $protocol;
-	public $gameEdition;
+	/** @var string */
 	public $clientUUID;
+	/** @var int */
 	public $clientId;
+	/** @var string */
 	public $identityPublicKey;
+	/** @var string */
 	public $serverAddress;
 
+	/** @var string */
 	public $skinId;
+	/** @var string */
 	public $skin = "";
 
 	/** @var array (the "chain" index contains one or more JWTs) */
@@ -52,24 +60,22 @@ class LoginPacket extends DataPacket{
 	public $clientData = [];
 
 	public function canBeSentBeforeLogin() : bool{
-		return true;
+		return \true;
 	}
 
-	public function decodePayload(){
-		$this->protocol = $this->getInt();
+	protected function decodePayload(){
+		$this->protocol = ((\unpack("N", $this->get(4))[1] << 32 >> 32));
 
 		if($this->protocol !== ProtocolInfo::CURRENT_PROTOCOL){
-			$this->buffer = null;
+			$this->buffer = \null;
 			return; //Do not attempt to decode for non-accepted protocols
 		}
 
-		$this->gameEdition = $this->getByte();
-
 		$this->setBuffer($this->getString(), 0);
 
-		$this->chainData = json_decode($this->get($this->getLInt()), true);
+		$this->chainData = \json_decode($this->get(((\unpack("V", $this->get(4))[1] << 32 >> 32))), \true);
 		foreach($this->chainData["chain"] as $chain){
-			$webtoken = $this->decodeToken($chain);
+			$webtoken = Utils::decodeJWT($chain);
 			if(isset($webtoken["extraData"])){
 				if(isset($webtoken["extraData"]["displayName"])){
 					$this->username = $webtoken["extraData"]["displayName"];
@@ -83,26 +89,20 @@ class LoginPacket extends DataPacket{
 			}
 		}
 
-		$this->clientDataJwt = $this->get($this->getLInt());
-		$this->clientData = $this->decodeToken($this->clientDataJwt);
+		$this->clientDataJwt = $this->get(((\unpack("V", $this->get(4))[1] << 32 >> 32)));
+		$this->clientData = Utils::decodeJWT($this->clientDataJwt);
 
-		$this->clientId = $this->clientData["ClientRandomId"] ?? null;
-		$this->serverAddress = $this->clientData["ServerAddress"] ?? null;
-		$this->skinId = $this->clientData["SkinId"] ?? null;
+		$this->clientId = $this->clientData["ClientRandomId"] ?? \null;
+		$this->serverAddress = $this->clientData["ServerAddress"] ?? \null;
+		$this->skinId = $this->clientData["SkinId"] ?? \null;
 
 		if(isset($this->clientData["SkinData"])){
-			$this->skin = base64_decode($this->clientData["SkinData"]);
+			$this->skin = \base64_decode($this->clientData["SkinData"]);
 		}
 	}
 
-	public function encodePayload(){
+	protected function encodePayload(){
 		//TODO
-	}
-
-	public function decodeToken($token){
-		list($headB64, $payloadB64, $sigB64) = explode(".", $token);
-
-		return json_decode(base64_decode($payloadB64), true);
 	}
 
 	public function handle(NetworkSession $session) : bool{

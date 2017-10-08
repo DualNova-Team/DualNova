@@ -32,9 +32,9 @@ abstract class NamedTag extends Tag{
 	 * @param string $name
 	 * @param mixed  $value
 	 */
-	public function __construct(string $name = "", $value = null){
-		$this->__name = ($name === null or $name === false) ? "" : $name;
-		if($value !== null){
+	public function __construct(string $name = "", $value = \null){
+		$this->__name = ($name === \null or $name === \false) ? "" : $name;
+		if($value !== \null){
 			$this->setValue($value);
 		}
 	}

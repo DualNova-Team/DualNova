@@ -51,7 +51,7 @@ class TranslationContainer extends TextContainer{
 	 * @return string|null
 	 */
 	public function getParameter(int $i){
-		return $this->params[$i] ?? null;
+		return $this->params[$i] ?? \null;
 	}
 
 	/**
@@ -59,8 +59,8 @@ class TranslationContainer extends TextContainer{
 	 * @param string $str
 	 */
 	public function setParameter(int $i, string $str){
-		if($i < 0 or $i > count($this->params)){ //Intended, allow to set the last
-			throw new \InvalidArgumentException("Invalid index $i, have " . count($this->params));
+		if($i < 0 or $i > \count($this->params)){ //Intended, allow to set the last
+			throw new \InvalidArgumentException("Invalid index $i, have " . \count($this->params));
 		}
 
 		$this->params[$i] = $str;

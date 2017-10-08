@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -31,23 +31,27 @@ use pocketmine\network\mcpe\NetworkSession;
 class PlayerInputPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::PLAYER_INPUT_PACKET;
 
+	/** @var float */
 	public $motionX;
+	/** @var float */
 	public $motionY;
+	/** @var bool */
 	public $unknownBool1;
+	/** @var bool */
 	public $unknownBool2;
 
-	public function decodePayload(){
-		$this->motionX = $this->getLFloat();
-		$this->motionY = $this->getLFloat();
-		$this->unknownBool1 = $this->getBool();
-		$this->unknownBool2 = $this->getBool();
+	protected function decodePayload(){
+		$this->motionX = ((\unpack("g", $this->get(4))[1]));
+		$this->motionY = ((\unpack("g", $this->get(4))[1]));
+		$this->unknownBool1 = (($this->get(1) !== "\x00"));
+		$this->unknownBool2 = (($this->get(1) !== "\x00"));
 	}
 
-	public function encodePayload(){
-		$this->putLFloat($this->motionX);
-		$this->putLFloat($this->motionY);
-		$this->putBool($this->unknownBool1);
-		$this->putBool($this->unknownBool2);
+	protected function encodePayload(){
+		($this->buffer .= (\pack("g", $this->motionX)));
+		($this->buffer .= (\pack("g", $this->motionY)));
+		($this->buffer .= ($this->unknownBool1 ? "\x01" : "\x00"));
+		($this->buffer .= ($this->unknownBool2 ? "\x01" : "\x00"));
 	}
 
 	public function handle(NetworkSession $session) : bool{

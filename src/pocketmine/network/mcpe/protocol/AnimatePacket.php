@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -36,23 +36,26 @@ class AnimatePacket extends DataPacket{
 	const ACTION_STOP_SLEEP = 3;
 	const ACTION_CRITICAL_HIT = 4;
 
+	/** @var int */
 	public $action;
+	/** @var int */
 	public $entityRuntimeId;
+	/** @var float */
 	public $float = 0.0; //TODO (Boat rowing time?)
 
-	public function decodePayload(){
+	protected function decodePayload(){
 		$this->action = $this->getVarInt();
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
 		if($this->action & 0x80){
-			$this->float = $this->getLFloat();
+			$this->float = ((\unpack("g", $this->get(4))[1]));
 		}
 	}
 
-	public function encodePayload(){
+	protected function encodePayload(){
 		$this->putVarInt($this->action);
 		$this->putEntityRuntimeId($this->entityRuntimeId);
 		if($this->action & 0x80){
-			$this->putLFloat($this->float);
+			($this->buffer .= (\pack("g", $this->float)));
 		}
 	}
 

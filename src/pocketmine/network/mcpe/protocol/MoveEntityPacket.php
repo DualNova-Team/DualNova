@@ -23,42 +23,48 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkSession;
 
 class MoveEntityPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::MOVE_ENTITY_PACKET;
 
+	/** @var int */
 	public $entityRuntimeId;
-	public $x;
-	public $y;
-	public $z;
+	/** @var Vector3 */
+	public $position;
+	/** @var float */
 	public $yaw;
+	/** @var float */
 	public $headYaw;
+	/** @var float */
 	public $pitch;
-	public $onGround = false;
-	public $teleported = false;
+	/** @var bool */
+	public $onGround = \false;
+	/** @var bool */
+	public $teleported = \false;
 
-	public function decodePayload(){
+	protected function decodePayload(){
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
-		$this->getVector3f($this->x, $this->y, $this->z);
+		$this->position = $this->getVector3Obj();
 		$this->pitch = $this->getByteRotation();
 		$this->headYaw = $this->getByteRotation();
 		$this->yaw = $this->getByteRotation();
-		$this->onGround = $this->getBool();
-		$this->teleported = $this->getBool();
+		$this->onGround = (($this->get(1) !== "\x00"));
+		$this->teleported = (($this->get(1) !== "\x00"));
 	}
 
-	public function encodePayload(){
+	protected function encodePayload(){
 		$this->putEntityRuntimeId($this->entityRuntimeId);
-		$this->putVector3f($this->x, $this->y, $this->z);
+		$this->putVector3Obj($this->position);
 		$this->putByteRotation($this->pitch);
 		$this->putByteRotation($this->headYaw);
 		$this->putByteRotation($this->yaw);
-		$this->putBool($this->onGround);
-		$this->putBool($this->teleported);
+		($this->buffer .= ($this->onGround ? "\x01" : "\x00"));
+		($this->buffer .= ($this->teleported ? "\x01" : "\x00"));
 	}
 
 	public function handle(NetworkSession $session) : bool{

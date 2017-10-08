@@ -30,7 +30,7 @@ use pocketmine\utils\TextFormat;
 
 class ReloadCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.reload.description",
@@ -41,7 +41,7 @@ class ReloadCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
 		Command::broadcastCommandMessage($sender, new TranslationContainer(TextFormat::YELLOW . "%pocketmine.command.reload.reloading"));
@@ -49,6 +49,6 @@ class ReloadCommand extends VanillaCommand{
 		$sender->getServer()->reload();
 		Command::broadcastCommandMessage($sender, new TranslationContainer(TextFormat::YELLOW . "%pocketmine.command.reload.reloaded"));
 
-		return true;
+		return \true;
 	}
 }

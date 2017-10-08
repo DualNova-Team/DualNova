@@ -43,27 +43,27 @@ class Rail extends Flowable{
 
 	protected $id = self::RAIL;
 
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function getName(){
+	public function getName() : string{
 		return "Rail";
 	}
 
-	public function getHardness(){
+	public function getHardness() : float{
 		return 0.7;
 	}
 
-	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
-		if(!$block->getSide(Vector3::SIDE_DOWN)->isTransparent()){
-			return $this->getLevel()->setBlock($block, $this, true, true);
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $facePos, Player $player = \null) : bool{
+		if(!$blockReplace->getSide(Vector3::SIDE_DOWN)->isTransparent()){
+			return $this->getLevel()->setBlock($blockReplace, $this, \true, \true);
 		}
 
-		return false;
+		return \false;
 	}
 
-	public function onUpdate($type){
+	public function onUpdate(int $type){
 		if($type === Level::BLOCK_UPDATE_NORMAL){
 			if($this->getSide(Vector3::SIDE_DOWN)->isTransparent()){
 				$this->getLevel()->useBreakOn($this);
@@ -73,6 +73,10 @@ class Rail extends Flowable{
 			}
 		}
 
-		return false;
+		return \false;
+	}
+
+	public function getVariantBitmask() : int{
+		return 0;
 	}
 }

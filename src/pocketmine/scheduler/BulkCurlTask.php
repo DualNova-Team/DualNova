@@ -45,13 +45,13 @@ class BulkCurlTask extends AsyncTask{
 	 * @param array      $operations
 	 * @param mixed|null $complexData
 	 */
-	public function __construct(array $operations, $complexData = null){
-		parent::__construct($complexData);
-		$this->operations = serialize($operations);
+	public function __construct(array $operations, $complexData = \null){
+		$this->storeLocal($complexData);
+		$this->operations = \serialize($operations);
 	}
 
 	public function onRun(){
-		$operations = unserialize($this->operations);
+		$operations = \unserialize($this->operations);
 		$results = [];
 		foreach($operations as $op){
 			try{

@@ -23,9 +23,10 @@ declare(strict_types=1);
 
 namespace pocketmine\utils;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 use pocketmine\item\Item;
+use pocketmine\item\ItemFactory;
 
 class BinaryStream{
 
@@ -63,23 +64,23 @@ class BinaryStream{
 	 * @return string
 	 */
 	public function get($len) : string{
-		if($len === true){
-			$str = substr($this->buffer, $this->offset);
-			$this->offset = strlen($this->buffer);
+		if($len === \true){
+			$str = \substr($this->buffer, $this->offset);
+			$this->offset = \strlen($this->buffer);
 			return $str;
 		}elseif($len < 0){
-			$this->offset = strlen($this->buffer) - 1;
+			$this->offset = \strlen($this->buffer) - 1;
 			return "";
 		}elseif($len === 0){
 			return "";
 		}
 
-		return $len === 1 ? $this->buffer{$this->offset++} : substr($this->buffer, ($this->offset += $len) - $len, $len);
+		return $len === 1 ? $this->buffer{$this->offset++} : \substr($this->buffer, ($this->offset += $len) - $len, $len);
 	}
 
 	public function getRemaining() : string{
-		$str = substr($this->buffer, $this->offset);
-		$this->offset = strlen($this->buffer);
+		$str = \substr($this->buffer, $this->offset);
+		$this->offset = \strlen($this->buffer);
 		return $str;
 	}
 
@@ -98,95 +99,95 @@ class BinaryStream{
 
 
 	public function getByte() : int{
-		return ord($this->buffer{$this->offset++});
+		return \ord($this->buffer{$this->offset++});
 	}
 
 	public function putByte(int $v){
-		$this->buffer .= chr($v);
+		$this->buffer .= \chr($v);
 	}
 
 
 	public function getShort() : int{
-		return Binary::readShort($this->get(2));
+		return (\unpack("n", $this->get(2))[1]);
 	}
 
 	public function getSignedShort() : int{
-		return Binary::readSignedShort($this->get(2));
+		return (\unpack("n", $this->get(2))[1] << 48 >> 48);
 	}
 
 	public function putShort(int $v){
-		$this->buffer .= Binary::writeShort($v);
+		$this->buffer .= (\pack("n", $v));
 	}
 
 	public function getLShort() : int{
-		return Binary::readLShort($this->get(2));
+		return (\unpack("v", $this->get(2))[1]);
 	}
 
 	public function getSignedLShort() : int{
-		return Binary::readSignedLShort($this->get(2));
+		return (\unpack("v", $this->get(2))[1] << 48 >> 48);
 	}
 
 	public function putLShort(int $v){
-		$this->buffer .= Binary::writeLShort($v);
+		$this->buffer .= (\pack("v", $v));
 	}
 
 
 	public function getTriad() : int{
-		return Binary::readTriad($this->get(3));
+		return \unpack("N", "\x00" . $this->get(3))[1];
 	}
 
 	public function putTriad(int $v){
-		$this->buffer .= Binary::writeTriad($v);
+		$this->buffer .= (\substr(\pack("N", $v), 1));
 	}
 
 	public function getLTriad() : int{
-		return Binary::readLTriad($this->get(3));
+		return \unpack("V", $this->get(3) . "\x00")[1];
 	}
 
 	public function putLTriad(int $v){
-		$this->buffer .= Binary::writeLTriad($v);
+		$this->buffer .= (\substr(\pack("V", $v), 0, -1));
 	}
 
 
 	public function getInt() : int{
-		return Binary::readInt($this->get(4));
+		return (\unpack("N", $this->get(4))[1] << 32 >> 32);
 	}
 
 	public function putInt(int $v){
-		$this->buffer .= Binary::writeInt($v);
+		$this->buffer .= (\pack("N", $v));
 	}
 
 	public function getLInt() : int{
-		return Binary::readLInt($this->get(4));
+		return (\unpack("V", $this->get(4))[1] << 32 >> 32);
 	}
 
 	public function putLInt(int $v){
-		$this->buffer .= Binary::writeLInt($v);
+		$this->buffer .= (\pack("V", $v));
 	}
 
 
 	public function getFloat() : float{
-		return Binary::readFloat($this->get(4));
+		return (\unpack("G", $this->get(4))[1]);
 	}
 
 	public function getRoundedFloat(int $accuracy) : float{
-		return Binary::readRoundedFloat($this->get(4), $accuracy);
+		return (\round((\unpack("G", $this->get(4))[1]),  $accuracy));
 	}
 
 	public function putFloat(float $v){
-		$this->buffer .= Binary::writeFloat($v);
+		$this->buffer .= (\pack("G", $v));
 	}
 
 	public function getLFloat() : float{
-		return Binary::readLFloat($this->get(4));
+		return (\unpack("g", $this->get(4))[1]);
 	}
 
 	public function getRoundedLFloat(int $accuracy) : float{
-		return Binary::readRoundedLFloat($this->get(4), $accuracy);
+		return (\round((\unpack("g", $this->get(4))[1]),  $accuracy));
 	}
 
 	public function putLFloat(float $v){
-		$this->buffer .= Binary::writeLFloat($v);
+		$this->buffer .= (\pack("g", $v));
 	}
 
 
@@ -201,7 +202,7 @@ class BinaryStream{
 	 * @param int $v
 	 */
 	public function putLong(int $v){
-		$this->buffer .= Binary::writeLong($v);
+		$this->buffer .= (\pack("NN", $v >> 32, $v & 0xFFFFFFFF));
 	}
 
 	/**
@@ -215,7 +216,7 @@ class BinaryStream{
 	 * @param int $v
 	 */
 	public function putLLong(int $v){
-		$this->buffer .= Binary::writeLLong($v);
+		$this->buffer .= (\pack("VV", $v & 0xFFFFFFFF, $v >> 32));
 	}
 
 
@@ -224,31 +225,31 @@ class BinaryStream{
 	}
 
 	public function putString(string $v){
-		$this->putUnsignedVarInt(strlen($v));
-		$this->put($v);
+		$this->putUnsignedVarInt(\strlen($v));
+		($this->buffer .= $v);
 	}
 
 
 	public function getUUID() : UUID{
 		//This is actually two little-endian longs: UUID Most followed by UUID Least
-		$part1 = $this->getLInt();
-		$part0 = $this->getLInt();
-		$part3 = $this->getLInt();
-		$part2 = $this->getLInt();
+		$part1 = ((\unpack("V", $this->get(4))[1] << 32 >> 32));
+		$part0 = ((\unpack("V", $this->get(4))[1] << 32 >> 32));
+		$part3 = ((\unpack("V", $this->get(4))[1] << 32 >> 32));
+		$part2 = ((\unpack("V", $this->get(4))[1] << 32 >> 32));
 		return new UUID($part0, $part1, $part2, $part3);
 	}
 
 	public function putUUID(UUID $uuid){
-		$this->putLInt($uuid->getPart(1));
-		$this->putLInt($uuid->getPart(0));
-		$this->putLInt($uuid->getPart(3));
-		$this->putLInt($uuid->getPart(2));
+		($this->buffer .= (\pack("V", $uuid->getPart(1))));
+		($this->buffer .= (\pack("V", $uuid->getPart(0))));
+		($this->buffer .= (\pack("V", $uuid->getPart(3))));
+		($this->buffer .= (\pack("V", $uuid->getPart(2))));
 	}
 
 	public function getSlot() : Item{
 		$id = $this->getVarInt();
 		if($id <= 0){
-			return Item::get(0, 0, 0);
+			return ItemFactory::get(0, 0, 0);
 		}
 
 		$auxValue = $this->getVarInt();
@@ -258,7 +259,7 @@ class BinaryStream{
 		}
 		$cnt = $auxValue & 0xff;
 
-		$nbtLen = $this->getLShort();
+		$nbtLen = ((\unpack("v", $this->get(2))[1]));
 		$nbt = "";
 
 		if($nbtLen > 0){
@@ -281,7 +282,7 @@ class BinaryStream{
 			}
 		}
 
-		return Item::get($id, $data, $cnt, $nbt);
+		return ItemFactory::get($id, $data, $cnt, $nbt);
 	}
 
 
@@ -296,8 +297,8 @@ class BinaryStream{
 		$this->putVarInt($auxValue);
 
 		$nbt = $item->getCompoundTag();
-		$this->putLShort(strlen($nbt));
-		$this->put($nbt);
+		($this->buffer .= (\pack("v", \strlen($nbt))));
+		($this->buffer .= $nbt);
 
 		$this->putVarInt(0); //CanPlaceOn entry count (TODO)
 		$this->putVarInt(0); //CanDestroy entry count (TODO)
@@ -316,7 +317,7 @@ class BinaryStream{
 	 * @param int $v
 	 */
 	public function putUnsignedVarInt(int $v){
-		$this->put(Binary::writeUnsignedVarInt($v));
+		($this->buffer .= Binary::writeUnsignedVarInt($v));
 	}
 
 	/**
@@ -332,7 +333,7 @@ class BinaryStream{
 	 * @param int $v
 	 */
 	public function putVarInt(int $v){
-		$this->put(Binary::writeVarInt($v));
+		($this->buffer .= Binary::writeVarInt($v));
 	}
 
 	/**

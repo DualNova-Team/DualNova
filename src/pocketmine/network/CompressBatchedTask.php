@@ -39,24 +39,24 @@ class CompressBatchedTask extends AsyncTask{
 	 */
 	public function __construct(BatchPacket $batch, array $targets){
 		$this->data = $batch->payload;
-		$this->targets = serialize($targets);
+		$this->targets = \serialize($targets);
 		$this->level = $batch->getCompressionLevel();
 	}
 
 	public function onRun(){
 		$batch = new BatchPacket();
 		$batch->payload = $this->data;
-		$this->data = null;
+		$this->data = \null;
 
 		$batch->setCompressionLevel($this->level);
 		$batch->encode();
 
-		$this->setResult($batch->buffer, false);
+		$this->setResult($batch->buffer, \false);
 	}
 
 	public function onCompletion(Server $server){
 		$pk = new BatchPacket($this->getResult());
-		$pk->isEncoded = true;
-		$server->broadcastPacketsCallback($pk, unserialize($this->targets));
+		$pk->isEncoded = \true;
+		$server->broadcastPacketsCallback($pk, \unserialize($this->targets));
 	}
 }

@@ -15,12 +15,8 @@
 
 namespace raklib\protocol;
 
-#ifndef COMPILE
+
 use raklib\Binary;
-
-#endif
-
-#include <rules/RakLibPacket.h>
 
 abstract class Packet{
 	public static $ID = -1;
@@ -31,51 +27,58 @@ abstract class Packet{
 
 	protected function get($len){
 		if($len < 0){
-			$this->offset = strlen($this->buffer) - 1;
+			$this->offset = \strlen($this->buffer) - 1;
 
 			return "";
-		}elseif($len === true){
-			return substr($this->buffer, $this->offset);
+		}elseif($len === \true){
+			return \substr($this->buffer, $this->offset);
 		}
 
-		return $len === 1 ? $this->buffer{$this->offset++} : substr($this->buffer, ($this->offset += $len) - $len, $len);
+		return $len === 1 ? $this->buffer{$this->offset++} : \substr($this->buffer, ($this->offset += $len) - $len, $len);
 	}
 
-	protected function getLong($signed = true){
-		return Binary::readLong($this->get(8), $signed);
+	protected function getLong(){
+		return Binary::readLong($this->get(8));
 	}
 
 	protected function getInt(){
-		return Binary::readInt($this->get(4));
+		return (\unpack("N", $this->get(4))[1] << 32 >> 32);
 	}
 
-	protected function getShort($signed = true){
-		return $signed ? Binary::readSignedShort($this->get(2)) : Binary::readShort($this->get(2));
+	protected function getShort($signed = \true){
+		return $signed ? (\unpack("n", $this->get(2))[1] << 48 >> 48) : (\unpack("n", $this->get(2))[1]);
 	}
 
 	protected function getTriad(){
-		return Binary::readTriad($this->get(3));
+		return \unpack("N", "\x00" . $this->get(3))[1];
 	}
 
 	protected function getLTriad(){
-		return Binary::readLTriad($this->get(3));
+		return \unpack("V", $this->get(3) . "\x00")[1];
 	}
 
 	protected function getByte(){
-		return ord($this->buffer{$this->offset++});
+		return \ord($this->buffer{$this->offset++});
 	}
 
 	protected function getString(){
-		return $this->get($this->getShort());
+		return $this->get(((\unpack("n", $this->get(2))[1])));
 	}
 
-	protected function getAddress(&$addr, &$port, &$version = null){
-		$version = $this->getByte();
+	protected function getAddress(&$addr, &$port, &$version = \null){
+		$version = (\ord($this->get(1)));
 		if($version === 4){
-			$addr = ((~$this->getByte()) & 0xff) .".". ((~$this->getByte()) & 0xff) .".". ((~$this->getByte()) & 0xff) .".". ((~$this->getByte()) & 0xff);
-			$port = $this->getShort(false);
+			$addr = ((~(\ord($this->get(1)))) & 0xff) . "." . ((~(\ord($this->get(1)))) & 0xff) . "." . ((~(\ord($this->get(1)))) & 0xff) . "." . ((~(\ord($this->get(1)))) & 0xff);
+			$port = ((\unpack("n", $this->get(2))[1]));
+		}elseif($version === 6){
+			//http://man7.org/1/man-pages/man7/ipv6.7.html
+			(\unpack("v", $this->get(2))[1]); //Family, AF_INET6
+			$port = ((\unpack("n", $this->get(2))[1]));
+			((\unpack("N", $this->get(4))[1] << 32 >> 32)); //flow info
+			$addr = \inet_ntop($this->get(16));
+			((\unpack("N", $this->get(4))[1] << 32 >> 32)); //scope ID
 		}else{
-			//TODO: IPv6
+			throw new \UnexpectedValueException("Unknown IP address version $version");
 		}
 	}
 
@@ -88,48 +91,54 @@ abstract class Packet{
 	}
 
 	protected function putLong($v){
-		$this->buffer .= Binary::writeLong($v);
+		$this->buffer .= (\pack("NN", $v >> 32, $v & 0xFFFFFFFF));
 	}
 
 	protected function putInt($v){
-		$this->buffer .= Binary::writeInt($v);
+		$this->buffer .= (\pack("N", $v));
 	}
 
 	protected function putShort($v){
-		$this->buffer .= Binary::writeShort($v);
+		$this->buffer .= (\pack("n", $v));
 	}
 
 	protected function putTriad($v){
-		$this->buffer .= Binary::writeTriad($v);
+		$this->buffer .= (\substr(\pack("N", $v), 1));
 	}
 
 	protected function putLTriad($v){
-		$this->buffer .= Binary::writeLTriad($v);
+		$this->buffer .= (\substr(\pack("V", $v), 0, -1));
 	}
 
 	protected function putByte($v){
-		$this->buffer .= chr($v);
+		$this->buffer .= \chr($v);
 	}
 
 	protected function putString($v){
-		$this->putShort(strlen($v));
-		$this->put($v);
+		($this->buffer .= (\pack("n", \strlen($v))));
+		($this->buffer .= $v);
 	}
-	
+
 	protected function putAddress($addr, $port, $version = 4){
-		$this->putByte($version);
+		($this->buffer .= \chr($version));
 		if($version === 4){
-			foreach(explode(".", $addr) as $b){
-				$this->putByte((~((int) $b)) & 0xff);
+			foreach(\explode(".", $addr) as $b){
+				($this->buffer .= \chr((~((int) $b)) & 0xff));
 			}
-			$this->putShort($port);
+			($this->buffer .= (\pack("n", $port)));
+		}elseif($version === 6){
+			($this->buffer .= (\pack("v", AF_INET6)));
+			($this->buffer .= (\pack("n", $port)));
+			($this->buffer .= (\pack("N", 0)));
+			($this->buffer .= \inet_pton($addr));
+			($this->buffer .= (\pack("N", 0)));
 		}else{
-			//IPv6
+			throw new \InvalidArgumentException("IP version $version is not supported");
 		}
 	}
 
 	public function encode(){
-		$this->buffer = chr(static::$ID);
+		$this->buffer = \chr(static::$ID);
 	}
 
 	public function decode(){
@@ -137,9 +146,10 @@ abstract class Packet{
 	}
 
 	public function clean(){
-		$this->buffer = null;
+		$this->buffer = \null;
 		$this->offset = 0;
-		$this->sendTime = null;
+		$this->sendTime = \null;
+
 		return $this;
 	}
 }

@@ -38,6 +38,7 @@ use pocketmine\nbt\tag\{
 	ByteTag, CompoundTag, FloatTag, IntTag, LongTag, StringTag
 };
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
+use pocketmine\Player;
 use pocketmine\tile\Tile;
 use pocketmine\utils\Binary;
 use pocketmine\utils\BinaryStream;
@@ -82,11 +83,11 @@ class LevelDB extends BaseLevelProvider{
 	public function __construct(Level $level, string $path){
 		$this->level = $level;
 		$this->path = $path;
-		if(!file_exists($this->path)){
-			mkdir($this->path, 0777, true);
+		if(!\file_exists($this->path)){
+			\mkdir($this->path, 0777, \true);
 		}
 		$nbt = new NBT(NBT::LITTLE_ENDIAN);
-		$nbt->read(substr(file_get_contents($this->getPath() . "level.dat"), 8));
+		$nbt->read(\substr(\file_get_contents($this->getPath() . "level.dat"), 8));
 		$levelData = $nbt->getData();
 		if($levelData instanceof CompoundTag){
 			$this->levelData = $levelData;
@@ -107,8 +108,8 @@ class LevelDB extends BaseLevelProvider{
 				switch((int) $this->levelData->Generator->getValue()){ //Detect correct generator from MCPE data
 					case self::GENERATOR_FLAT:
 						$this->levelData->generatorName = new StringTag("generatorName", (string) Generator::getGenerator("FLAT"));
-						if(($layers = $this->db->get(self::ENTRY_FLAT_WORLD_LAYERS)) !== false){ //Detect existing custom flat layers
-							$layers = trim($layers, "[]");
+						if(($layers = $this->db->get(self::ENTRY_FLAT_WORLD_LAYERS)) !== \false){ //Detect existing custom flat layers
+							$layers = \trim($layers, "[]");
 						}else{
 							$layers = "7,3,3,2";
 						}
@@ -143,16 +144,16 @@ class LevelDB extends BaseLevelProvider{
 	}
 
 	public static function isValid(string $path) : bool{
-		return file_exists($path . "/level.dat") and is_dir($path . "/db/");
+		return \file_exists($path . "/level.dat") and \is_dir($path . "/db/");
 	}
 
 	public static function generate(string $path, string $name, int $seed, string $generator, array $options = []){
-		if(!file_exists($path)){
-			mkdir($path, 0777, true);
+		if(!\file_exists($path)){
+			\mkdir($path, 0777, \true);
 		}
 
-		if(!file_exists($path . "/db")){
-			mkdir($path . "/db", 0777, true);
+		if(!\file_exists($path . "/db")){
+			\mkdir($path . "/db", 0777, \true);
 		}
 
 		switch($generator){
@@ -171,7 +172,7 @@ class LevelDB extends BaseLevelProvider{
 			new ByteTag("ForceGameType", 0),
 			new IntTag("GameType", 0),
 			new IntTag("Generator", $generatorType),
-			new LongTag("LastPlayed", time()),
+			new LongTag("LastPlayed", \time()),
 			new StringTag("LevelName", $name),
 			new IntTag("NetworkVersion", ProtocolInfo::CURRENT_PROTOCOL),
 			//new IntTag("Platform", 2), //TODO: find out what the possible values are for
@@ -204,7 +205,7 @@ class LevelDB extends BaseLevelProvider{
 		$nbt = new NBT(NBT::LITTLE_ENDIAN);
 		$nbt->setData($levelData);
 		$buffer = $nbt->write();
-		file_put_contents($path . "level.dat", Binary::writeLInt(self::CURRENT_STORAGE_VERSION) . Binary::writeLInt(strlen($buffer)) . $buffer);
+		\file_put_contents($path . "level.dat", (\pack("V", self::CURRENT_STORAGE_VERSION)) . (\pack("V", \strlen($buffer))) . $buffer);
 
 
 		$db = new \LevelDB($path . "/db", [
@@ -212,13 +213,13 @@ class LevelDB extends BaseLevelProvider{
 		]);
 
 		if($generatorType === self::GENERATOR_FLAT and isset($options["preset"])){
-			$layers = explode(";", $options["preset"])[1] ?? "";
+			$layers = \explode(";", $options["preset"])[1] ?? "";
 			if($layers !== ""){
 				$out = "[";
 				foreach(Flat::parseLayers($layers) as $result){
 					$out .= $result[0] . ","; //only id, meta will unfortunately not survive :(
 				}
-				$out = rtrim($out, ",") . "]"; //remove trailing comma
+				$out = \rtrim($out, ",") . "]"; //remove trailing comma
 				$db->put(self::ENTRY_FLAT_WORLD_LAYERS, $out); //Add vanilla flatworld layers to allow terrain generation by MCPE to continue seamlessly
 			}
 		}
@@ -234,12 +235,12 @@ class LevelDB extends BaseLevelProvider{
 		$nbt = new NBT(NBT::LITTLE_ENDIAN);
 		$nbt->setData($this->levelData);
 		$buffer = $nbt->write();
-		file_put_contents($this->getPath() . "level.dat", Binary::writeLInt(self::CURRENT_STORAGE_VERSION) . Binary::writeLInt(strlen($buffer)) . $buffer);
+		\file_put_contents($this->getPath() . "level.dat", (\pack("V", self::CURRENT_STORAGE_VERSION)) . (\pack("V", \strlen($buffer))) . $buffer);
 	}
 
 	public function unloadChunks(){
 		foreach($this->chunks as $chunk){
-			$this->unloadChunk($chunk->getX(), $chunk->getZ(), false);
+			$this->unloadChunk($chunk->getX(), $chunk->getZ(), \false);
 		}
 		$this->chunks = [];
 	}
@@ -257,7 +258,7 @@ class LevelDB extends BaseLevelProvider{
 	}
 
 	public function isChunkLoaded(int $x, int $z) : bool{
-		return isset($this->chunks[Level::chunkHash($x, $z)]);
+		return isset($this->chunks[((($x) & 0xFFFFFFFF) << 32) | (( $z) & 0xFFFFFFFF)]);
 	}
 
 	public function saveChunks(){
@@ -266,24 +267,24 @@ class LevelDB extends BaseLevelProvider{
 		}
 	}
 
-	public function loadChunk(int $chunkX, int $chunkZ, bool $create = false) : bool{
-		if(isset($this->chunks[$index = Level::chunkHash($chunkX, $chunkZ)])){
-			return true;
+	public function loadChunk(int $chunkX, int $chunkZ, bool $create = \false) : bool{
+		if(isset($this->chunks[$index = ((($chunkX) & 0xFFFFFFFF) << 32) | (( $chunkZ) & 0xFFFFFFFF)])){
+			return \true;
 		}
 
 		$this->level->timings->syncChunkLoadDataTimer->startTiming();
 		$chunk = $this->readChunk($chunkX, $chunkZ);
-		if($chunk === null and $create){
+		if($chunk === \null and $create){
 			$chunk = Chunk::getEmptyChunk($chunkX, $chunkZ);
 		}
 		$this->level->timings->syncChunkLoadDataTimer->stopTiming();
 
-		if($chunk !== null){
+		if($chunk !== \null){
 			$this->chunks[$index] = $chunk;
 
-			return true;
+			return \true;
 		}else{
-			return false;
+			return \false;
 		}
 	}
 
@@ -297,7 +298,7 @@ class LevelDB extends BaseLevelProvider{
 		$index = LevelDB::chunkIndex($chunkX, $chunkZ);
 
 		if(!$this->chunkExists($chunkX, $chunkZ)){
-			return null;
+			return \null;
 		}
 
 		try{
@@ -305,9 +306,9 @@ class LevelDB extends BaseLevelProvider{
 			$subChunks = [];
 
 			/** @var bool $lightPopulated */
-			$lightPopulated = true;
+			$lightPopulated = \true;
 
-			$chunkVersion = ord($this->db->get($index . self::TAG_VERSION));
+			$chunkVersion = \ord($this->db->get($index . self::TAG_VERSION));
 
 			$binaryStream = new BinaryStream();
 
@@ -316,7 +317,7 @@ class LevelDB extends BaseLevelProvider{
 					//TODO: check beds
 				case 3: //MCPE 1.0
 					for($y = 0; $y < Chunk::MAX_SUBCHUNKS; ++$y){
-						if(($data = $this->db->get($index . self::TAG_SUBCHUNK_PREFIX . chr($y))) === false){
+						if(($data = $this->db->get($index . self::TAG_SUBCHUNK_PREFIX . \chr($y))) === \false){
 							continue;
 						}
 
@@ -334,7 +335,7 @@ class LevelDB extends BaseLevelProvider{
 									//Mojang didn't bother changing the subchunk version when they stopped saving sky light -_-
 									$blockSkyLight = "";
 									$blockLight = "";
-									$lightPopulated = false;
+									$lightPopulated = \false;
 								}
 
 								$subChunks[$y] = new SubChunk($blocks, $blockData, $blockSkyLight, $blockLight);
@@ -346,7 +347,7 @@ class LevelDB extends BaseLevelProvider{
 
 					$binaryStream->setBuffer($this->db->get($index . self::TAG_DATA_2D), 0);
 
-					$heightMap = array_values(unpack("v*", $binaryStream->get(512)));
+					$heightMap = \array_values(\unpack("v*", $binaryStream->get(512)));
 					$biomeIds = $binaryStream->get(256);
 					break;
 				case 2: // < MCPE 1.0
@@ -360,32 +361,32 @@ class LevelDB extends BaseLevelProvider{
 						$subOffset = ($yy << 4);
 						$ids = "";
 						for($i = 0; $i < 256; ++$i){
-							$ids .= substr($fullIds, $subOffset, 16);
+							$ids .= \substr($fullIds, $subOffset, 16);
 							$subOffset += 128;
 						}
 						$data = "";
 						$subOffset = ($yy << 3);
 						for($i = 0; $i < 256; ++$i){
-							$data .= substr($fullData, $subOffset, 8);
+							$data .= \substr($fullData, $subOffset, 8);
 							$subOffset += 64;
 						}
 						$skyLight = "";
 						$subOffset = ($yy << 3);
 						for($i = 0; $i < 256; ++$i){
-							$skyLight .= substr($fullSkyLight, $subOffset, 8);
+							$skyLight .= \substr($fullSkyLight, $subOffset, 8);
 							$subOffset += 64;
 						}
 						$blockLight = "";
 						$subOffset = ($yy << 3);
 						for($i = 0; $i < 256; ++$i){
-							$blockLight .= substr($fullBlockLight, $subOffset, 8);
+							$blockLight .= \substr($fullBlockLight, $subOffset, 8);
 							$subOffset += 64;
 						}
 						$subChunks[$yy] = new SubChunk($ids, $data, $skyLight, $blockLight);
 					}
 
-					$heightMap = array_values(unpack("C*", $binaryStream->get(256)));
-					$biomeIds = ChunkUtils::convertBiomeColors(array_values(unpack("N*", $binaryStream->get(1024))));
+					$heightMap = \array_values(\unpack("C*", $binaryStream->get(256)));
+					$biomeIds = ChunkUtils::convertBiomeColors(\array_values(\unpack("N*", $binaryStream->get(1024))));
 					break;
 				default:
 					throw new UnsupportedChunkFormatException("don't know how to decode chunk format version $chunkVersion");
@@ -394,10 +395,10 @@ class LevelDB extends BaseLevelProvider{
 			$nbt = new NBT(NBT::LITTLE_ENDIAN);
 
 			$entities = [];
-			if(($entityData = $this->db->get($index . self::TAG_ENTITY)) !== false and strlen($entityData) > 0){
-				$nbt->read($entityData, true);
+			if(($entityData = $this->db->get($index . self::TAG_ENTITY)) !== \false and \strlen($entityData) > 0){
+				$nbt->read($entityData, \true);
 				$entities = $nbt->getData();
-				if(!is_array($entities)){
+				if(!\is_array($entities)){
 					$entities = [$entities];
 				}
 			}
@@ -409,16 +410,16 @@ class LevelDB extends BaseLevelProvider{
 			}
 
 			$tiles = [];
-			if(($tileData = $this->db->get($index . self::TAG_BLOCK_ENTITY)) !== false and strlen($tileData) > 0){
-				$nbt->read($tileData, true);
+			if(($tileData = $this->db->get($index . self::TAG_BLOCK_ENTITY)) !== \false and \strlen($tileData) > 0){
+				$nbt->read($tileData, \true);
 				$tiles = $nbt->getData();
-				if(!is_array($tiles)){
+				if(!\is_array($tiles)){
 					$tiles = [$tiles];
 				}
 			}
 
 			$extraData = [];
-			if(($extraRawData = $this->db->get($index . self::TAG_BLOCK_EXTRA_DATA)) !== false and strlen($extraRawData) > 0){
+			if(($extraRawData = $this->db->get($index . self::TAG_BLOCK_EXTRA_DATA)) !== \false and \strlen($extraRawData) > 0){
 				$binaryStream->setBuffer($extraRawData, 0);
 				$count = $binaryStream->getLInt();
 				for($i = 0; $i < $count; ++$i){
@@ -441,8 +442,8 @@ class LevelDB extends BaseLevelProvider{
 
 			//TODO: tile ticks, biome states (?)
 
-			$chunk->setGenerated(true);
-			$chunk->setPopulated(true);
+			$chunk->setGenerated(\true);
+			$chunk->setPopulated(\true);
 			$chunk->setLightPopulated($lightPopulated);
 
 			return $chunk;
@@ -452,41 +453,41 @@ class LevelDB extends BaseLevelProvider{
 			$logger = MainLogger::getLogger();
 			$logger->error("Failed to decode LevelDB chunk: " . $e->getMessage());
 
-			return null;
+			return \null;
 		}catch(\Throwable $t){
 			$logger = MainLogger::getLogger();
 			$logger->error("LevelDB chunk decode error");
 			$logger->logException($t);
 
-			return null;
+			return \null;
 
 		}
 	}
 
 	private function writeChunk(Chunk $chunk){
 		$index = LevelDB::chunkIndex($chunk->getX(), $chunk->getZ());
-		$this->db->put($index . self::TAG_VERSION, chr(self::CURRENT_LEVEL_CHUNK_VERSION));
+		$this->db->put($index . self::TAG_VERSION, \chr(self::CURRENT_LEVEL_CHUNK_VERSION));
 
 		$subChunks = $chunk->getSubChunks();
 		foreach($subChunks as $y => $subChunk){
-			$key = $index . self::TAG_SUBCHUNK_PREFIX . chr($y);
-			if($subChunk->isEmpty(false)){ //MCPE doesn't save light anymore as of 1.1
+			$key = $index . self::TAG_SUBCHUNK_PREFIX . \chr($y);
+			if($subChunk->isEmpty(\false)){ //MCPE doesn't save light anymore as of 1.1
 				$this->db->delete($key);
 			}else{
 				$this->db->put($key,
-					chr(self::CURRENT_LEVEL_SUBCHUNK_VERSION) .
+					\chr(self::CURRENT_LEVEL_SUBCHUNK_VERSION) .
 					$subChunks[$y]->getBlockIdArray() .
 					$subChunks[$y]->getBlockDataArray()
 				);
 			}
 		}
 
-		$this->db->put($index . self::TAG_DATA_2D, pack("v*", ...$chunk->getHeightMapArray()) . $chunk->getBiomeIdArray());
+		$this->db->put($index . self::TAG_DATA_2D, \pack("v*", ...$chunk->getHeightMapArray()) . $chunk->getBiomeIdArray());
 
 		$extraData = $chunk->getBlockExtraDataArray();
-		if(count($extraData) > 0){
+		if(\count($extraData) > 0){
 			$stream = new BinaryStream();
-			$stream->putLInt(count($extraData));
+			$stream->putLInt(\count($extraData));
 			foreach($extraData as $key => $value){
 				$stream->putLInt($key);
 				$stream->putLShort($value);
@@ -498,10 +499,12 @@ class LevelDB extends BaseLevelProvider{
 		}
 
 		//TODO: use this properly
-		$this->db->put($index . self::TAG_STATE_FINALISATION, chr(self::FINALISATION_DONE));
+		$this->db->put($index . self::TAG_STATE_FINALISATION, \chr(self::FINALISATION_DONE));
 
 		$this->writeTags($chunk->getTiles(), $index . self::TAG_BLOCK_ENTITY);
-		$this->writeTags($chunk->getEntities(), $index . self::TAG_ENTITY);
+		$this->writeTags(\array_filter($chunk->getEntities(), function(Entity $entity) : bool{
+				return !($entity instanceof Player);
+		}), $index . self::TAG_ENTITY);
 
 		$this->db->delete($index . self::TAG_DATA_2D_LEGACY);
 		$this->db->delete($index . self::TAG_LEGACY_TERRAIN);
@@ -514,8 +517,9 @@ class LevelDB extends BaseLevelProvider{
 	private function writeTags(array $targets, string $index){
 		$nbt = new NBT(NBT::LITTLE_ENDIAN);
 		$out = [];
+		/** @var Entity|Tile $target */
 		foreach($targets as $target){
-			if(!$target->closed){
+			if(!$target->isClosed()){
 				$target->saveNBT();
 				$out[] = $target->namedtag;
 			}
@@ -529,15 +533,15 @@ class LevelDB extends BaseLevelProvider{
 		}
 	}
 
-	public function unloadChunk(int $x, int $z, bool $safe = true) : bool{
-		$chunk = $this->chunks[$index = Level::chunkHash($x, $z)] ?? null;
+	public function unloadChunk(int $x, int $z, bool $safe = \true) : bool{
+		$chunk = $this->chunks[$index = ((($x) & 0xFFFFFFFF) << 32) | (( $z) & 0xFFFFFFFF)] ?? \null;
 		if($chunk instanceof Chunk and $chunk->unload($safe)){
 			unset($this->chunks[$index]);
 
-			return true;
+			return \true;
 		}
 
-		return false;
+		return \false;
 	}
 
 	public function saveChunk(int $chunkX, int $chunkZ) : bool{
@@ -548,10 +552,10 @@ class LevelDB extends BaseLevelProvider{
 			}
 			$this->writeChunk($chunk);
 
-			return true;
+			return \true;
 		}
 
-		return false;
+		return \false;
 	}
 
 	/**
@@ -561,14 +565,14 @@ class LevelDB extends BaseLevelProvider{
 	 *
 	 * @return Chunk|null
 	 */
-	public function getChunk(int $chunkX, int $chunkZ, bool $create = false){
-		$index = Level::chunkHash($chunkX, $chunkZ);
+	public function getChunk(int $chunkX, int $chunkZ, bool $create = \false){
+		$index = ((($chunkX) & 0xFFFFFFFF) << 32) | (( $chunkZ) & 0xFFFFFFFF);
 		if(isset($this->chunks[$index])){
 			return $this->chunks[$index];
 		}else{
 			$this->loadChunk($chunkX, $chunkZ, $create);
 
-			return $this->chunks[$index] ?? null;
+			return $this->chunks[$index] ?? \null;
 		}
 	}
 
@@ -583,27 +587,23 @@ class LevelDB extends BaseLevelProvider{
 		$chunk->setX($chunkX);
 		$chunk->setZ($chunkZ);
 
-		if(isset($this->chunks[$index = Level::chunkHash($chunkX, $chunkZ)]) and $this->chunks[$index] !== $chunk){
-			$this->unloadChunk($chunkX, $chunkZ, false);
+		if(isset($this->chunks[$index = ((($chunkX) & 0xFFFFFFFF) << 32) | (( $chunkZ) & 0xFFFFFFFF)]) and $this->chunks[$index] !== $chunk){
+			$this->unloadChunk($chunkX, $chunkZ, \false);
 		}
 
 		$this->chunks[$index] = $chunk;
 	}
 
 	public static function chunkIndex(int $chunkX, int $chunkZ) : string{
-		return Binary::writeLInt($chunkX) . Binary::writeLInt($chunkZ);
+		return (\pack("V", $chunkX)) . (\pack("V", $chunkZ));
 	}
 
 	private function chunkExists(int $chunkX, int $chunkZ) : bool{
-		return $this->db->get(LevelDB::chunkIndex($chunkX, $chunkZ) . self::TAG_VERSION) !== false;
+		return $this->db->get(LevelDB::chunkIndex($chunkX, $chunkZ) . self::TAG_VERSION) !== \false;
 	}
 
 	public function isChunkGenerated(int $chunkX, int $chunkZ) : bool{
-		if($this->chunkExists($chunkX, $chunkZ) and ($chunk = $this->getChunk($chunkX, $chunkZ, false)) !== null){
-			return true;
-		}
-
-		return false;
+		return $this->chunkExists($chunkX, $chunkZ) and ($chunk = $this->getChunk($chunkX, $chunkZ, \false)) !== \null;
 	}
 
 	public function isChunkPopulated(int $chunkX, int $chunkZ) : bool{
@@ -611,13 +611,13 @@ class LevelDB extends BaseLevelProvider{
 		if($chunk instanceof Chunk){
 			return $chunk->isPopulated();
 		}else{
-			return false;
+			return \false;
 		}
 	}
 
 	public function close(){
 		$this->unloadChunks();
 		$this->db->close();
-		$this->level = null;
+		$this->level = \null;
 	}
 }

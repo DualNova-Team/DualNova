@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -31,20 +31,22 @@ use pocketmine\network\mcpe\NetworkSession;
 class DisconnectPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::DISCONNECT_PACKET;
 
-	public $hideDisconnectionScreen = false;
+	/** @var bool */
+	public $hideDisconnectionScreen = \false;
+	/** @var string */
 	public $message;
 
 	public function canBeSentBeforeLogin() : bool{
-		return true;
+		return \true;
 	}
 
-	public function decodePayload(){
-		$this->hideDisconnectionScreen = $this->getBool();
+	protected function decodePayload(){
+		$this->hideDisconnectionScreen = (($this->get(1) !== "\x00"));
 		$this->message = $this->getString();
 	}
 
-	public function encodePayload(){
-		$this->putBool($this->hideDisconnectionScreen);
+	protected function encodePayload(){
+		($this->buffer .= ($this->hideDisconnectionScreen ? "\x01" : "\x00"));
 		if(!$this->hideDisconnectionScreen){
 			$this->putString($this->message);
 		}

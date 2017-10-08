@@ -23,9 +23,10 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkSession;
 
 class ChangeDimensionPacket extends DataPacket{
@@ -33,25 +34,21 @@ class ChangeDimensionPacket extends DataPacket{
 
 	/** @var int */
 	public $dimension;
-	/** @var float */
-	public $x;
-	/** @var float */
-	public $y;
-	/** @var float */
-	public $z;
+	/** @var Vector3 */
+	public $position;
 	/** @var bool */
-	public $respawn = false;
+	public $respawn = \false;
 
-	public function decodePayload(){
+	protected function decodePayload(){
 		$this->dimension = $this->getVarInt();
-		$this->getVector3f($this->x, $this->y, $this->z);
-		$this->respawn = $this->getBool();
+		$this->position = $this->getVector3Obj();
+		$this->respawn = (($this->get(1) !== "\x00"));
 	}
 
-	public function encodePayload(){
+	protected function encodePayload(){
 		$this->putVarInt($this->dimension);
-		$this->putVector3f($this->x, $this->y, $this->z);
-		$this->putBool($this->respawn);
+		$this->putVector3Obj($this->position);
+		($this->buffer .= ($this->respawn ? "\x01" : "\x00"));
 	}
 
 	public function handle(NetworkSession $session) : bool{

@@ -36,9 +36,9 @@ class AutoUpdater{
 	/** @var string */
 	protected $endpoint;
 	/** @var bool */
-	protected $hasUpdate = false;
+	protected $hasUpdate = \false;
 	/** @var array|null */
-	protected $updateInfo = null;
+	protected $updateInfo = \null;
 
 	/**
 	 * @param Server $server
@@ -48,7 +48,7 @@ class AutoUpdater{
 		$this->server = $server;
 		$this->endpoint = "http://$endpoint/api/";
 
-		if($server->getProperty("auto-updater.enabled", true)){
+		if($server->getProperty("auto-updater.enabled", \true)){
 			$this->doCheck();
 		}
 	}
@@ -63,10 +63,10 @@ class AutoUpdater{
 		$this->checkUpdate();
 		if($this->hasUpdate()){
 			$this->server->getPluginManager()->callEvent(new UpdateNotifyEvent($this));
-			if($this->server->getProperty("auto-updater.on-update.warn-console", true)){
+			if($this->server->getProperty("auto-updater.on-update.warn-console", \true)){
 				$this->showConsoleUpdate();
 			}
-		}elseif($this->server->getProperty("auto-updater.preferred-channel", true)){
+		}elseif($this->server->getProperty("auto-updater.preferred-channel", \true)){
 			$version = new VersionString();
 			if(!$version->isDev() and $this->getChannel() !== "stable"){
 				$this->showChannelSuggestionStable();
@@ -89,15 +89,17 @@ class AutoUpdater{
 	 * Posts a warning to the console to tell the user there is an update available
 	 */
 	public function showConsoleUpdate(){
-		$logger = $this->server->getLogger();
 		$newVersion = new VersionString($this->updateInfo["version"]);
-		$logger->warning("----- PocketMine-MP Auto Updater -----");
-		$logger->warning("Your version of PocketMine-MP is out of date. Version " . $newVersion->get(false) . " (build #" . $newVersion->getBuild() . ") was released on " . date("D M j h:i:s Y", $this->updateInfo["date"]));
-		if($this->updateInfo["details_url"] !== null){
-			$logger->warning("Details: " . $this->updateInfo["details_url"]);
+
+		$messages = [
+			"Your version of " . $this->server->getName() . " is out of date. Version " . $newVersion->get(\false) . " (build #" . $newVersion->getBuild() . ") was released on " . \date("D M j h:i:s Y", $this->updateInfo["date"])
+		];
+		if($this->updateInfo["details_url"] !== \null){
+			$messages[] = "Details: " . $this->updateInfo["details_url"];
 		}
-		$logger->warning("Download: " . $this->updateInfo["download_url"]);
-		$logger->warning("----- -------------------------- -----");
+		$messages[] = "Download: " . $this->updateInfo["download_url"];
+
+		$this->printConsoleMessage($messages, \LogLevel::WARNING);
 	}
 
 	/**
@@ -105,24 +107,33 @@ class AutoUpdater{
 	 * @param Player $player
 	 */
 	public function showPlayerUpdate(Player $player){
-		$player->sendMessage(TextFormat::DARK_PURPLE . "The version of PocketMine-MP that this server is running is out of date. Please consider updating to the latest version.");
+		$player->sendMessage(TextFormat::DARK_PURPLE . "The version of " . $this->server->getName() . " that this server is running is out of date. Please consider updating to the latest version.");
 		$player->sendMessage(TextFormat::DARK_PURPLE . "Check the console for more details.");
 	}
 
 	protected function showChannelSuggestionStable(){
-		$logger = $this->server->getLogger();
-		$logger->info("----- PocketMine-MP Auto Updater -----");
-		$logger->info("It appears you're running a Stable build, when you've specified that you prefer to run " . ucfirst($this->getChannel()) . " builds.");
-		$logger->info("If you would like to be kept informed about new Stable builds only, it is recommended that you change 'preferred-channel' in your pocketmine.yml to 'stable'.");
-		$logger->info("----- -------------------------- -----");
+		$this->printConsoleMessage([
+			"It appears you're running a Stable build, when you've specified that you prefer to run " . \ucfirst($this->getChannel()) . " builds.",
+			"If you would like to be kept informed about new Stable builds only, it is recommended that you change 'preferred-channel' in your pocketmine.yml to 'stable'."
+		]);
 	}
 
 	protected function showChannelSuggestionBeta(){
+		$this->printConsoleMessage([
+			"It appears you're running a Beta build, when you've specified that you prefer to run Stable builds.",
+			"If you would like to be kept informed about new Beta or Development builds, it is recommended that you change 'preferred-channel' in your pocketmine.yml to 'beta' or 'development'."
+		]);
+	}
+
+	protected function printConsoleMessage(array $lines, string $logLevel = \LogLevel::INFO){
 		$logger = $this->server->getLogger();
-		$logger->info("----- PocketMine-MP Auto Updater -----");
-		$logger->info("It appears you're running a Beta build, when you've specified that you prefer to run Stable builds.");
-		$logger->info("If you would like to be kept informed about new Beta or Development builds, it is recommended that you change 'preferred-channel' in your pocketmine.yml to 'beta' or 'development'.");
-		$logger->info("----- -------------------------- -----");
+
+		$title = $this->server->getName() . ' Auto Updater';
+		$logger->log($logLevel, \sprintf('----- %s -----', $title));
+		foreach($lines as $line){
+			$logger->log($logLevel, $line);
+		}
+		$logger->log($logLevel, \sprintf('----- %s -----', \str_repeat('-', \strlen($title))));
 	}
 
 	/**
@@ -145,16 +156,16 @@ class AutoUpdater{
 	 * Checks the update information against the current server version to decide if there's an update
 	 */
 	protected function checkUpdate(){
-		if($this->updateInfo === null){
+		if($this->updateInfo === \null){
 			return;
 		}
 		$currentVersion = new VersionString($this->server->getPocketMineVersion());
 		$newVersion = new VersionString($this->updateInfo["version"]);
 
 		if($currentVersion->compare($newVersion) > 0 and ($currentVersion->get() !== $newVersion->get() or $currentVersion->getBuild() > 0)){
-			$this->hasUpdate = true;
+			$this->hasUpdate = \true;
 		}else{
-			$this->hasUpdate = false;
+			$this->hasUpdate = \false;
 		}
 
 	}
@@ -165,7 +176,7 @@ class AutoUpdater{
 	 * @return string
 	 */
 	public function getChannel() : string{
-		$channel = strtolower($this->server->getProperty("auto-updater.preferred-channel", "stable"));
+		$channel = \strtolower($this->server->getProperty("auto-updater.preferred-channel", "stable"));
 		if($channel !== "stable" and $channel !== "beta" and $channel !== "alpha" and $channel !== "development"){
 			$channel = "stable";
 		}

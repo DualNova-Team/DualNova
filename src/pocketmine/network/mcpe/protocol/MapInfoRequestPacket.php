@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -32,13 +32,14 @@ use pocketmine\network\mcpe\NetworkSession;
 class MapInfoRequestPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::MAP_INFO_REQUEST_PACKET;
 
+	/** @var int */
 	public $mapId;
 
-	public function decodePayload(){
+	protected function decodePayload(){
 		$this->mapId = $this->getEntityUniqueId();
 	}
 
-	public function encodePayload(){
+	protected function encodePayload(){
 		$this->putEntityUniqueId($this->mapId);
 	}
 

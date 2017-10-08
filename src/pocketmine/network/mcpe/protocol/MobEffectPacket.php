@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -35,28 +35,34 @@ class MobEffectPacket extends DataPacket{
 	const EVENT_MODIFY = 2;
 	const EVENT_REMOVE = 3;
 
+	/** @var int */
 	public $entityRuntimeId;
+	/** @var int */
 	public $eventId;
+	/** @var int */
 	public $effectId;
+	/** @var int */
 	public $amplifier = 0;
-	public $particles = true;
+	/** @var bool */
+	public $particles = \true;
+	/** @var int */
 	public $duration = 0;
 
-	public function decodePayload(){
+	protected function decodePayload(){
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
-		$this->eventId = $this->getByte();
+		$this->eventId = (\ord($this->get(1)));
 		$this->effectId = $this->getVarInt();
 		$this->amplifier = $this->getVarInt();
-		$this->particles = $this->getBool();
+		$this->particles = (($this->get(1) !== "\x00"));
 		$this->duration = $this->getVarInt();
 	}
 
-	public function encodePayload(){
+	protected function encodePayload(){
 		$this->putEntityRuntimeId($this->entityRuntimeId);
-		$this->putByte($this->eventId);
+		($this->buffer .= \chr($this->eventId));
 		$this->putVarInt($this->effectId);
 		$this->putVarInt($this->amplifier);
-		$this->putBool($this->particles);
+		($this->buffer .= ($this->particles ? "\x01" : "\x00"));
 		$this->putVarInt($this->duration);
 	}
 

@@ -24,19 +24,20 @@ declare(strict_types=1);
 namespace pocketmine\level\generator\object;
 
 use pocketmine\block\Block;
+use pocketmine\block\BlockFactory;
 use pocketmine\block\Sapling;
 use pocketmine\level\ChunkManager;
 use pocketmine\utils\Random;
 
 abstract class Tree{
 	public $overridable = [
-		Block::AIR => true,
-		6 => true,
-		17 => true,
-		18 => true,
-		Block::SNOW_LAYER => true,
-		Block::LOG2 => true,
-		Block::LEAVES2 => true
+		Block::AIR => \true,
+		6 => \true,
+		17 => \true,
+		18 => \true,
+		Block::SNOW_LAYER => \true,
+		Block::LOG2 => \true,
+		Block::LEAVES2 => \true
 	];
 
 	public $type = 0;
@@ -51,7 +52,7 @@ abstract class Tree{
 				break;
 			case Sapling::BIRCH:
 				if($random->nextBoundedInt(39) === 0){
-					$tree = new BirchTree(true);
+					$tree = new BirchTree(\true);
 				}else{
 					$tree = new BirchTree();
 				}
@@ -84,13 +85,13 @@ abstract class Tree{
 			for($xx = -$radiusToCheck; $xx < ($radiusToCheck + 1); ++$xx){
 				for($zz = -$radiusToCheck; $zz < ($radiusToCheck + 1); ++$zz){
 					if(!isset($this->overridable[$level->getBlockIdAt($x + $xx, $y + $yy, $z + $zz)])){
-						return false;
+						return \false;
 					}
 				}
 			}
 		}
 
-		return true;
+		return \true;
 	}
 
 	public function placeObject(ChunkManager $level, int $x, int $y, int $z, Random $random){
@@ -101,13 +102,13 @@ abstract class Tree{
 			$yOff = $yy - ($y + $this->treeHeight);
 			$mid = (int) (1 - $yOff / 2);
 			for($xx = $x - $mid; $xx <= $x + $mid; ++$xx){
-				$xOff = abs($xx - $x);
+				$xOff = \abs($xx - $x);
 				for($zz = $z - $mid; $zz <= $z + $mid; ++$zz){
-					$zOff = abs($zz - $z);
+					$zOff = \abs($zz - $z);
 					if($xOff === $mid and $zOff === $mid and ($yOff === 0 or $random->nextBoundedInt(2) === 0)){
 						continue;
 					}
-					if(!Block::$solid[$level->getBlockIdAt($xx, $yy, $zz)]){
+					if(!BlockFactory::$solid[$level->getBlockIdAt($xx, $yy, $zz)]){
 						$level->setBlockIdAt($xx, $yy, $zz, $this->leafBlock);
 						$level->setBlockDataAt($xx, $yy, $zz, $this->type);
 					}

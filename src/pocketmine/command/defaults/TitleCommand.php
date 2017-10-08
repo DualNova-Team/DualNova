@@ -29,7 +29,7 @@ use pocketmine\event\TranslationContainer;
 
 class TitleCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.title.description",
@@ -40,17 +40,17 @@ class TitleCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
-		if(count($args) < 2){
+		if(\count($args) < 2){
 			throw new InvalidCommandSyntaxException();
 		}
 
 		$player = $sender->getServer()->getPlayer($args[0]);
-		if($player === null){
+		if($player === \null){
 			$sender->sendMessage(new TranslationContainer("commands.generic.player.notFound"));
-			return true;
+			return \true;
 		}
 
 		switch($args[1]){
@@ -61,28 +61,28 @@ class TitleCommand extends VanillaCommand{
 				$player->resetTitles();
 				break;
 			case "title":
-				if(count($args) < 3){
+				if(\count($args) < 3){
 					throw new InvalidCommandSyntaxException();
 				}
 
-				$player->addTitle(implode(" ", array_slice($args, 2)));
+				$player->addTitle(\implode(" ", \array_slice($args, 2)));
 				break;
 			case "subtitle":
-				if(count($args) < 3){
+				if(\count($args) < 3){
 					throw new InvalidCommandSyntaxException();
 				}
 
-				$player->addSubTitle(implode(" ", array_slice($args, 2)));
+				$player->addSubTitle(\implode(" ", \array_slice($args, 2)));
 				break;
 			case "actionbar":
-				if(count($args) < 3){
+				if(\count($args) < 3){
 					throw new InvalidCommandSyntaxException();
 				}
 
-				$player->addActionBarMessage(implode(" ", array_slice($args, 2)));
+				$player->addActionBarMessage(\implode(" ", \array_slice($args, 2)));
 				break;
 			case "times":
-				if(count($args) < 4){
+				if(\count($args) < 4){
 					throw new InvalidCommandSyntaxException();
 				}
 
@@ -94,6 +94,6 @@ class TitleCommand extends VanillaCommand{
 
 		$sender->sendMessage(new TranslationContainer("commands.title.success"));
 
-		return true;
+		return \true;
 	}
 }

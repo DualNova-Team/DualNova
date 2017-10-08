@@ -36,20 +36,20 @@ abstract class Generator{
 	private static $list = [];
 
 	public static function addGenerator($object, $name) : bool{
-		if(is_subclass_of($object, Generator::class) and !isset(Generator::$list[$name = strtolower($name)])){
+		if(\is_subclass_of($object, Generator::class) and !isset(Generator::$list[$name = \strtolower($name)])){
 			Generator::$list[$name] = $object;
 
-			return true;
+			return \true;
 		}
 
-		return false;
+		return \false;
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public static function getGeneratorList() : array{
-		return array_keys(Generator::$list);
+		return \array_keys(Generator::$list);
 	}
 
 	/**
@@ -58,7 +58,7 @@ abstract class Generator{
 	 * @return Generator
 	 */
 	public static function getGenerator($name){
-		if(isset(Generator::$list[$name = strtolower($name)])){
+		if(isset(Generator::$list[$name = \strtolower($name)])){
 			return Generator::$list[$name];
 		}
 
@@ -121,10 +121,10 @@ abstract class Generator{
 	 * @return \SplFixedArray
 	 */
 	public static function getFastNoise2D(Noise $noise, int $xSize, int $zSize, int $samplingRate, int $x, int $y, int $z) : \SplFixedArray{
-		assert($samplingRate !== 0, new \InvalidArgumentException("samplingRate cannot be 0"));
+		\assert($samplingRate !== 0, new \InvalidArgumentException("samplingRate cannot be 0"));
 
-		assert($xSize % $samplingRate === 0, new \InvalidArgumentCountException("xSize % samplingRate must return 0"));
-		assert($zSize % $samplingRate === 0, new \InvalidArgumentCountException("zSize % samplingRate must return 0"));
+		\assert($xSize % $samplingRate === 0, new \InvalidArgumentCountException("xSize % samplingRate must return 0"));
+		\assert($zSize % $samplingRate === 0, new \InvalidArgumentCountException("zSize % samplingRate must return 0"));
 
 		$noiseArray = new \SplFixedArray($xSize + 1);
 
@@ -172,20 +172,20 @@ abstract class Generator{
 	 */
 	public static function getFastNoise3D(Noise $noise, int $xSize, int $ySize, int $zSize, int $xSamplingRate, int $ySamplingRate, int $zSamplingRate, int $x, int $y, int $z) : array{
 
-		assert($xSamplingRate !== 0, new \InvalidArgumentException("xSamplingRate cannot be 0"));
-		assert($zSamplingRate !== 0, new \InvalidArgumentException("zSamplingRate cannot be 0"));
-		assert($ySamplingRate !== 0, new \InvalidArgumentException("ySamplingRate cannot be 0"));
+		\assert($xSamplingRate !== 0, new \InvalidArgumentException("xSamplingRate cannot be 0"));
+		\assert($zSamplingRate !== 0, new \InvalidArgumentException("zSamplingRate cannot be 0"));
+		\assert($ySamplingRate !== 0, new \InvalidArgumentException("ySamplingRate cannot be 0"));
 
-		assert($xSize % $xSamplingRate === 0, new \InvalidArgumentCountException("xSize % xSamplingRate must return 0"));
-		assert($zSize % $zSamplingRate === 0, new \InvalidArgumentCountException("zSize % zSamplingRate must return 0"));
-		assert($ySize % $ySamplingRate === 0, new \InvalidArgumentCountException("ySize % ySamplingRate must return 0"));
+		\assert($xSize % $xSamplingRate === 0, new \InvalidArgumentCountException("xSize % xSamplingRate must return 0"));
+		\assert($zSize % $zSamplingRate === 0, new \InvalidArgumentCountException("zSize % zSamplingRate must return 0"));
+		\assert($ySize % $ySamplingRate === 0, new \InvalidArgumentCountException("ySize % ySamplingRate must return 0"));
 
-		$noiseArray = array_fill(0, $xSize + 1, array_fill(0, $zSize + 1, []));
+		$noiseArray = \array_fill(0, $xSize + 1, \array_fill(0, $zSize + 1, []));
 
 		for($xx = 0; $xx <= $xSize; $xx += $xSamplingRate){
 			for($zz = 0; $zz <= $zSize; $zz += $zSamplingRate){
 				for($yy = 0; $yy <= $ySize; $yy += $ySamplingRate){
-					$noiseArray[$xx][$zz][$yy] = $noise->noise3D($x + $xx, $y + $yy, $z + $zz, true);
+					$noiseArray[$xx][$zz][$yy] = $noise->noise3D($x + $xx, $y + $yy, $z + $zz, \true);
 				}
 			}
 		}

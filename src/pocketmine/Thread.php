@@ -30,14 +30,14 @@ abstract class Thread extends \Thread{
 
 	/** @var \ClassLoader */
 	protected $classLoader;
-	protected $isKilled = false;
+	protected $isKilled = \false;
 
 	public function getClassLoader(){
 		return $this->classLoader;
 	}
 
-	public function setClassLoader(\ClassLoader $loader = null){
-		if($loader === null){
+	public function setClassLoader(\ClassLoader $loader = \null){
+		if($loader === \null){
 			$loader = Server::getInstance()->getLoader();
 		}
 		$this->classLoader = $loader;
@@ -51,33 +51,34 @@ abstract class Thread extends \Thread{
 	 * (unless you are using a custom autoloader).
 	 */
 	public function registerClassLoader(){
-		if(!interface_exists("ClassLoader", false)){
+		require(\pocketmine\PATH . "vendor/autoload.php");
+		if(!\interface_exists("ClassLoader", \false)){
 			require(\pocketmine\PATH . "src/spl/ClassLoader.php");
 			require(\pocketmine\PATH . "src/spl/BaseClassLoader.php");
 		}
-		if($this->classLoader !== null){
-			$this->classLoader->register(true);
+		if($this->classLoader !== \null){
+			$this->classLoader->register(\false);
 		}
 	}
 
-	public function start(int $options = PTHREADS_INHERIT_ALL){
+	public function start(?int $options = \PTHREADS_INHERIT_ALL){
 		ThreadManager::getInstance()->add($this);
 
 		if(!$this->isRunning() and !$this->isJoined() and !$this->isTerminated()){
-			if($this->getClassLoader() === null){
+			if($this->getClassLoader() === \null){
 				$this->setClassLoader();
 			}
 			return parent::start($options);
 		}
 
-		return false;
+		return \false;
 	}
 
 	/**
 	 * Stops the thread using the best way possible. Try to stop it yourself before calling this.
 	 */
 	public function quit(){
-		$this->isKilled = true;
+		$this->isKilled = \true;
 
 		$this->notify();
 

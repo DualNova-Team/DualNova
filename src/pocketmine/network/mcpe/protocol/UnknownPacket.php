@@ -30,11 +30,12 @@ use pocketmine\network\mcpe\NetworkSession;
 class UnknownPacket extends DataPacket{
 	const NETWORK_ID = -1; //Invalid, do not try to write this
 
+	/** @var string */
 	public $payload;
 
 	public function pid(){
-		if(strlen($this->payload ?? "") > 0){
-			return ord($this->payload{0});
+		if(\strlen($this->payload ?? "") > 0){
+			return \ord($this->payload{0});
 		}
 		return self::NETWORK_ID;
 	}
@@ -53,6 +54,6 @@ class UnknownPacket extends DataPacket{
 	}
 
 	public function handle(NetworkSession $session) : bool{
-		return false;
+		return \false;
 	}
 }

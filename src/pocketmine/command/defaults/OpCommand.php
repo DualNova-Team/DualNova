@@ -32,7 +32,7 @@ use pocketmine\utils\TextFormat;
 
 class OpCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.op.description",
@@ -43,21 +43,21 @@ class OpCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
-		if(count($args) === 0){
+		if(\count($args) === 0){
 			throw new InvalidCommandSyntaxException();
 		}
 
-		$name = array_shift($args);
+		$name = \array_shift($args);
 
 		$player = $sender->getServer()->getOfflinePlayer($name);
 		Command::broadcastCommandMessage($sender, new TranslationContainer("commands.op.success", [$player->getName()]));
 		if($player instanceof Player){
 			$player->sendMessage(TextFormat::GRAY . "You are now op!");
 		}
-		$player->setOp(true);
-		return true;
+		$player->setOp(\true);
+		return \true;
 	}
 }

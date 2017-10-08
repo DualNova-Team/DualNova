@@ -40,18 +40,18 @@ abstract class Projectile extends Entity{
 
 	protected $damage = 0;
 
-	public $hadCollision = false;
+	public $hadCollision = \false;
 
-	public function __construct(Level $level, CompoundTag $nbt, Entity $shootingEntity = null){
-		if($shootingEntity !== null){
+	public function __construct(Level $level, CompoundTag $nbt, Entity $shootingEntity = \null){
+		if($shootingEntity !== \null){
 			$this->setOwningEntity($shootingEntity);
 		}
 		parent::__construct($level, $nbt);
 	}
 
-	public function attack($damage, EntityDamageEvent $source){
+	public function attack(EntityDamageEvent $source){
 		if($source->getCause() === EntityDamageEvent::CAUSE_VOID){
-			parent::attack($damage, $source);
+			parent::attack($source);
 		}
 	}
 
@@ -65,7 +65,7 @@ abstract class Projectile extends Entity{
 		}
 	}
 
-	public function canCollideWith(Entity $entity){
+	public function canCollideWith(Entity $entity) : bool{
 		return $entity instanceof Living and !$this->onGround;
 	}
 
@@ -74,7 +74,7 @@ abstract class Projectile extends Entity{
 	 * @return int
 	 */
 	public function getResultDamage() : int{
-		return (int) ceil(sqrt($this->motionX ** 2 + $this->motionY ** 2 + $this->motionZ ** 2) * $this->damage);
+		return (int) \ceil(\sqrt($this->motionX ** 2 + $this->motionY ** 2 + $this->motionZ ** 2) * $this->damage);
 	}
 
 	public function onCollideWithEntity(Entity $entity){
@@ -82,15 +82,15 @@ abstract class Projectile extends Entity{
 
 		$damage = $this->getResultDamage();
 
-		if($this->getOwningEntity() === null){
+		if($this->getOwningEntity() === \null){
 			$ev = new EntityDamageByEntityEvent($this, $entity, EntityDamageEvent::CAUSE_PROJECTILE, $damage);
 		}else{
 			$ev = new EntityDamageByChildEntityEvent($this->getOwningEntity(), $this, $entity, EntityDamageEvent::CAUSE_PROJECTILE, $damage);
 		}
 
-		$entity->attack($ev->getFinalDamage(), $ev);
+		$entity->attack($ev);
 
-		$this->hadCollision = true;
+		$this->hadCollision = \true;
 
 		if($this->fireTicks > 0){
 			$ev = new EntityCombustByEntityEvent($this, $entity, 5);
@@ -108,34 +108,26 @@ abstract class Projectile extends Entity{
 		$this->namedtag->Age = new ShortTag("Age", $this->age);
 	}
 
-	public function onUpdate($currentTick){
+	protected function applyDragBeforeGravity() : bool{
+		return \true;
+	}
+
+	public function entityBaseTick(int $tickDiff = 1) : bool{
 		if($this->closed){
-			return false;
+			return \false;
 		}
 
-
-		$tickDiff = $currentTick - $this->lastUpdate;
-		if($tickDiff <= 0 and !$this->justCreated){
-			return true;
-		}
-		$this->lastUpdate = $currentTick;
-
-		$hasUpdate = $this->entityBaseTick($tickDiff);
+		$hasUpdate = parent::entityBaseTick($tickDiff);
 
 		if($this->isAlive()){
-
-			$movingObjectPosition = null;
-
-			if(!$this->isCollided){
-				$this->motionY -= $this->gravity;
-			}
+			$movingObjectPosition = \null;
 
 			$moveVector = new Vector3($this->x + $this->motionX, $this->y + $this->motionY, $this->z + $this->motionZ);
 
 			$list = $this->getLevel()->getCollidingEntities($this->boundingBox->addCoord($this->motionX, $this->motionY, $this->motionZ)->expand(1, 1, 1), $this);
 
-			$nearDistance = PHP_INT_MAX;
-			$nearEntity = null;
+			$nearDistance = \PHP_INT_MAX;
+			$nearEntity = \null;
 
 			foreach($list as $entity){
 				if(/*!$entity->canCollideWith($this) or */
@@ -147,7 +139,7 @@ abstract class Projectile extends Entity{
 				$axisalignedbb = $entity->boundingBox->grow(0.3, 0.3, 0.3);
 				$ob = $axisalignedbb->calculateIntercept($this, $moveVector);
 
-				if($ob === null){
+				if($ob === \null){
 					continue;
 				}
 
@@ -159,42 +151,36 @@ abstract class Projectile extends Entity{
 				}
 			}
 
-			if($nearEntity !== null){
+			if($nearEntity !== \null){
 				$movingObjectPosition = MovingObjectPosition::fromEntity($nearEntity);
 			}
 
-			if($movingObjectPosition !== null){
-				if($movingObjectPosition->entityHit !== null){
+			if($movingObjectPosition !== \null){
+				if($movingObjectPosition->entityHit !== \null){
 					$this->onCollideWithEntity($movingObjectPosition->entityHit);
-					return false;
+					return \false;
 				}
 			}
 
-			$this->move($this->motionX, $this->motionY, $this->motionZ);
-
 			if($this->isCollided and !$this->hadCollision){ //Collided with a block
-				$this->hadCollision = true;
+				$this->hadCollision = \true;
 
 				$this->motionX = 0;
 				$this->motionY = 0;
 				$this->motionZ = 0;
 
 				$this->server->getPluginManager()->callEvent(new ProjectileHitEvent($this));
-				return false;
-			}elseif(!$this->isCollided and $this->hadCollision){ //Collided with block, but block later removed
-				//This currently doesn't work because the arrow's motion is all zeros when it's hit a block, so move() doesn't do any collision checks.
-				//TODO: fix this
-				$this->hadCollision = false;
+				return \false;
+			}elseif(!$this->isCollided and $this->hadCollision){ //Previously collided with block, but block later removed
+				$this->hadCollision = \false;
 			}
 
-			if(!$this->hadCollision or abs($this->motionX) > 0.00001 or abs($this->motionY) > 0.00001 or abs($this->motionZ) > 0.00001){
-				$f = sqrt(($this->motionX ** 2) + ($this->motionZ ** 2));
-				$this->yaw = (atan2($this->motionX, $this->motionZ) * 180 / M_PI);
-				$this->pitch = (atan2($this->motionY, $f) * 180 / M_PI);
-				$hasUpdate = true;
+			if(!$this->hadCollision or \abs($this->motionX) > self::MOTION_THRESHOLD or \abs($this->motionY) > self::MOTION_THRESHOLD or \abs($this->motionZ) > self::MOTION_THRESHOLD){
+				$f = \sqrt(($this->motionX ** 2) + ($this->motionZ ** 2));
+				$this->yaw = (\atan2($this->motionX, $this->motionZ) * 180 / M_PI);
+				$this->pitch = (\atan2($this->motionY, $f) * 180 / M_PI);
+				$hasUpdate = \true;
 			}
-
-			$this->updateMovement();
 		}
 
 		return $hasUpdate;

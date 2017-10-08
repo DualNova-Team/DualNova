@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace pocketmine\event\entity;
 
-use pocketmine\entity\Effect;
 use pocketmine\entity\Entity;
 use pocketmine\event\Cancellable;
 
@@ -31,13 +30,14 @@ use pocketmine\event\Cancellable;
  * Called when an entity takes damage.
  */
 class EntityDamageEvent extends EntityEvent implements Cancellable{
-	public static $handlerList = null;
+	public static $handlerList = \null;
 
 	const MODIFIER_BASE = 0;
 	const MODIFIER_ARMOR = 1;
 	const MODIFIER_STRENGTH = 2;
 	const MODIFIER_WEAKNESS = 3;
 	const MODIFIER_RESISTANCE = 4;
+	const MODIFIER_ABSORPTION = 5;
 
 	const CAUSE_CONTACT = 0;
 	const CAUSE_ENTITY_ATTACK = 1;
@@ -56,24 +56,23 @@ class EntityDamageEvent extends EntityEvent implements Cancellable{
 	const CAUSE_CUSTOM = 14;
 	const CAUSE_STARVATION = 15;
 
-
+	/** @var int */
 	private $cause;
-	/** @var array */
+	/** @var float[] */
 	private $modifiers;
+	/** @var float[] */
 	private $originals;
 
 
 	/**
-	 * @param Entity    $entity
-	 * @param int       $cause
-	 * @param int|int[] $damage
-	 *
-	 * @throws \Exception
+	 * @param Entity        $entity
+	 * @param int           $cause
+	 * @param float|float[] $damage
 	 */
-	public function __construct(Entity $entity, $cause, $damage){
+	public function __construct(Entity $entity, int $cause, $damage){
 		$this->entity = $entity;
 		$this->cause = $cause;
-		if(is_array($damage)){
+		if(\is_array($damage)){
 			$this->modifiers = $damage;
 		}else{
 			$this->modifiers = [
@@ -86,52 +85,38 @@ class EntityDamageEvent extends EntityEvent implements Cancellable{
 		if(!isset($this->modifiers[self::MODIFIER_BASE])){
 			throw new \InvalidArgumentException("BASE Damage modifier missing");
 		}
-
-		if($entity->hasEffect(Effect::DAMAGE_RESISTANCE)){
-			$this->setDamage(-($this->getDamage(self::MODIFIER_BASE) * 0.20 * $entity->getEffect(Effect::DAMAGE_RESISTANCE)->getEffectLevel()), self::MODIFIER_RESISTANCE);
-		}
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getCause(){
+	public function getCause() : int{
 		return $this->cause;
 	}
 
 	/**
 	 * @param int $type
 	 *
-	 * @return int
+	 * @return float
 	 */
-	public function getOriginalDamage($type = self::MODIFIER_BASE){
-		if(isset($this->originals[$type])){
-			return $this->originals[$type];
-		}
-
-		return 0;
+	public function getOriginalDamage(int $type = self::MODIFIER_BASE) : float{
+		return $this->originals[$type] ?? 0.0;
 	}
 
 	/**
 	 * @param int $type
 	 *
-	 * @return int
+	 * @return float
 	 */
-	public function getDamage($type = self::MODIFIER_BASE){
-		if(isset($this->modifiers[$type])){
-			return $this->modifiers[$type];
-		}
-
-		return 0;
+	public function getDamage(int $type = self::MODIFIER_BASE) : float{
+		return $this->modifiers[$type] ?? 0.0;
 	}
 
 	/**
 	 * @param float $damage
 	 * @param int   $type
-	 *
-	 * @throws \UnexpectedValueException
 	 */
-	public function setDamage($damage, $type = self::MODIFIER_BASE){
+	public function setDamage(float $damage, int $type = self::MODIFIER_BASE){
 		$this->modifiers[$type] = $damage;
 	}
 
@@ -140,20 +125,15 @@ class EntityDamageEvent extends EntityEvent implements Cancellable{
 	 *
 	 * @return bool
 	 */
-	public function isApplicable($type){
+	public function isApplicable(int $type) : bool{
 		return isset($this->modifiers[$type]);
 	}
 
 	/**
-	 * @return int
+	 * @return float
 	 */
-	public function getFinalDamage(){
-		$damage = 0;
-		foreach($this->modifiers as $type => $d){
-			$damage += $d;
-		}
-
-		return $damage;
+	public function getFinalDamage() : float{
+		return \array_sum($this->modifiers);
 	}
 
 }

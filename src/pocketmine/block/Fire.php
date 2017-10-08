@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace pocketmine\block;
 
 use pocketmine\entity\Arrow;
-use pocketmine\entity\Effect;
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityCombustByBlockEvent;
 use pocketmine\event\entity\EntityDamageByBlockEvent;
@@ -38,35 +37,37 @@ class Fire extends Flowable{
 
 	protected $id = self::FIRE;
 
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function hasEntityCollision(){
-		return true;
+	public function hasEntityCollision() : bool{
+		return \true;
 	}
 
-	public function getName(){
+	public function getName() : string{
 		return "Fire Block";
 	}
 
-	public function getLightLevel(){
+	public function getLightLevel() : int{
 		return 15;
 	}
 
-	public function isBreakable(Item $item){
-		return false;
+	public function isBreakable(Item $item) : bool{
+		return \false;
 	}
 
-	public function canBeReplaced(){
-		return true;
+	public function canBeReplaced() : bool{
+		return \true;
+	}
+
+	public function ticksRandomly() : bool{
+		return \true;
 	}
 
 	public function onEntityCollide(Entity $entity){
-		if(!$entity->hasEffect(Effect::FIRE_RESISTANCE)){
-			$ev = new EntityDamageByBlockEvent($this, $entity, EntityDamageEvent::CAUSE_FIRE, 1);
-			$entity->attack($ev->getFinalDamage(), $ev);
-		}
+		$ev = new EntityDamageByBlockEvent($this, $entity, EntityDamageEvent::CAUSE_FIRE, 1);
+		$entity->attack($ev);
 
 		$ev = new EntityCombustByBlockEvent($this, $entity, 8);
 		if($entity instanceof Arrow){
@@ -78,26 +79,26 @@ class Fire extends Flowable{
 		}
 	}
 
-	public function getDrops(Item $item){
+	public function getDrops(Item $item) : array{
 		return [];
 	}
 
-	public function onUpdate($type){
+	public function onUpdate(int $type){
 		if($type === Level::BLOCK_UPDATE_NORMAL){
 			for($s = 0; $s <= 5; ++$s){
 				$side = $this->getSide($s);
 				if($side->getId() !== self::AIR and !($side instanceof Liquid)){
-					return false;
+					return \false;
 				}
 			}
-			$this->getLevel()->setBlock($this, new Air(), true);
+			$this->getLevel()->setBlock($this, BlockFactory::get(Block::AIR), \true);
 
 			return Level::BLOCK_UPDATE_NORMAL;
 		}elseif($type === Level::BLOCK_UPDATE_RANDOM){
 			if($this->getSide(Vector3::SIDE_DOWN)->getId() !== self::NETHERRACK){
-				if(mt_rand(0, 2) === 0){
+				if(\mt_rand(0, 2) === 0){
 					if($this->meta === 0x0F){
-						$this->level->setBlock($this, new Air());
+						$this->level->setBlock($this, BlockFactory::get(Block::AIR));
 					}else{
 						$this->meta++;
 						$this->level->setBlock($this, $this);
@@ -106,9 +107,11 @@ class Fire extends Flowable{
 					return Level::BLOCK_UPDATE_NORMAL;
 				}
 			}
+
+			//TODO: fire spread
 		}
 
-		return false;
+		return \false;
 	}
 
 }

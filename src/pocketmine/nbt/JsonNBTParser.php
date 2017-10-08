@@ -40,7 +40,7 @@ class JsonNBTParser{
 	 * @throws \Exception
 	 */
 	public static function parseJSON(string $data, int &$offset = 0){
-		$len = strlen($data);
+		$len = \strlen($data);
 		for(; $offset < $len; ++$offset){
 			$c = $data{$offset};
 			if($c === "{"){
@@ -53,7 +53,7 @@ class JsonNBTParser{
 			}
 		}
 
-		return null;
+		return \null;
 	}
 
 	/**#
@@ -63,10 +63,10 @@ class JsonNBTParser{
 	 * @return NamedTag[]
 	 */
 	private static function parseList(string $str, int &$offset = 0) : array{
-		$len = strlen($str);
+		$len = \strlen($str);
 
 		$key = 0;
-		$value = null;
+		$value = \null;
 
 		$data = [];
 
@@ -100,7 +100,7 @@ class JsonNBTParser{
 	 * @return NamedTag[]
 	 */
 	private static function parseCompound(string $str, int &$offset = 0) : array{
-		$len = strlen($str);
+		$len = \strlen($str);
 
 		$data = [];
 
@@ -134,12 +134,12 @@ class JsonNBTParser{
 	 * @return mixed
 	 * @throws \Exception
 	 */
-	private static function readValue(string $data, int &$offset, &$type = null){
+	private static function readValue(string $data, int &$offset, &$type = \null){
 		$value = "";
-		$type = null;
-		$inQuotes = false;
+		$type = \null;
+		$inQuotes = \false;
 
-		$len = strlen($data);
+		$len = \strlen($data);
 		for(; $offset < $len; ++$offset){
 			$c = $data{$offset};
 
@@ -149,7 +149,7 @@ class JsonNBTParser{
 				}
 			}elseif($c === '"'){
 				$inQuotes = !$inQuotes;
-				if($type === null){
+				if($type === \null){
 					$type = NBT::TAG_String;
 				}elseif($inQuotes){
 					throw new \Exception("Syntax error: invalid quote at offset $offset");
@@ -182,14 +182,14 @@ class JsonNBTParser{
 			throw new \Exception("Syntax error: invalid empty value at offset $offset");
 		}
 
-		if($type === null and strlen($value) > 0){
-			$value = trim($value);
-			$last = strtolower(substr($value, -1));
-			$part = substr($value, 0, -1);
+		if($type === \null and \strlen($value) > 0){
+			$value = \trim($value);
+			$last = \strtolower(\substr($value, -1));
+			$part = \substr($value, 0, -1);
 
 			if($last !== "b" and $last !== "s" and $last !== "l" and $last !== "f" and $last !== "d"){
 				$part = $value;
-				$last = null;
+				$last = \null;
 			}
 
 			if($last !== "f" and $last !== "d" and ((string) ((int) $part)) === $part){
@@ -203,8 +203,8 @@ class JsonNBTParser{
 					$type = NBT::TAG_Int;
 				}
 				$value = (int) $part;
-			}elseif(is_numeric($part)){
-				if($last === "f" or $last === "d" or strpos($part, ".") !== false){
+			}elseif(\is_numeric($part)){
+				if($last === "f" or $last === "d" or \strpos($part, ".") !== \false){
 					if($last === "f"){
 						$type = NBT::TAG_Float;
 					}elseif($last === "d"){
@@ -240,7 +240,7 @@ class JsonNBTParser{
 	private static function readKey(string $data, int &$offset) : string{
 		$key = "";
 
-		$len = strlen($data);
+		$len = \strlen($data);
 		for(; $offset < $len; ++$offset){
 			$c = $data{$offset};
 

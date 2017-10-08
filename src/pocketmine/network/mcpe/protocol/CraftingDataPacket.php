@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\inventory\FurnaceRecipe;
@@ -45,15 +45,19 @@ class CraftingDataPacket extends DataPacket{
 
 	/** @var object[] */
 	public $entries = [];
-	public $cleanRecipes = false;
+	/** @var bool */
+	public $cleanRecipes = \false;
+
+	public $decodedEntries = [];
 
 	public function clean(){
 		$this->entries = [];
+		$this->decodedEntries = [];
 		return parent::clean();
 	}
 
-	public function decodePayload(){
-		$entries = [];
+	protected function decodePayload(){
+		$this->decodedEntries = [];
 		$recipeCount = $this->getUnsignedVarInt();
 		for($i = 0; $i < $recipeCount; ++$i){
 			$entry = [];
@@ -105,9 +109,9 @@ class CraftingDataPacket extends DataPacket{
 				default:
 					throw new \UnexpectedValueException("Unhandled recipe type $recipeType!"); //do not continue attempting to decode
 			}
-			$entries[] = $entry;
+			$this->decodedEntries[] = $entry;
 		}
-		$this->getBool(); //cleanRecipes
+		(($this->get(1) !== "\x00")); //cleanRecipes
 	}
 
 	private static function writeEntry($entry, BinaryStream $stream){
@@ -129,8 +133,11 @@ class CraftingDataPacket extends DataPacket{
 			$stream->putSlot($item);
 		}
 
-		$stream->putUnsignedVarInt(1);
-		$stream->putSlot($recipe->getResult());
+		$results = $recipe->getAllResults();
+		$stream->putUnsignedVarInt(\count($results));
+		foreach($results as $item){
+			$stream->putSlot($item);
+		}
 
 		$stream->putUUID($recipe->getId());
 
@@ -147,8 +154,11 @@ class CraftingDataPacket extends DataPacket{
 			}
 		}
 
-		$stream->putUnsignedVarInt(1);
-		$stream->putSlot($recipe->getResult());
+		$results = $recipe->getAllResults();
+		$stream->putUnsignedVarInt(\count($results));
+		foreach($results as $item){
+			$stream->putSlot($item);
+		}
 
 		$stream->putUUID($recipe->getId());
 
@@ -182,15 +192,15 @@ class CraftingDataPacket extends DataPacket{
 		$this->entries[] = $recipe;
 	}
 
-	public function encodePayload(){
-		$this->putUnsignedVarInt(count($this->entries));
+	protected function encodePayload(){
+		$this->putUnsignedVarInt(\count($this->entries));
 
 		$writer = new BinaryStream();
 		foreach($this->entries as $d){
 			$entryType = self::writeEntry($d, $writer);
 			if($entryType >= 0){
 				$this->putVarInt($entryType);
-				$this->put($writer->getBuffer());
+				($this->buffer .= $writer->getBuffer());
 			}else{
 				$this->putVarInt(-1);
 			}
@@ -198,7 +208,7 @@ class CraftingDataPacket extends DataPacket{
 			$writer->reset();
 		}
 
-		$this->putBool($this->cleanRecipes);
+		($this->buffer .= ($this->cleanRecipes ? "\x01" : "\x00"));
 	}
 
 	public function handle(NetworkSession $session) : bool{

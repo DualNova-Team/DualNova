@@ -31,7 +31,7 @@ use pocketmine\utils\TextFormat;
 
 class WhitelistCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.whitelist.description",
@@ -42,79 +42,79 @@ class WhitelistCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
-		if(count($args) === 0 or count($args) > 2){
+		if(\count($args) === 0 or \count($args) > 2){
 			throw new InvalidCommandSyntaxException();
 		}
 
-		if(count($args) === 1){
-			if($this->badPerm($sender, strtolower($args[0]))){
-				return false;
+		if(\count($args) === 1){
+			if($this->badPerm($sender, \strtolower($args[0]))){
+				return \false;
 			}
-			switch(strtolower($args[0])){
+			switch(\strtolower($args[0])){
 				case "reload":
 					$sender->getServer()->reloadWhitelist();
 					Command::broadcastCommandMessage($sender, new TranslationContainer("commands.whitelist.reloaded"));
 
-					return true;
+					return \true;
 				case "on":
-					$sender->getServer()->setConfigBool("white-list", true);
+					$sender->getServer()->setConfigBool("white-list", \true);
 					Command::broadcastCommandMessage($sender, new TranslationContainer("commands.whitelist.enabled"));
 
-					return true;
+					return \true;
 				case "off":
-					$sender->getServer()->setConfigBool("white-list", false);
+					$sender->getServer()->setConfigBool("white-list", \false);
 					Command::broadcastCommandMessage($sender, new TranslationContainer("commands.whitelist.disabled"));
 
-					return true;
+					return \true;
 				case "list":
-					$entries = $sender->getServer()->getWhitelisted()->getAll(true);
-					$result = implode($entries, ", ");
-					$count = count($entries);
+					$entries = $sender->getServer()->getWhitelisted()->getAll(\true);
+					$result = \implode($entries, ", ");
+					$count = \count($entries);
 
 					$sender->sendMessage(new TranslationContainer("commands.whitelist.list", [$count, $count]));
 					$sender->sendMessage($result);
 
-					return true;
+					return \true;
 
 				case "add":
 					$sender->sendMessage(new TranslationContainer("commands.generic.usage", ["%commands.whitelist.add.usage"]));
-					return true;
+					return \true;
 
 				case "remove":
 					$sender->sendMessage(new TranslationContainer("commands.generic.usage", ["%commands.whitelist.remove.usage"]));
-					return true;
+					return \true;
 			}
-		}elseif(count($args) === 2){
-			if($this->badPerm($sender, strtolower($args[0]))){
-				return false;
+		}elseif(\count($args) === 2){
+			if($this->badPerm($sender, \strtolower($args[0]))){
+				return \false;
 			}
-			switch(strtolower($args[0])){
+			switch(\strtolower($args[0])){
 				case "add":
-					$sender->getServer()->getOfflinePlayer($args[1])->setWhitelisted(true);
+					$sender->getServer()->getOfflinePlayer($args[1])->setWhitelisted(\true);
 					Command::broadcastCommandMessage($sender, new TranslationContainer("commands.whitelist.add.success", [$args[1]]));
 
-					return true;
+					return \true;
 				case "remove":
-					$sender->getServer()->getOfflinePlayer($args[1])->setWhitelisted(false);
+					$sender->getServer()->getOfflinePlayer($args[1])->setWhitelisted(\false);
 					Command::broadcastCommandMessage($sender, new TranslationContainer("commands.whitelist.remove.success", [$args[1]]));
 
-					return true;
+					return \true;
 			}
 		}
 
-		return true;
+		return \true;
 	}
 
-	private function badPerm(CommandSender $sender, $perm){
+	private function badPerm(CommandSender $sender, string $perm) : bool{
 		if(!$sender->hasPermission("pocketmine.command.whitelist.$perm")){
 			$sender->sendMessage(new TranslationContainer(TextFormat::RED . "%commands.generic.permission"));
 
-			return true;
+			return \true;
 		}
 
-		return false;
+		return \false;
 	}
 }

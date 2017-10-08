@@ -25,6 +25,7 @@ namespace pocketmine\scheduler;
 
 use pocketmine\event\Timings;
 use pocketmine\event\TimingsHandler;
+use pocketmine\utils\MainLogger;
 
 class TaskHandler{
 
@@ -44,12 +45,12 @@ class TaskHandler{
 	protected $nextRun;
 
 	/** @var bool */
-	protected $cancelled = false;
+	protected $cancelled = \false;
 
 	/** @var TimingsHandler */
 	public $timings;
 
-	public $timingName = null;
+	public $timingName = \null;
 
 	/**
 	 * @param string $timingName
@@ -72,7 +73,7 @@ class TaskHandler{
 	 * @return bool
 	 */
 	public function isCancelled() : bool{
-		return $this->cancelled === true;
+		return $this->cancelled === \true;
 	}
 
 	/**
@@ -136,15 +137,20 @@ class TaskHandler{
 	 * Changes to this function won't be recorded on the version.
 	 */
 	public function cancel(){
-		if(!$this->isCancelled()){
-			$this->task->onCancel();
+		try{
+			if(!$this->isCancelled()){
+				$this->task->onCancel();
+			}
+		}catch(\Throwable $e){
+			MainLogger::getLogger()->logException($e);
+		}finally{
+			$this->remove();
 		}
-		$this->remove();
 	}
 
 	public function remove(){
-		$this->cancelled = true;
-		$this->task->setHandler(null);
+		$this->cancelled = \true;
+		$this->task->setHandler(\null);
 	}
 
 	/**
@@ -158,10 +164,10 @@ class TaskHandler{
 	 * @return string
 	 */
 	public function getTaskName() : string{
-		if($this->timingName !== null){
+		if($this->timingName !== \null){
 			return $this->timingName;
 		}
 
-		return get_class($this->task);
+		return \get_class($this->task);
 	}
 }

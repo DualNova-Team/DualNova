@@ -30,7 +30,7 @@ use pocketmine\event\Cancellable;
 use pocketmine\item\Item;
 
 class EntityShootBowEvent extends EntityEvent implements Cancellable{
-	public static $handlerList = null;
+	public static $handlerList = \null;
 
 	/** @var Item */
 	private $bow;
@@ -45,7 +45,7 @@ class EntityShootBowEvent extends EntityEvent implements Cancellable{
 	 * @param Projectile $projectile
 	 * @param float      $force
 	 */
-	public function __construct(Living $shooter, Item $bow, Projectile $projectile, $force){
+	public function __construct(Living $shooter, Item $bow, Projectile $projectile, float $force){
 		$this->entity = $shooter;
 		$this->bow = $bow;
 		$this->projectile = $projectile;
@@ -62,14 +62,18 @@ class EntityShootBowEvent extends EntityEvent implements Cancellable{
 	/**
 	 * @return Item
 	 */
-	public function getBow(){
+	public function getBow() : Item{
 		return $this->bow;
 	}
 
 	/**
+	 * Returns the entity considered as the projectile in this event.
+	 *
+	 * NOTE: This might not return a Projectile if a plugin modified the target entity.
+	 *
 	 * @return Entity
 	 */
-	public function getProjectile(){
+	public function getProjectile() : Entity{
 		return $this->projectile;
 	}
 
@@ -78,7 +82,7 @@ class EntityShootBowEvent extends EntityEvent implements Cancellable{
 	 */
 	public function setProjectile(Entity $projectile){
 		if($projectile !== $this->projectile){
-			if(count($this->projectile->getViewers()) === 0){
+			if(\count($this->projectile->getViewers()) === 0){
 				$this->projectile->kill();
 				$this->projectile->close();
 			}
@@ -89,14 +93,14 @@ class EntityShootBowEvent extends EntityEvent implements Cancellable{
 	/**
 	 * @return float
 	 */
-	public function getForce(){
+	public function getForce() : float{
 		return $this->force;
 	}
 
 	/**
 	 * @param float $force
 	 */
-	public function setForce($force){
+	public function setForce(float $force){
 		$this->force = $force;
 	}
 

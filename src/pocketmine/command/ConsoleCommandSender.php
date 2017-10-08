@@ -37,7 +37,7 @@ class ConsoleCommandSender implements CommandSender{
 	private $perm;
 
 	/** @var int|null */
-	protected $lineHeight = null;
+	protected $lineHeight = \null;
 
 	public function __construct(){
 		$this->perm = new PermissibleBase($this);
@@ -68,7 +68,7 @@ class ConsoleCommandSender implements CommandSender{
 	 *
 	 * @return PermissionAttachment
 	 */
-	public function addAttachment(Plugin $plugin, string $name = null, bool $value = null) : PermissionAttachment{
+	public function addAttachment(Plugin $plugin, string $name = \null, bool $value = \null) : PermissionAttachment{
 		return $this->perm->addAttachment($plugin, $name, $value);
 	}
 
@@ -96,7 +96,7 @@ class ConsoleCommandSender implements CommandSender{
 	 * @return bool
 	 */
 	public function isPlayer() : bool{
-		return false;
+		return \false;
 	}
 
 	/**
@@ -116,7 +116,7 @@ class ConsoleCommandSender implements CommandSender{
 			$message = $this->getServer()->getLanguage()->translateString($message);
 		}
 
-		foreach(explode("\n", trim($message)) as $line){
+		foreach(\explode("\n", \trim($message)) as $line){
 			MainLogger::getLogger()->info($line);
 		}
 	}
@@ -124,7 +124,7 @@ class ConsoleCommandSender implements CommandSender{
 	/**
 	 * @return string
 	 */
-	public function getName(){
+	public function getName() : string{
 		return "CONSOLE";
 	}
 
@@ -132,7 +132,7 @@ class ConsoleCommandSender implements CommandSender{
 	 * @return bool
 	 */
 	public function isOp() : bool{
-		return true;
+		return \true;
 	}
 
 	/**
@@ -143,11 +143,11 @@ class ConsoleCommandSender implements CommandSender{
 	}
 
 	public function getScreenLineHeight() : int{
-		return $this->lineHeight ?? PHP_INT_MAX;
+		return $this->lineHeight ?? \PHP_INT_MAX;
 	}
 
-	public function setScreenLineHeight(int $height = null){
-		if($height !== null and $height < 1){
+	public function setScreenLineHeight(int $height = \null){
+		if($height !== \null and $height < 1){
 			throw new \InvalidArgumentException("Line height must be at least 1");
 		}
 		$this->lineHeight = $height;

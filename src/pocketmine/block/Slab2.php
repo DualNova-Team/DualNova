@@ -2,12 +2,11 @@
 
 /*
  *
- *  ____               _   ___     _
- * |  _ \             | | |   \   | |
- * | | | |_   _  ____ | | | |\ \  | | _____    ______
- * | | | | | | |/ _  \| | | | \ \ | |/ _ \ \  / / _  \
- * | |_| | |_| | (_)  | |_| |  \ \| | (_) \ \/ / (_)  |
- * |____/\_____|\___|_\___|_|   \___|\___/ \__/ \___|_|
+ *  ____               _   ___    _
+ * |  _ \ _   _  ____ | | |   \  | | _____    ______
+ * | | | | | | |/ _  \| | | |\ \ | |/ _ \ \  / / _  \
+ * | |_| | |_| | (_)  | |_| | \ \| | (_) \ \/ / (_)  |
+ * |____/\_____|\___|_\___|_|  \___|\___/ \__/ \___|_|
  *
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,15 +30,15 @@ class Slab2 extends WoodenSlab{
 	const RED_SANDSTONE = 0;
 	const PURPUR = 1;
 
-	protected $id = self::SLAB2;
+	protected $id = self::STONE_SLAB2;
 
-	protected $doubleId = self::DOUBLE_SLAB2;
+	protected $doubleId = self::DOUBLE_STONE_SLAB2;
 	
 	public function __construct($meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function getHardness() {
+	public function getHardness() : float{
 		return 2;
 	}
 
@@ -51,11 +50,11 @@ class Slab2 extends WoodenSlab{
 		return (($this->meta & 0x08) > 0 ? "Upper " : "") . $names[$this->meta & 0x07] . " Slab";
 	}
 
-	public function getToolType(){
+	public function getToolType() : int{
 		return Tool::TYPE_PICKAXE;
 	}
 
-	public function getDrops(Item $item){
+	public function getDrops(Item $item) : array{
 		if($item->isPickaxe() >= Tool::TIER_WOODEN){
 			return [
 				[$this->id, $this->meta & 0x07, 1],

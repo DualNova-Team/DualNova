@@ -32,7 +32,6 @@ class Arrow extends Projectile{
 	const NETWORK_ID = 80;
 
 	public $width = 0.5;
-	public $length = 0.5;
 	public $height = 0.5;
 
 	protected $gravity = 0.05;
@@ -40,47 +39,43 @@ class Arrow extends Projectile{
 
 	protected $damage = 2;
 
-	public function __construct(Level $level, CompoundTag $nbt, Entity $shootingEntity = null, bool $critical = false){
+	public function __construct(Level $level, CompoundTag $nbt, Entity $shootingEntity = \null, bool $critical = \false){
 		parent::__construct($level, $nbt, $shootingEntity);
 		$this->setCritical($critical);
 	}
 
 	public function isCritical() : bool{
-		return $this->getDataFlag(self::DATA_FLAGS, self::DATA_FLAG_CRITICAL);
+		return $this->getGenericFlag(self::DATA_FLAG_CRITICAL);
 	}
 
-	public function setCritical(bool $value = true){
-		$this->setDataFlag(self::DATA_FLAGS, self::DATA_FLAG_CRITICAL, $value);
+	public function setCritical(bool $value = \true){
+		$this->setGenericFlag(self::DATA_FLAG_CRITICAL, $value);
 	}
 
 	public function getResultDamage() : int{
 		$base = parent::getResultDamage();
 		if($this->isCritical()){
-			return ($base + mt_rand(0, (int) ($base / 2) + 1));
+			return ($base + \mt_rand(0, (int) ($base / 2) + 1));
 		}else{
 			return $base;
 		}
 	}
 
-	public function onUpdate($currentTick){
+	public function entityBaseTick(int $tickDiff = 1) : bool{
 		if($this->closed){
-			return false;
+			return \false;
 		}
 
-		$this->timings->startTiming();
-
-		$hasUpdate = parent::onUpdate($currentTick);
+		$hasUpdate = parent::entityBaseTick($tickDiff);
 
 		if($this->onGround or $this->hadCollision){
-			$this->setCritical(false);
+			$this->setCritical(\false);
 		}
 
 		if($this->age > 1200){
 			$this->close();
-			$hasUpdate = true;
+			$hasUpdate = \true;
 		}
-
-		$this->timings->stopTiming();
 
 		return $hasUpdate;
 	}
@@ -89,12 +84,9 @@ class Arrow extends Projectile{
 		$pk = new AddEntityPacket();
 		$pk->type = Arrow::NETWORK_ID;
 		$pk->entityRuntimeId = $this->getId();
-		$pk->x = $this->x;
-		$pk->y = $this->y;
-		$pk->z = $this->z;
-		$pk->speedX = $this->motionX;
-		$pk->speedY = $this->motionY;
-		$pk->speedZ = $this->motionZ;
+		$pk->position = $this->asVector3();
+		$pk->motion = $this->getMotion();
+
 		$pk->yaw = $this->yaw;
 		$pk->pitch = $this->pitch;
 		$pk->metadata = $this->dataProperties;

@@ -29,7 +29,7 @@ use pocketmine\Player;
  * Called when a player jumps
  */
 class PlayerJumpEvent extends PlayerEvent{
-	public static $handlerList = null;
+	public static $handlerList = \null;
 
 	/**
 	 * PlayerJumpEvent constructor.

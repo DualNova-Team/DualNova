@@ -29,7 +29,7 @@ use pocketmine\event\TranslationContainer;
 
 class SaveOffCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.saveoff.description",
@@ -40,13 +40,13 @@ class SaveOffCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
-		$sender->getServer()->setAutoSave(false);
+		$sender->getServer()->setAutoSave(\false);
 
 		Command::broadcastCommandMessage($sender, new TranslationContainer("commands.save.disabled"));
 
-		return true;
+		return \true;
 	}
 }

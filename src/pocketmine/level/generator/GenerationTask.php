@@ -36,7 +36,7 @@ class GenerationTask extends AsyncTask{
 	public $chunk;
 
 	public function __construct(Level $level, Chunk $chunk){
-		$this->state = true;
+		$this->state = \true;
 		$this->levelId = $level->getId();
 		$this->chunk = $chunk->fastSerialize();
 	}
@@ -46,14 +46,14 @@ class GenerationTask extends AsyncTask{
 		$manager = $this->getFromThreadStore("generation.level{$this->levelId}.manager");
 		/** @var Generator $generator */
 		$generator = $this->getFromThreadStore("generation.level{$this->levelId}.generator");
-		if($manager === null or $generator === null){
-			$this->state = false;
+		if($manager === \null or $generator === \null){
+			$this->state = \false;
 			return;
 		}
 
 		/** @var Chunk $chunk */
 		$chunk = Chunk::fastDeserialize($this->chunk);
-		if($chunk === null){
+		if($chunk === \null){
 			//TODO error
 			return;
 		}
@@ -66,19 +66,19 @@ class GenerationTask extends AsyncTask{
 		$chunk->setGenerated();
 		$this->chunk = $chunk->fastSerialize();
 
-		$manager->setChunk($chunk->getX(), $chunk->getZ(), null);
+		$manager->setChunk($chunk->getX(), $chunk->getZ(), \null);
 	}
 
 	public function onCompletion(Server $server){
 		$level = $server->getLevel($this->levelId);
-		if($level !== null){
-			if($this->state === false){
+		if($level !== \null){
+			if($this->state === \false){
 				$level->registerGenerator();
 				return;
 			}
 			/** @var Chunk $chunk */
 			$chunk = Chunk::fastDeserialize($this->chunk);
-			if($chunk === null){
+			if($chunk === \null){
 				//TODO error
 				return;
 			}

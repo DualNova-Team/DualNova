@@ -51,7 +51,7 @@ class SetupWizard{
 		$langs = BaseLang::getLanguageList();
 		if(empty($langs)){
 			$this->error("No language files found, please use provided builds or clone the repository recursively.");
-			return false;
+			return \false;
 		}
 
 		$this->message("Please select a language");
@@ -60,23 +60,23 @@ class SetupWizard{
 		}
 
 		do{
-			$lang = strtolower($this->getInput("Language", "eng"));
+			$lang = \strtolower($this->getInput("Language", "eng"));
 			if(!isset($langs[$lang])){
 				$this->error("Couldn't find the language");
-				$lang = null;
+				$lang = \null;
 			}
-		}while($lang === null);
+		}while($lang === \null);
 
 		$this->lang = new BaseLang($lang);
 
 		$this->message($this->lang->get("language_has_been_selected"));
 
 		if(!$this->showLicense()){
-			return false;
+			return \false;
 		}
 
-		if(strtolower($this->getInput($this->lang->get("skip_installer"), "n", "y/N")) === "y"){
-			return true;
+		if(\strtolower($this->getInput($this->lang->get("skip_installer"), "n", "y/N")) === "y"){
+			return \true;
 		}
 
 		$this->writeLine();
@@ -88,7 +88,7 @@ class SetupWizard{
 
 		$this->endWizard();
 
-		return true;
+		return \true;
 	}
 
 	private function showLicense() : bool{
@@ -102,14 +102,14 @@ class SetupWizard{
 
 LICENSE;
 		$this->writeLine();
-		if(strtolower($this->getInput($this->lang->get("accept_license"), "n", "y/N")) !== "y"){
+		if(\strtolower($this->getInput($this->lang->get("accept_license"), "n", "y/N")) !== "y"){
 			$this->error($this->lang->get("you_have_to_accept_the_license"));
-			sleep(5);
+			\sleep(5);
 
-			return false;
+			return \false;
 		}
 
-		return true;
+		return \true;
 	}
 
 	private function welcome(){
@@ -134,7 +134,7 @@ LICENSE;
 			}
 
 			break;
-		}while(true);
+		}while(\true);
 		$config->set("server-port", $port);
 
 		$this->message($this->lang->get("gamemode_info"));
@@ -148,7 +148,7 @@ LICENSE;
 
 		$this->message($this->lang->get("spawn_protection_info"));
 
-		if(strtolower($this->getInput($this->lang->get("spawn_protection"), "y", "Y/n")) === "n"){
+		if(\strtolower($this->getInput($this->lang->get("spawn_protection"), "y", "Y/n")) === "n"){
 			$config->set("spawn-protection", -1);
 		}else{
 			$config->set("spawn-protection", 16);
@@ -160,23 +160,23 @@ LICENSE;
 	private function generateUserFiles(){
 		$this->message($this->lang->get("op_info"));
 
-		$op = strtolower($this->getInput($this->lang->get("op_who"), ""));
+		$op = \strtolower($this->getInput($this->lang->get("op_who"), ""));
 		if($op === ""){
 			$this->error($this->lang->get("op_warning"));
 		}else{
 			$ops = new Config(\pocketmine\DATA . "ops.txt", Config::ENUM);
-			$ops->set($op, true);
+			$ops->set($op, \true);
 			$ops->save();
 		}
 
 		$this->message($this->lang->get("whitelist_info"));
 
 		$config = new Config(\pocketmine\DATA . "server.properties", Config::PROPERTIES);
-		if(strtolower($this->getInput($this->lang->get("whitelist_enable"), "n", "y/N")) === "y"){
+		if(\strtolower($this->getInput($this->lang->get("whitelist_enable"), "n", "y/N")) === "y"){
 			$this->error($this->lang->get("whitelist_warning"));
-			$config->set("white-list", true);
+			$config->set("white-list", \true);
 		}else{
-			$config->set("white-list", false);
+			$config->set("white-list", \false);
 		}
 		$config->save();
 	}
@@ -185,20 +185,20 @@ LICENSE;
 		$config = new Config(\pocketmine\DATA . "server.properties", Config::PROPERTIES);
 		$this->error($this->lang->get("query_warning1"));
 		$this->error($this->lang->get("query_warning2"));
-		if(strtolower($this->getInput($this->lang->get("query_disable"), "n", "y/N")) === "y"){
-			$config->set("enable-query", false);
+		if(\strtolower($this->getInput($this->lang->get("query_disable"), "n", "y/N")) === "y"){
+			$config->set("enable-query", \false);
 		}else{
-			$config->set("enable-query", true);
+			$config->set("enable-query", \true);
 		}
 
 		$this->message($this->lang->get("rcon_info"));
-		if(strtolower($this->getInput($this->lang->get("rcon_enable"), "n", "y/N")) === "y"){
-			$config->set("enable-rcon", true);
-			$password = substr(base64_encode(random_bytes(20)), 3, 10);
+		if(\strtolower($this->getInput($this->lang->get("rcon_enable"), "n", "y/N")) === "y"){
+			$config->set("enable-rcon", \true);
+			$password = \substr(\base64_encode(\random_bytes(20)), 3, 10);
 			$config->set("rcon.password", $password);
 			$this->message($this->lang->get("rcon_password") . ": " . $password);
 		}else{
-			$config->set("enable-rcon", false);
+			$config->set("enable-rcon", \false);
 		}
 
 		$config->save();
@@ -207,10 +207,10 @@ LICENSE;
 		$this->message($this->lang->get("ip_get"));
 
 		$externalIP = Utils::getIP();
-		if($externalIP === false){
+		if($externalIP === \false){
 			$externalIP = "unknown (server offline)";
 		}
-		$internalIP = gethostbyname(trim(`hostname`));
+		$internalIP = \gethostbyname(\trim(`hostname`));
 
 		$this->error($this->lang->translateString("ip_warning", ["EXTERNAL_IP" => $externalIP, "INTERNAL_IP" => $internalIP]));
 		$this->error($this->lang->get("ip_confirm"));
@@ -225,15 +225,15 @@ LICENSE;
 		$this->writeLine();
 		$this->writeLine();
 
-		sleep(4);
+		\sleep(4);
 	}
 
 	private function writeLine(string $line = ""){
-		echo $line . PHP_EOL;
+		echo $line . \PHP_EOL;
 	}
 
 	private function readLine() : string{
-		return trim((string) fgets(STDIN));
+		return \trim((string) \fgets(STDIN));
 	}
 
 	private function message(string $message){

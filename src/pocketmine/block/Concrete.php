@@ -2,12 +2,11 @@
 
 /*
  *
- *  ____               _   ___     _
- * |  _ \             | | |   \   | |
- * | | | |_   _  ____ | | | |\ \  | | _____    ______
- * | | | | | | |/ _  \| | | | \ \ | |/ _ \ \  / / _  \
- * | |_| | |_| | (_)  | |_| |  \ \| | (_) \ \/ / (_)  |
- * |____/\_____|\___|_\___|_|   \___|\___/ \__/ \___|_|
+ *  ____               _   ___    _
+ * |  _ \ _   _  ____ | | |   \  | | _____    ______
+ * | | | | | | |/ _  \| | | |\ \ | |/ _ \ \  / / _  \
+ * | |_| | |_| | (_)  | |_| | \ \| | (_) \ \/ / (_)  |
+ * |____/\_____|\___|_\___|_|  \___|\___/ \__/ \___|_|
  *
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\ColorBlockMetaHelper;
 use pocketmine\item\Tool;
 
 class Concrete extends Solid{
@@ -34,34 +34,16 @@ class Concrete extends Solid{
 		$this->meta = $meta;
 	}
 
-	public function getHardness(){
+	public function getHardness() : float{
 		return 1.8;
 	}
 
-	public function getToolType(){
+	public function getToolType() : int{
 		return Tool::TYPE_PICKAXE;
 	}
 
-	public function getName(){
-		static $names = [
-			0 => "White Concrete",
-			1 => "Orange Concrete",
-			2 => "Magenta Concrete",
-			3 => "Light Blue Concrete",
-			4 => "Yellow Concrete",
-			5 => "Lime Concrete",
-			6 => "Pink Concrete",
-			7 => "Gray Concrete",
-			8 => "Light Gray Concrete",
-			9 => "Cyan Concrete",
-			10 => "Purple Concrete",
-			11 => "Blue Concrete",
-			12 => "Brown Concrete",
-			13 => "Green Concrete",
-			14 => "Red Concrete",
-			15 => "Black Concrete",
-		];
-		return $names[$this->meta & 0x0f];
+	public function getName() : string{
+		return ColorBlockMetaHelper::getColorFromMeta($this->meta) . "Concrete";
 	}
 
 }

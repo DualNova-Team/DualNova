@@ -29,7 +29,7 @@ use pocketmine\utils\TextFormat;
 
 class PluginsCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.plugins.description",
@@ -41,22 +41,22 @@ class PluginsCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 		$this->sendPluginList($sender);
-		return true;
+		return \true;
 	}
 
 	private function sendPluginList(CommandSender $sender){
 		$list = "";
 		foreach(($plugins = $sender->getServer()->getPluginManager()->getPlugins()) as $plugin){
-			if(strlen($list) > 0){
+			if(\strlen($list) > 0){
 				$list .= TextFormat::WHITE . ", ";
 			}
 			$list .= $plugin->isEnabled() ? TextFormat::GREEN : TextFormat::RED;
 			$list .= $plugin->getDescription()->getFullName();
 		}
 
-		$sender->sendMessage(new TranslationContainer("pocketmine.command.plugins.success", [count($plugins), $list]));
+		$sender->sendMessage(new TranslationContainer("pocketmine.command.plugins.success", [\count($plugins), $list]));
 	}
 }

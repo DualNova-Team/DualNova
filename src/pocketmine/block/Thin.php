@@ -28,8 +28,8 @@ use pocketmine\math\Vector3;
 
 abstract class Thin extends Transparent{
 
-	public function isSolid(){
-		return false;
+	public function isSolid() : bool{
+		return \false;
 	}
 
 	protected function recalculateBoundingBox(){

@@ -93,7 +93,7 @@ interface Plugin extends CommandExecutor{
 	 *
 	 * @return bool
 	 */
-	public function saveResource(string $filename, bool $replace = false) : bool;
+	public function saveResource(string $filename, bool $replace = \false) : bool;
 
 	/**
 	 * Returns all the resources packaged with the plugin

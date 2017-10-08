@@ -29,6 +29,8 @@ class PluginDescription{
 	private $name;
 	private $main;
 	private $api;
+	/** @var int[] */
+	private $compatibleMcpeProtocols = [];
 	private $extensions = [];
 	private $depend = [];
 	private $softDepend = [];
@@ -55,7 +57,7 @@ class PluginDescription{
 	 * @param string|array $yamlString
 	 */
 	public function __construct($yamlString){
-		$this->loadMap(!is_array($yamlString) ? \yaml_parse($yamlString) : $yamlString);
+		$this->loadMap(!\is_array($yamlString) ? \yaml_parse($yamlString) : $yamlString);
 	}
 
 	/**
@@ -64,19 +66,21 @@ class PluginDescription{
 	 * @throws PluginException
 	 */
 	private function loadMap(array $plugin){
-		$this->name = preg_replace("[^A-Za-z0-9 _.-]", "", $plugin["name"]);
+		$this->name = \preg_replace("[^A-Za-z0-9 _.-]", "", $plugin["name"]);
 		if($this->name === ""){
 			throw new PluginException("Invalid PluginDescription name");
 		}
-		$this->name = str_replace(" ", "_", $this->name);
+		$this->name = \str_replace(" ", "_", $this->name);
 		$this->version = (string) $plugin["version"];
 		$this->main = $plugin["main"];
-		$this->api = array_map(function($v){ return (string) $v; }, !is_array($plugin["api"]) ? [$plugin["api"]] : $plugin["api"]);
-		if(stripos($this->main, "pocketmine\\") === 0){
+		if(\stripos($this->main, "pocketmine\\") === 0){
 			throw new PluginException("Invalid PluginDescription main, cannot start within the PocketMine namespace");
 		}
 
-		if(isset($plugin["commands"]) and is_array($plugin["commands"])){
+		$this->api = \array_map("strval", (array) $plugin["api"] ?? []);
+		$this->compatibleMcpeProtocols = \array_map("intval", (array) ($plugin["mcpe-protocol"] ?? []));
+
+		if(isset($plugin["commands"]) and \is_array($plugin["commands"])){
 			$this->commands = $plugin["commands"];
 		}
 
@@ -85,37 +89,32 @@ class PluginDescription{
 		}
 		if(isset($plugin["extensions"])){
 			$extensions = (array) $plugin["extensions"];
-			$isLinear = $extensions === array_values($extensions);
+			$isLinear = $extensions === \array_values($extensions);
 			foreach($extensions as $k => $v){
 				if($isLinear){
 					$k = $v;
 					$v = "*";
 				}
-				$this->extensions[$k] = is_array($v) ? $v : [$v];
+				$this->extensions[$k] = \is_array($v) ? $v : [$v];
 			}
 		}
-		if(isset($plugin["softdepend"])){
-			$this->softDepend = (array) $plugin["softdepend"];
-		}
-		if(isset($plugin["loadbefore"])){
-			$this->loadBefore = (array) $plugin["loadbefore"];
-		}
 
-		if(isset($plugin["website"])){
-			$this->website = $plugin["website"];
-		}
-		if(isset($plugin["description"])){
-			$this->description = $plugin["description"];
-		}
-		if(isset($plugin["prefix"])){
-			$this->prefix = $plugin["prefix"];
-		}
+		$this->softDepend = (array) ($plugin["softdepend"] ?? $this->softDepend);
+
+		$this->loadBefore = (array) ($plugin["loadbefore"] ?? $this->loadBefore);
+
+		$this->website = (string) ($plugin["website"] ?? $this->website);
+
+		$this->description = (string) ($plugin["description"] ?? $this->description);
+
+		$this->prefix = (string) ($plugin["prefix"] ?? $this->prefix);
+
 		if(isset($plugin["load"])){
-			$order = strtoupper($plugin["load"]);
-			if(!defined(PluginLoadOrder::class . "::" . $order)){
+			$order = \strtoupper($plugin["load"]);
+			if(!\defined(PluginLoadOrder::class . "::" . $order)){
 				throw new PluginException("Invalid PluginDescription load");
 			}else{
-				$this->order = constant(PluginLoadOrder::class . "::" . $order);
+				$this->order = \constant(PluginLoadOrder::class . "::" . $order);
 			}
 		}
 		$this->authors = [];
@@ -145,6 +144,13 @@ class PluginDescription{
 	 */
 	public function getCompatibleApis() : array{
 		return $this->api;
+	}
+
+	/**
+	 * @return int[]
+	 */
+	public function getCompatibleMcpeProtocols() : array{
+		return $this->compatibleMcpeProtocols;
 	}
 
 	/**
@@ -182,14 +188,14 @@ class PluginDescription{
 	 */
 	public function checkRequiredExtensions(){
 		foreach($this->extensions as $name => $versionConstrs){
-			if(!extension_loaded($name)){
+			if(!\extension_loaded($name)){
 				throw new PluginException("Required extension $name not loaded");
 			}
 
-			if(!is_array($versionConstrs)){
+			if(!\is_array($versionConstrs)){
 				$versionConstrs = [$versionConstrs];
 			}
-			$gotVersion = phpversion($name);
+			$gotVersion = \phpversion($name);
 			foreach($versionConstrs as $constr){ // versionConstrs_loop
 				if($constr === "*"){
 					continue;
@@ -199,9 +205,9 @@ class PluginDescription{
 				}
 				foreach(["<=", "le", "<>", "!=", "ne", "<", "lt", "==", "=", "eq", ">=", "ge", ">", "gt"] as $comparator){
 					// warning: the > character should be quoted in YAML
-					if(substr($constr, 0, strlen($comparator)) === $comparator){
-						$version = substr($constr, strlen($comparator));
-						if(!version_compare($gotVersion, $version, $comparator)){
+					if(\substr($constr, 0, \strlen($comparator)) === $comparator){
+						$version = \substr($constr, \strlen($comparator));
+						if(!\version_compare($gotVersion, $version, $comparator)){
 							throw new PluginException("Required extension $name has an incompatible version ($gotVersion not $constr)");
 						}
 						continue 2; // versionConstrs_loop

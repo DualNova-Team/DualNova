@@ -61,7 +61,7 @@ class Random{
 	 */
 	public function __construct(int $seed = -1){
 		if($seed === -1){
-			$seed = time();
+			$seed = \time();
 		}
 
 		$this->setSeed($seed);

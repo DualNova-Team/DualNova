@@ -36,14 +36,14 @@ class WeakPosition extends Position{
 	 * @param int   $z
 	 * @param Level $level
 	 */
-	public function __construct($x = 0, $y = 0, $z = 0, Level $level = null){
+	public function __construct($x = 0, $y = 0, $z = 0, Level $level = \null){
 		$this->x = $x;
 		$this->y = $y;
 		$this->z = $z;
-		$this->levelId = ($level !== null ? $level->getId() : -1);
+		$this->levelId = ($level !== \null ? $level->getId() : -1);
 	}
 
-	public static function fromObject(Vector3 $pos, Level $level = null){
+	public static function fromObject(Vector3 $pos, Level $level = \null){
 		return new WeakPosition($pos->x, $pos->y, $pos->z, $level);
 	}
 
@@ -61,12 +61,12 @@ class WeakPosition extends Position{
 	 *
 	 * @throws \InvalidArgumentException if the specified Level has been closed
 	 */
-	public function setLevel(Level $level = null){
-		if($level !== null and $level->isClosed()){
+	public function setLevel(Level $level = \null){
+		if($level !== \null and $level->isClosed()){
 			throw new \InvalidArgumentException("Specified level has been unloaded and cannot be used");
 		}
 
-		$this->levelId = ($level !== null ? $level->getId() : -1);
+		$this->levelId = ($level !== \null ? $level->getId() : -1);
 		return $this;
 	}
 
@@ -81,7 +81,7 @@ class WeakPosition extends Position{
 	 * @throws LevelException
 	 */
 	public function getSide($side, $step = 1){
-		assert($this->isValid());
+		\assert($this->isValid());
 
 		return WeakPosition::fromObject(parent::getSide($side, $step), $this->level);
 	}

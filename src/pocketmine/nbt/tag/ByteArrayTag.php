@@ -25,7 +25,7 @@ namespace pocketmine\nbt\tag;
 
 use pocketmine\nbt\NBT;
 
-#include <rules/NBT.h>
+use pocketmine\utils\Binary;
 
 class ByteArrayTag extends NamedTag{
 
@@ -43,13 +43,13 @@ class ByteArrayTag extends NamedTag{
 		return NBT::TAG_ByteArray;
 	}
 
-	public function read(NBT $nbt, bool $network = false){
-		$this->value = $nbt->get($nbt->getInt($network));
+	public function read(NBT $nbt, bool $network = \false){
+		$this->value = $nbt->get(($network === \true ? Binary::readVarInt($nbt->buffer, $nbt->offset) : ($nbt->endianness === 1 ? (\unpack("N", $nbt->get(4))[1] << 32 >> 32) : (\unpack("V", $nbt->get(4))[1] << 32 >> 32))));
 	}
 
-	public function write(NBT $nbt, bool $network = false){
-		$nbt->putInt(strlen($this->value), $network);
-		$nbt->put($this->value);
+	public function write(NBT $nbt, bool $network = \false){
+		($nbt->buffer .=  $network === \true ? Binary::writeVarInt(\strlen($this->value)) : ($nbt->endianness === 1 ? (\pack("N", \strlen($this->value))) : (\pack("V", \strlen($this->value)))));
+		($nbt->buffer .= $this->value);
 	}
 
 	/**
@@ -65,8 +65,8 @@ class ByteArrayTag extends NamedTag{
 	 * @throws \TypeError
 	 */
 	public function setValue($value){
-		if(!is_string($value)){
-			throw new \TypeError("ByteArrayTag value must be of type string, " . gettype($value) . " given");
+		if(!\is_string($value)){
+			throw new \TypeError("ByteArrayTag value must be of type string, " . \gettype($value) . " given");
 		}
 		parent::setValue($value);
 	}

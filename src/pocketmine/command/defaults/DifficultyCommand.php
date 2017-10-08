@@ -32,7 +32,7 @@ use pocketmine\Server;
 
 class DifficultyCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.difficulty.description",
@@ -43,10 +43,10 @@ class DifficultyCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
-		if(count($args) !== 1){
+		if(\count($args) !== 1){
 			throw new InvalidCommandSyntaxException();
 		}
 
@@ -68,6 +68,6 @@ class DifficultyCommand extends VanillaCommand{
 			throw new InvalidCommandSyntaxException();
 		}
 
-		return true;
+		return \true;
 	}
 }

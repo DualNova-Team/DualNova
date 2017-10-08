@@ -49,7 +49,7 @@ class Config{
 	/** @var string */
 	private $file;
 	/** @var bool */
-	private $correct = false;
+	private $correct = \false;
 	/** @var int */
 	private $type = Config::DETECT;
 	/** @var int */
@@ -79,7 +79,7 @@ class Config{
 	 * @param array  $default  Array with the default values that will be written to the file if it did not exist
 	 * @param null   &$correct Sets correct to true if everything has been loaded correctly
 	 */
-	public function __construct(string $file, int $type = Config::DETECT, array $default = [], &$correct = null){
+	public function __construct(string $file, int $type = Config::DETECT, array $default = [], &$correct = \null){
 		$this->load($file, $type, $default);
 		$correct = $this->correct;
 	}
@@ -90,7 +90,7 @@ class Config{
 	public function reload(){
 		$this->config = [];
 		$this->nestedCache = [];
-		$this->correct = false;
+		$this->correct = \false;
 		$this->load($this->file, $this->type);
 	}
 
@@ -100,7 +100,7 @@ class Config{
 	 * @return string
 	 */
 	public static function fixYAMLIndexes(string $str) : string{
-		return preg_replace("#^([ ]*)([a-zA-Z_]{1}[ ]*)\\:$#m", "$1\"$2\":", $str);
+		return \preg_replace("#^([ ]*)([a-zA-Z_]{1}[ ]*)\\:$#m", "$1\"$2\":", $str);
 	}
 
 	/**
@@ -111,68 +111,68 @@ class Config{
 	 * @return bool
 	 */
 	public function load(string $file, int $type = Config::DETECT, array $default = []) : bool{
-		$this->correct = true;
+		$this->correct = \true;
 		$this->file = $file;
 
 		$this->type = $type;
 		if($this->type === Config::DETECT){
-			$extension = explode(".", basename($this->file));
-			$extension = strtolower(trim(array_pop($extension)));
+			$extension = \explode(".", \basename($this->file));
+			$extension = \strtolower(\trim(\array_pop($extension)));
 			if(isset(Config::$formats[$extension])){
 				$this->type = Config::$formats[$extension];
 			}else{
-				$this->correct = false;
+				$this->correct = \false;
 			}
 		}
 
-		if(!file_exists($file)){
+		if(!\file_exists($file)){
 			$this->config = $default;
 			$this->save();
 		}else{
-			if($this->correct === true){
-				$content = file_get_contents($this->file);
+			if($this->correct === \true){
+				$content = \file_get_contents($this->file);
 				switch($this->type){
 					case Config::PROPERTIES:
 					case Config::CNF:
 						$this->parseProperties($content);
 						break;
 					case Config::JSON:
-						$this->config = json_decode($content, true);
+						$this->config = \json_decode($content, \true);
 						break;
 					case Config::YAML:
 						$content = self::fixYAMLIndexes($content);
-						$this->config = yaml_parse($content);
+						$this->config = \yaml_parse($content);
 						break;
 					case Config::SERIALIZED:
-						$this->config = unserialize($content);
+						$this->config = \unserialize($content);
 						break;
 					case Config::ENUM:
 						$this->parseList($content);
 						break;
 					default:
-						$this->correct = false;
+						$this->correct = \false;
 
-						return false;
+						return \false;
 				}
-				if(!is_array($this->config)){
+				if(!\is_array($this->config)){
 					$this->config = $default;
 				}
 				if($this->fillDefaults($default, $this->config) > 0){
 					$this->save();
 				}
 			}else{
-				return false;
+				return \false;
 			}
 		}
 
-		return true;
+		return \true;
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function check() : bool{
-		return $this->correct === true;
+		return $this->correct === \true;
 	}
 
 	/**
@@ -180,26 +180,26 @@ class Config{
 	 *
 	 * @return bool
 	 */
-	public function save(bool $async = false) : bool{
-		if($this->correct === true){
+	public function save(bool $async = \false) : bool{
+		if($this->correct === \true){
 			try{
-				$content = null;
+				$content = \null;
 				switch($this->type){
 					case Config::PROPERTIES:
 					case Config::CNF:
 						$content = $this->writeProperties();
 						break;
 					case Config::JSON:
-						$content = json_encode($this->config, $this->jsonOptions);
+						$content = \json_encode($this->config, $this->jsonOptions);
 						break;
 					case Config::YAML:
-						$content = yaml_emit($this->config, YAML_UTF8_ENCODING);
+						$content = \yaml_emit($this->config, YAML_UTF8_ENCODING);
 						break;
 					case Config::SERIALIZED:
-						$content = serialize($this->config);
+						$content = \serialize($this->config);
 						break;
 					case Config::ENUM:
-						$content = implode("\r\n", array_keys($this->config));
+						$content = \implode("\r\n", \array_keys($this->config));
 						break;
 					default:
 						throw new \InvalidStateException("Config type is unknown, has not been set or not detected");
@@ -208,7 +208,7 @@ class Config{
 				if($async){
 					Server::getInstance()->getScheduler()->scheduleAsyncTask(new FileWriteTask($this->file, $content));
 				}else{
-					file_put_contents($this->file, $content);
+					\file_put_contents($this->file, $content);
 				}
 			}catch(\Throwable $e){
 				$logger = Server::getInstance()->getLogger();
@@ -218,9 +218,9 @@ class Config{
 				}
 			}
 
-			return true;
+			return \true;
 		}else{
-			return false;
+			return \false;
 		}
 	}
 
@@ -324,8 +324,8 @@ class Config{
 	 * @param $value
 	 */
 	public function setNested($key, $value){
-		$vars = explode(".", $key);
-		$base = array_shift($vars);
+		$vars = \explode(".", $key);
+		$base = \array_shift($vars);
 
 		if(!isset($this->config[$base])){
 			$this->config[$base] = [];
@@ -333,8 +333,8 @@ class Config{
 
 		$base =& $this->config[$base];
 
-		while(count($vars) > 0){
-			$baseKey = array_shift($vars);
+		while(\count($vars) > 0){
+			$baseKey = \array_shift($vars);
 			if(!isset($base[$baseKey])){
 				$base[$baseKey] = [];
 			}
@@ -351,22 +351,22 @@ class Config{
 	 *
 	 * @return mixed
 	 */
-	public function getNested($key, $default = null){
+	public function getNested($key, $default = \null){
 		if(isset($this->nestedCache[$key])){
 			return $this->nestedCache[$key];
 		}
 
-		$vars = explode(".", $key);
-		$base = array_shift($vars);
+		$vars = \explode(".", $key);
+		$base = \array_shift($vars);
 		if(isset($this->config[$base])){
 			$base = $this->config[$base];
 		}else{
 			return $default;
 		}
 
-		while(count($vars) > 0){
-			$baseKey = array_shift($vars);
-			if(is_array($base) and isset($base[$baseKey])){
+		while(\count($vars) > 0){
+			$baseKey = \array_shift($vars);
+			if(\is_array($base) and isset($base[$baseKey])){
 				$base = $base[$baseKey];
 			}else{
 				return $default;
@@ -382,7 +382,7 @@ class Config{
 	 *
 	 * @return bool|mixed
 	 */
-	public function get($k, $default = false){
+	public function get($k, $default = \false){
 		return ($this->correct and isset($this->config[$k])) ? $this->config[$k] : $default;
 	}
 
@@ -390,10 +390,10 @@ class Config{
 	 * @param string $k key to be set
 	 * @param mixed  $v value to set key
 	 */
-	public function set($k, $v = true){
+	public function set($k, $v = \true){
 		$this->config[$k] = $v;
 		foreach($this->nestedCache as $nestedKey => $nvalue){
-			if(substr($nestedKey, 0, strlen($k) + 1) === ($k . ".")){
+			if(\substr($nestedKey, 0, \strlen($k) + 1) === ($k . ".")){
 				unset($this->nestedCache[$nestedKey]);
 			}
 		}
@@ -412,10 +412,10 @@ class Config{
 	 *
 	 * @return bool
 	 */
-	public function exists($k, bool $lowercase = false) : bool{
-		if($lowercase === true){
-			$k = strtolower($k); //Convert requested  key to lower
-			$array = array_change_key_case($this->config, CASE_LOWER); //Change all keys in array to lower
+	public function exists($k, bool $lowercase = \false) : bool{
+		if($lowercase === \true){
+			$k = \strtolower($k); //Convert requested  key to lower
+			$array = \array_change_key_case($this->config, CASE_LOWER); //Change all keys in array to lower
 			return isset($array[$k]); //Find $k in modified array
 		}else{
 			return isset($this->config[$k]);
@@ -434,8 +434,8 @@ class Config{
 	 *
 	 * @return array
 	 */
-	public function getAll(bool $keys = false) : array{
-		return ($keys === true ? array_keys($this->config) : $this->config);
+	public function getAll(bool $keys = \false) : array{
+		return ($keys === \true ? \array_keys($this->config) : $this->config);
 	}
 
 	/**
@@ -454,8 +454,8 @@ class Config{
 	private function fillDefaults(array $default, &$data) : int{
 		$changed = 0;
 		foreach($default as $k => $v){
-			if(is_array($v)){
-				if(!isset($data[$k]) or !is_array($data[$k])){
+			if(\is_array($v)){
+				if(!isset($data[$k]) or !\is_array($data[$k])){
 					$data[$k] = [];
 				}
 				$changed += $this->fillDefaults($v, $data[$k]);
@@ -472,12 +472,12 @@ class Config{
 	 * @param string $content
 	 */
 	private function parseList(string $content){
-		foreach(explode("\n", trim(str_replace("\r\n", "\n", $content))) as $v){
-			$v = trim($v);
+		foreach(\explode("\n", \trim(\str_replace("\r\n", "\n", $content))) as $v){
+			$v = \trim($v);
 			if($v == ""){
 				continue;
 			}
-			$this->config[$v] = true;
+			$this->config[$v] = \true;
 		}
 	}
 
@@ -485,12 +485,12 @@ class Config{
 	 * @return string
 	 */
 	private function writeProperties() : string{
-		$content = "#Properties Config file\r\n#" . date("D M j H:i:s T Y") . "\r\n";
+		$content = "#Properties Config file\r\n#" . \date("D M j H:i:s T Y") . "\r\n";
 		foreach($this->config as $k => $v){
-			if(is_bool($v) === true){
-				$v = $v === true ? "on" : "off";
-			}elseif(is_array($v)){
-				$v = implode(";", $v);
+			if(\is_bool($v) === \true){
+				$v = $v === \true ? "on" : "off";
+			}elseif(\is_array($v)){
+				$v = \implode(";", $v);
 			}
 			$content .= $k . "=" . $v . "\r\n";
 		}
@@ -502,19 +502,19 @@ class Config{
 	 * @param string $content
 	 */
 	private function parseProperties(string $content){
-		if(preg_match_all('/([a-zA-Z0-9\-_\.]*)=([^\r\n]*)/u', $content, $matches) > 0){ //false or 0 matches
+		if(\preg_match_all('/([a-zA-Z0-9\-_\.]*)=([^\r\n]*)/u', $content, $matches) > 0){ //false or 0 matches
 			foreach($matches[1] as $i => $k){
-				$v = trim($matches[2][$i]);
-				switch(strtolower($v)){
+				$v = \trim($matches[2][$i]);
+				switch(\strtolower($v)){
 					case "on":
 					case "true":
 					case "yes":
-						$v = true;
+						$v = \true;
 						break;
 					case "off":
 					case "false":
 					case "no":
-						$v = false;
+						$v = \false;
 						break;
 				}
 				if(isset($this->config[$k])){

@@ -12,52 +12,52 @@
 /**
  * The default inheritance mask used when starting Threads and Workers
  */
-define('PTHREADS_INHERIT_ALL', 0x111111);
+\define('PTHREADS_INHERIT_ALL', 0x111111);
 
 /**
  * Nothing will be inherited by the new context
  */
-define('PTHREADS_INHERIT_NONE', 0);
+\define('PTHREADS_INHERIT_NONE', 0);
 
 /**
  * Determines whether the ini entries are inherited by the new context
  */
-define('PTHREADS_INHERIT_INI', 0x1);
+\define('PTHREADS_INHERIT_INI', 0x1);
 
 /**
  * Determines whether the constants are inherited by the new context
  */
-define('PTHREADS_INHERIT_CONSTANTS', 0x10);
+\define('PTHREADS_INHERIT_CONSTANTS', 0x10);
 
 /**
  * Determines whether the class table is inherited by the new context
  */
-define('PTHREADS_INHERIT_CLASSES', 0x100);
+\define('PTHREADS_INHERIT_CLASSES', 0x100);
 
 /**
  * Determines whether the function table is inherited by the new context
  */
-define('PTHREADS_INHERIT_FUNCTIONS', 0x100);
+\define('PTHREADS_INHERIT_FUNCTIONS', 0x100);
 
 /**
  * Determines whether the included_files table is inherited by the new context
  */
-define('PTHREADS_INHERIT_INCLUDES', 0x10000);
+\define('PTHREADS_INHERIT_INCLUDES', 0x10000);
 
 /**
  * Determines whether the comments are inherited by the new context
  */
-define('PTHREADS_INHERIT_COMMENTS', 0x100000);
+\define('PTHREADS_INHERIT_COMMENTS', 0x100000);
 
 /**
  * Allow output headers from the threads
  */
-define('PTHREADS_ALLOW_HEADERS', 0x1000000);
+\define('PTHREADS_ALLOW_HEADERS', 0x1000000);
 
 /**
  * Allow global inheritance for new threads
  */
-define('PTHREADS_ALLOW_GLOBALS', 0x10000000);
+\define('PTHREADS_ALLOW_GLOBALS', 0x10000000);
 
 interface Collectable{
 
@@ -100,7 +100,7 @@ class Threaded implements Traversable, Collectable{
 	 * @return array An array of items from the objects member table
 	 * @link http://www.php.net/manual/en/threaded.chunk.php
 	 */
-	public function chunk($size, bool $preserve = false){}
+	public function chunk($size, bool $preserve = \false){}
 
 	/**
 	 * {@inheritdoc}
@@ -132,7 +132,7 @@ class Threaded implements Traversable, Collectable{
 	 * @link http://www.php.net/manual/en/threaded.merge.php
 	 * @return bool A boolean indication of success
 	 */
-	public function merge($from, $overwrite = true){}
+	public function merge($from, $overwrite = \true){}
 
 	/**
 	 * Send notification to the referenced object
@@ -197,7 +197,7 @@ class Threaded implements Traversable, Collectable{
 	 * @link http://www.php.net/manual/en/threaded.synchronized.php
 	 * @return mixed The return value from the block
 	 */
-	public function synchronized(\Closure $function, $args = null){}
+	public function synchronized(\Closure $function, $args = \null){}
 
 	/**
 	 * Waits for notification from the Stackable
@@ -369,7 +369,7 @@ class Worker extends Thread{
 	 * @link http://www.php.net/manual/en/worker.collect.php
 	 * @return void
 	 */
-	public function collect(callable $function = null){}
+	public function collect(callable $function = \null){}
 }
 
 /**

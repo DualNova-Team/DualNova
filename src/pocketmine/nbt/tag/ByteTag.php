@@ -25,7 +25,7 @@ namespace pocketmine\nbt\tag;
 
 use pocketmine\nbt\NBT;
 
-#include <rules/NBT.h>
+use pocketmine\utils\Binary;
 
 class ByteTag extends NamedTag{
 
@@ -43,12 +43,12 @@ class ByteTag extends NamedTag{
 		return NBT::TAG_Byte;
 	}
 
-	public function read(NBT $nbt, bool $network = false){
+	public function read(NBT $nbt, bool $network = \false){
 		$this->value = $nbt->getSignedByte();
 	}
 
-	public function write(NBT $nbt, bool $network = false){
-		$nbt->putByte($this->value);
+	public function write(NBT $nbt, bool $network = \false){
+		($nbt->buffer .= \chr($this->value));
 	}
 
 	/**
@@ -64,8 +64,8 @@ class ByteTag extends NamedTag{
 	 * @throws \TypeError
 	 */
 	public function setValue($value){
-		if(!is_int($value)){
-			throw new \TypeError("ByteTag value must be of type int, " . gettype($value) . " given");
+		if(!\is_int($value)){
+			throw new \TypeError("ByteTag value must be of type int, " . \gettype($value) . " given");
 		}elseif($value < -(2 ** 7) or $value > ((2 ** 7) - 1)){
 			throw new \InvalidArgumentException("Value $value is too large!");
 		}

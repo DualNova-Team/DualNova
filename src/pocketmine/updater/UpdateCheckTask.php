@@ -48,9 +48,9 @@ class UpdateCheckTask extends AsyncTask{
 		$response = Utils::getURL($this->endpoint . "?channel=" . $this->channel, 4, [], $error);
 		$this->error = $error;
 
-		if($response !== false){
-			$response = json_decode($response, true);
-			if(is_array($response)){
+		if($response !== \false){
+			$response = \json_decode($response, \true);
+			if(\is_array($response)){
 				if(
 					isset($response["version"]) and
 					isset($response["api_version"]) and
@@ -58,8 +58,8 @@ class UpdateCheckTask extends AsyncTask{
 					isset($response["date"]) and
 					isset($response["download_url"])
 				){
-					$response["details_url"] = $response["details_url"] ?? null;
-					$this->setResult($response, true);
+					$response["details_url"] = $response["details_url"] ?? \null;
+					$this->setResult($response, \true);
 				}elseif(isset($response["error"])){
 					$this->error = $response["error"];
 				}else{
@@ -76,7 +76,7 @@ class UpdateCheckTask extends AsyncTask{
 			$server->getLogger()->debug("[AutoUpdater] Async update check failed due to \"$this->error\"");
 		}else{
 			$updateInfo = $this->getResult();
-			if(is_array($updateInfo)){
+			if(\is_array($updateInfo)){
 				$server->getUpdater()->checkUpdateCallback($updateInfo);
 			}else{
 				$server->getLogger()->debug("[AutoUpdater] Update info error");

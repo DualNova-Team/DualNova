@@ -22,15 +22,15 @@
 
 namespace pocketmine\block;
 
-class EndGatewayBlock extends Solid{
+class EndGatewayBlock extends Flowable{
 
-	protected $id = self::END_GATEWAY_BLOCK;
+	protected $id = self::END_GATEWAY;
 
 	public function __construct($meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function getName(){
+	public function getName() : string{
         return "End Gateway Block";
 	}
 }

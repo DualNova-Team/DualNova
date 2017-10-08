@@ -84,12 +84,12 @@ class McRegion extends BaseLevelProvider{
 		$nbt->BlockLight = new ByteArrayTag("BlockLight", $blockLight);
 
 		$nbt->Biomes = new ByteArrayTag("Biomes", $chunk->getBiomeIdArray()); //doesn't exist in regular McRegion, this is here for PocketMine-MP only
-		$nbt->HeightMap = new ByteArrayTag("HeightMap", pack("C*", ...$chunk->getHeightMapArray()));
+		$nbt->HeightMap = new ByteArrayTag("HeightMap", \pack("C*", ...$chunk->getHeightMapArray()));
 
 		$entities = [];
 
 		foreach($chunk->getEntities() as $entity){
-			if(!($entity instanceof Player) and !$entity->closed){
+			if(!($entity instanceof Player) and !$entity->isClosed()){
 				$entity->saveNBT();
 				$entities[] = $entity->namedtag;
 			}
@@ -133,34 +133,34 @@ class McRegion extends BaseLevelProvider{
 			$chunk = $chunk->Level;
 
 			$subChunks = [];
-			$fullIds = isset($chunk->Blocks) ? $chunk->Blocks->getValue() : str_repeat("\x00", 32768);
-			$fullData = isset($chunk->Data) ? $chunk->Data->getValue() : str_repeat("\x00", 16384);
-			$fullSkyLight = isset($chunk->SkyLight) ? $chunk->SkyLight->getValue() : str_repeat("\xff", 16384);
-			$fullBlockLight = isset($chunk->BlockLight) ? $chunk->BlockLight->getValue() : str_repeat("\x00", 16384);
+			$fullIds = isset($chunk->Blocks) ? $chunk->Blocks->getValue() : \str_repeat("\x00", 32768);
+			$fullData = isset($chunk->Data) ? $chunk->Data->getValue() : \str_repeat("\x00", 16384);
+			$fullSkyLight = isset($chunk->SkyLight) ? $chunk->SkyLight->getValue() : \str_repeat("\xff", 16384);
+			$fullBlockLight = isset($chunk->BlockLight) ? $chunk->BlockLight->getValue() : \str_repeat("\x00", 16384);
 
 			for($y = 0; $y < 8; ++$y){
 				$offset = ($y << 4);
 				$ids = "";
 				for($i = 0; $i < 256; ++$i){
-					$ids .= substr($fullIds, $offset, 16);
+					$ids .= \substr($fullIds, $offset, 16);
 					$offset += 128;
 				}
 				$data = "";
 				$offset = ($y << 3);
 				for($i = 0; $i < 256; ++$i){
-					$data .= substr($fullData, $offset, 8);
+					$data .= \substr($fullData, $offset, 8);
 					$offset += 64;
 				}
 				$skyLight = "";
 				$offset = ($y << 3);
 				for($i = 0; $i < 256; ++$i){
-					$skyLight .= substr($fullSkyLight, $offset, 8);
+					$skyLight .= \substr($fullSkyLight, $offset, 8);
 					$offset += 64;
 				}
 				$blockLight = "";
 				$offset = ($y << 3);
 				for($i = 0; $i < 256; ++$i){
-					$blockLight .= substr($fullBlockLight, $offset, 8);
+					$blockLight .= \substr($fullBlockLight, $offset, 8);
 					$offset += 64;
 				}
 				$subChunks[$y] = new SubChunk($ids, $data, $skyLight, $blockLight);
@@ -177,7 +177,7 @@ class McRegion extends BaseLevelProvider{
 			$heightMap = [];
 			if(isset($chunk->HeightMap)){
 				if($chunk->HeightMap instanceof ByteArrayTag){
-					$heightMap = array_values(unpack("C*", $chunk->HeightMap->getValue()));
+					$heightMap = \array_values(\unpack("C*", $chunk->HeightMap->getValue()));
 				}elseif($chunk->HeightMap instanceof IntArrayTag){
 					$heightMap = $chunk->HeightMap->getValue(); #blameshoghicp
 				}
@@ -192,13 +192,13 @@ class McRegion extends BaseLevelProvider{
 				$biomeIds,
 				$heightMap
 			);
-			$result->setLightPopulated(isset($chunk->LightPopulated) ? ((bool) $chunk->LightPopulated->getValue()) : false);
-			$result->setPopulated(isset($chunk->TerrainPopulated) ? ((bool) $chunk->TerrainPopulated->getValue()) : false);
-			$result->setGenerated(true);
+			$result->setLightPopulated(isset($chunk->LightPopulated) ? ((bool) $chunk->LightPopulated->getValue()) : \false);
+			$result->setPopulated(isset($chunk->TerrainPopulated) ? ((bool) $chunk->TerrainPopulated->getValue()) : \false);
+			$result->setGenerated(\true);
 			return $result;
 		}catch(\Throwable $e){
 			MainLogger::getLogger()->logException($e);
-			return null;
+			return \null;
 		}
 	}
 
@@ -220,16 +220,16 @@ class McRegion extends BaseLevelProvider{
 	}
 
 	public static function isValid(string $path) : bool{
-		$isValid = (file_exists($path . "/level.dat") and is_dir($path . "/region/"));
+		$isValid = (\file_exists($path . "/level.dat") and \is_dir($path . "/region/"));
 
 		if($isValid){
-			$files = array_filter(scandir($path . "/region/", SCANDIR_SORT_NONE), function($file){
-				return substr($file, strrpos($file, ".") + 1, 2) === "mc"; //region file
+			$files = \array_filter(\scandir($path . "/region/", SCANDIR_SORT_NONE), function($file){
+				return \substr($file, \strrpos($file, ".") + 1, 2) === "mc"; //region file
 			});
 
 			foreach($files as $f){
-				if(substr($f, strrpos($f, ".") + 1) !== static::REGION_FILE_EXTENSION){
-					$isValid = false;
+				if(\substr($f, \strrpos($f, ".") + 1) !== static::REGION_FILE_EXTENSION){
+					$isValid = \false;
 					break;
 				}
 			}
@@ -239,12 +239,12 @@ class McRegion extends BaseLevelProvider{
 	}
 
 	public static function generate(string $path, string $name, int $seed, string $generator, array $options = []){
-		if(!file_exists($path)){
-			mkdir($path, 0777, true);
+		if(!\file_exists($path)){
+			\mkdir($path, 0777, \true);
 		}
 
-		if(!file_exists($path . "/region")){
-			mkdir($path . "/region", 0777);
+		if(!\file_exists($path . "/region")){
+			\mkdir($path . "/region", 0777);
 		}
 		//TODO, add extra details
 		$levelData = new CompoundTag("Data", [
@@ -257,7 +257,7 @@ class McRegion extends BaseLevelProvider{
 			new IntTag("SpawnZ", 256),
 			new IntTag("version", static::getPcWorldFormatVersion()),
 			new IntTag("DayTime", 0),
-			new LongTag("LastPlayed", (int) (microtime(true) * 1000)),
+			new LongTag("LastPlayed", (int) (\microtime(\true) * 1000)),
 			new LongTag("RandomSeed", $seed),
 			new LongTag("SizeOnDisk", 0),
 			new LongTag("Time", 0),
@@ -271,7 +271,7 @@ class McRegion extends BaseLevelProvider{
 			$levelData
 		]));
 		$buffer = $nbt->writeCompressed();
-		file_put_contents($path . "level.dat", $buffer);
+		\file_put_contents($path . "level.dat", $buffer);
 	}
 
 	public function getGenerator() : string{
@@ -282,14 +282,14 @@ class McRegion extends BaseLevelProvider{
 		return ["preset" => $this->levelData["generatorOptions"]];
 	}
 
-	public function getChunk(int $chunkX, int $chunkZ, bool $create = false){
-		$index = Level::chunkHash($chunkX, $chunkZ);
+	public function getChunk(int $chunkX, int $chunkZ, bool $create = \false){
+		$index = ((($chunkX) & 0xFFFFFFFF) << 32) | (( $chunkZ) & 0xFFFFFFFF);
 		if(isset($this->chunks[$index])){
 			return $this->chunks[$index];
 		}else{
 			$this->loadChunk($chunkX, $chunkZ, $create);
 
-			return $this->chunks[$index] ?? null;
+			return $this->chunks[$index] ?? \null;
 		}
 	}
 
@@ -301,8 +301,8 @@ class McRegion extends BaseLevelProvider{
 		$chunk->setZ($chunkZ);
 
 
-		if(isset($this->chunks[$index = Level::chunkHash($chunkX, $chunkZ)]) and $this->chunks[$index] !== $chunk){
-			$this->unloadChunk($chunkX, $chunkZ, false);
+		if(isset($this->chunks[$index = ((($chunkX) & 0xFFFFFFFF) << 32) | (( $chunkZ) & 0xFFFFFFFF)]) and $this->chunks[$index] !== $chunk){
+			$this->unloadChunk($chunkX, $chunkZ, \false);
 		}
 
 		$this->chunks[$index] = $chunk;
@@ -316,10 +316,10 @@ class McRegion extends BaseLevelProvider{
 			}
 			$this->getRegion($chunkX >> 5, $chunkZ >> 5)->writeChunk($chunk);
 
-			return true;
+			return \true;
 		}
 
-		return false;
+		return \false;
 	}
 
 	public function saveChunks(){
@@ -328,66 +328,66 @@ class McRegion extends BaseLevelProvider{
 		}
 	}
 
-	public function loadChunk(int $chunkX, int $chunkZ, bool $create = false) : bool{
-		$index = Level::chunkHash($chunkX, $chunkZ);
+	public function loadChunk(int $chunkX, int $chunkZ, bool $create = \false) : bool{
+		$index = ((($chunkX) & 0xFFFFFFFF) << 32) | (( $chunkZ) & 0xFFFFFFFF);
 		if(isset($this->chunks[$index])){
-			return true;
+			return \true;
 		}
-		$regionX = $regionZ = null;
+		$regionX = $regionZ = \null;
 		self::getRegionIndex($chunkX, $chunkZ, $regionX, $regionZ);
 		/** @noinspection PhpStrictTypeCheckingInspection */
 		$this->loadRegion($regionX, $regionZ);
 		$this->level->timings->syncChunkLoadDataTimer->startTiming();
 		/** @noinspection PhpStrictTypeCheckingInspection */
 		$chunk = $this->getRegion($regionX, $regionZ)->readChunk($chunkX - $regionX * 32, $chunkZ - $regionZ * 32);
-		if($chunk === null and $create){
+		if($chunk === \null and $create){
 			$chunk = $this->getEmptyChunk($chunkX, $chunkZ);
 		}
 		$this->level->timings->syncChunkLoadDataTimer->stopTiming();
 
-		if($chunk !== null){
+		if($chunk !== \null){
 			$this->chunks[$index] = $chunk;
-			return true;
+			return \true;
 		}else{
-			return false;
+			return \false;
 		}
 	}
 
-	public function unloadChunk(int $chunkX, int $chunkZ, bool $safe = true) : bool{
-		$chunk = $this->chunks[$index = Level::chunkHash($chunkX, $chunkZ)] ?? null;
+	public function unloadChunk(int $chunkX, int $chunkZ, bool $safe = \true) : bool{
+		$chunk = $this->chunks[$index = ((($chunkX) & 0xFFFFFFFF) << 32) | (( $chunkZ) & 0xFFFFFFFF)] ?? \null;
 		if($chunk instanceof Chunk and $chunk->unload($safe)){
 			unset($this->chunks[$index]);
-			return true;
+			return \true;
 		}
 
-		return false;
+		return \false;
 	}
 
 	public function unloadChunks(){
 		foreach($this->chunks as $chunk){
-			$this->unloadChunk($chunk->getX(), $chunk->getZ(), false);
+			$this->unloadChunk($chunk->getX(), $chunk->getZ(), \false);
 		}
 		$this->chunks = [];
 	}
 
 	public function isChunkLoaded(int $chunkX, int $chunkZ) : bool{
-		return isset($this->chunks[Level::chunkHash($chunkX, $chunkZ)]);
+		return isset($this->chunks[((($chunkX) & 0xFFFFFFFF) << 32) | (( $chunkZ) & 0xFFFFFFFF)]);
 	}
 
 	public function isChunkGenerated(int $chunkX, int $chunkZ) : bool{
-		if(($region = $this->getRegion($chunkX >> 5, $chunkZ >> 5)) !== null){
-			return $region->chunkExists($chunkX - $region->getX() * 32, $chunkZ - $region->getZ() * 32) and $this->getChunk($chunkX - $region->getX() * 32, $chunkZ - $region->getZ() * 32, true)->isGenerated();
+		if(($region = $this->getRegion($chunkX >> 5, $chunkZ >> 5)) !== \null){
+			return $region->chunkExists($chunkX - $region->getX() * 32, $chunkZ - $region->getZ() * 32) and $this->getChunk($chunkX - $region->getX() * 32, $chunkZ - $region->getZ() * 32, \true)->isGenerated();
 		}
 
-		return false;
+		return \false;
 	}
 
 	public function isChunkPopulated(int $chunkX, int $chunkZ) : bool{
 		$chunk = $this->getChunk($chunkX, $chunkZ);
-		if($chunk !== null){
+		if($chunk !== \null){
 			return $chunk->isPopulated();
 		}else{
-			return false;
+			return \false;
 		}
 	}
 
@@ -396,7 +396,7 @@ class McRegion extends BaseLevelProvider{
 	}
 
 	public function doGarbageCollection(){
-		$limit = time() - 300;
+		$limit = \time() - 300;
 		foreach($this->regions as $index => $region){
 			if($region->lastUsed <= $limit){
 				$region->close();
@@ -433,7 +433,7 @@ class McRegion extends BaseLevelProvider{
 	 * @return RegionLoader|null
 	 */
 	protected function getRegion(int $x, int $z){
-		return $this->regions[Level::chunkHash($x, $z)] ?? null;
+		return $this->regions[((($x) & 0xFFFFFFFF) << 32) | (( $z) & 0xFFFFFFFF)] ?? \null;
 	}
 
 	/**
@@ -441,7 +441,7 @@ class McRegion extends BaseLevelProvider{
 	 * @param int $z
 	 */
 	protected function loadRegion(int $x, int $z){
-		if(!isset($this->regions[$index = Level::chunkHash($x, $z)])){
+		if(!isset($this->regions[$index = ((($x) & 0xFFFFFFFF) << 32) | (( $z) & 0xFFFFFFFF)])){
 			$this->regions[$index] = new RegionLoader($this, $x, $z, static::REGION_FILE_EXTENSION);
 			try{
 				$this->regions[$index]->open();
@@ -449,11 +449,11 @@ class McRegion extends BaseLevelProvider{
 				$logger = $this->level->getServer()->getLogger();
 				$logger->error("Corrupted region file detected: " . $e->getMessage());
 
-				$this->regions[$index]->close(false); //Do not write anything to the file
+				$this->regions[$index]->close(\false); //Do not write anything to the file
 
 				$path = $this->regions[$index]->getFilePath();
-				$backupPath = $path . ".bak." . time();
-				rename($path, $backupPath);
+				$backupPath = $path . ".bak." . \time();
+				\rename($path, $backupPath);
 				$logger->error("Corrupted region file has been backed up to " . $backupPath);
 
 				$this->regions[$index] = new RegionLoader($this, $x, $z, static::REGION_FILE_EXTENSION);
@@ -468,6 +468,6 @@ class McRegion extends BaseLevelProvider{
 			$region->close();
 			unset($this->regions[$index]);
 		}
-		$this->level = null;
+		$this->level = \null;
 	}
 }

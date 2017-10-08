@@ -23,34 +23,40 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
+use pocketmine\item\Item;
 use pocketmine\network\mcpe\NetworkSession;
 
 class MobEquipmentPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::MOB_EQUIPMENT_PACKET;
 
+	/** @var int */
 	public $entityRuntimeId;
+	/** @var Item */
 	public $item;
+	/** @var int */
 	public $inventorySlot;
+	/** @var int */
 	public $hotbarSlot;
+	/** @var int */
 	public $windowId = 0;
 
-	public function decodePayload(){
+	protected function decodePayload(){
 		$this->entityRuntimeId = $this->getEntityRuntimeId();
 		$this->item = $this->getSlot();
-		$this->inventorySlot = $this->getByte();
-		$this->hotbarSlot = $this->getByte();
-		$this->windowId = $this->getByte();
+		$this->inventorySlot = (\ord($this->get(1)));
+		$this->hotbarSlot = (\ord($this->get(1)));
+		$this->windowId = (\ord($this->get(1)));
 	}
 
-	public function encodePayload(){
+	protected function encodePayload(){
 		$this->putEntityRuntimeId($this->entityRuntimeId);
 		$this->putSlot($this->item);
-		$this->putByte($this->inventorySlot);
-		$this->putByte($this->hotbarSlot);
-		$this->putByte($this->windowId);
+		($this->buffer .= \chr($this->inventorySlot));
+		($this->buffer .= \chr($this->hotbarSlot));
+		($this->buffer .= \chr($this->windowId));
 	}
 
 	public function handle(NetworkSession $session) : bool{

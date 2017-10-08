@@ -30,7 +30,7 @@ use pocketmine\updater\AutoUpdater;
  * Plugins may use this event to perform actions when an update notification is received.
  */
 class UpdateNotifyEvent extends ServerEvent{
-	public static $handlerList = null;
+	public static $handlerList = \null;
 
 	/** @var AutoUpdater */
 	private $updater;

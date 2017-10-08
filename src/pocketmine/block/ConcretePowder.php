@@ -2,12 +2,11 @@
 
 /*
  *
- *  ____               _   ___     _
- * |  _ \             | | |   \   | |
- * | | | |_   _  ____ | | | |\ \  | | _____    ______
- * | | | | | | |/ _  \| | | | \ \ | |/ _ \ \  / / _  \
- * | |_| | |_| | (_)  | |_| |  \ \| | (_) \ \/ / (_)  |
- * |____/\_____|\___|_\___|_|   \___|\___/ \__/ \___|_|
+ *  ____               _   ___    _
+ * |  _ \ _   _  ____ | | |   \  | | _____    ______
+ * | | | | | | |/ _  \| | | |\ \ | |/ _ \ \  / / _  \
+ * | |_| | |_| | (_)  | |_| | \ \| | (_) \ \/ / (_)  |
+ * |____/\_____|\___|_\___|_|  \___|\___/ \__/ \___|_|
  *
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,6 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\block;
 
+use pocketmine\block\utils\ColorBlockMetaHelper;
 use pocketmine\item\Tool;
 
 class ConcretePowder extends Fallable{
@@ -34,34 +34,16 @@ class ConcretePowder extends Fallable{
 		$this->meta = $meta;
 	}
 
-	public function getHardness(){
+	public function getHardness() : float{
 		return 0.5;
 	}
 
-	public function getToolType(){
+	public function getToolType() : int{
 		return Tool::TYPE_SHOVEL;
 	}
 
-	public function getName(){
-		static $names = [
-			0 => "White Concrete Powder",
-			1 => "Orange Concrete Powder",
-			2 => "Magenta Concrete Powder",
-			3 => "Light Blue Concrete Powder",
-			4 => "Yellow Concrete Powder",
-			5 => "Lime Concrete Powder",
-			6 => "Pink Concrete Powder",
-			7 => "Gray Concrete Powder",
-			8 => "Light Gray Concrete Powder",
-			9 => "Cyan Concrete Powder",
-			10 => "Purple Concrete Powder",
-			11 => "Blue Concrete Powder",
-			12 => "Brown Concrete Powder",
-			13 => "Green Concrete Powder",
-			14 => "Red Concrete Powder",
-			15 => "Black Concrete Powder",
-		];
-		return $names[$this->meta & 0x0f];
+	public function getName() : string{
+		return ColorBlockMetaHelper::getColorFromMeta($this->meta) . "Concrete Powder";
 	}
 
 }

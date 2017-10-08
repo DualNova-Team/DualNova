@@ -35,10 +35,15 @@ use pocketmine\utils\TextFormat;
 class RCON{
 	/** @var Server */
 	private $server;
+	/** @var resource */
 	private $socket;
+	/** @var string */
 	private $password;
+	/** @var int */
+	private $threads;
 	/** @var RCONInstance[] */
 	private $workers = [];
+	/** @var int */
 	private $clientsPerThread;
 
 	public function __construct(Server $server, string $password, int $port = 19132, string $interface = "0.0.0.0", int $threads = 1, int $clientsPerThread = 50){
@@ -49,21 +54,21 @@ class RCON{
 			throw new \InvalidArgumentException("Empty password");
 		}
 
-		$this->threads = (int) max(1, $threads);
-		$this->clientsPerThread = (int) max(1, $clientsPerThread);
-		$this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+		$this->threads = (int) \max(1, $threads);
+		$this->clientsPerThread = (int) \max(1, $clientsPerThread);
+		$this->socket = \socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-		if($this->socket === false or !@socket_bind($this->socket, $interface, $port) or !@socket_listen($this->socket)){
-			throw new \RuntimeException(trim(socket_strerror(socket_last_error())));
+		if($this->socket === \false or !@\socket_bind($this->socket, $interface, $port) or !@\socket_listen($this->socket)){
+			throw new \RuntimeException(\trim(\socket_strerror(\socket_last_error())));
 		}
 
-		socket_set_block($this->socket);
+		\socket_set_block($this->socket);
 
 		for($n = 0; $n < $this->threads; ++$n){
 			$this->workers[$n] = new RCONInstance($this->socket, $this->password, $this->clientsPerThread);
 		}
 
-		socket_getsockname($this->socket, $addr, $port);
+		\socket_getsockname($this->socket, $addr, $port);
 		$this->server->getLogger()->info("RCON running on $addr:$port");
 	}
 
@@ -73,13 +78,13 @@ class RCON{
 			Server::microSleep(50000);
 			$this->workers[$n]->quit();
 		}
-		@socket_close($this->socket);
+		@\socket_close($this->socket);
 		$this->threads = 0;
 	}
 
 	public function check(){
 		for($n = 0; $n < $this->threads; ++$n){
-			if($this->workers[$n]->isTerminated() === true){
+			if($this->workers[$n]->isTerminated() === \true){
 				$this->workers[$n] = new RCONInstance($this->socket, $this->password, $this->clientsPerThread);
 			}elseif($this->workers[$n]->isWaiting()){
 				if($this->workers[$n]->response !== ""){

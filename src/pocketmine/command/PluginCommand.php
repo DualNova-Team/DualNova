@@ -48,11 +48,11 @@ class PluginCommand extends Command implements PluginIdentifiableCommand{
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 
 		if(!$this->owningPlugin->isEnabled()){
-			return false;
+			return \false;
 		}
 
 		if(!$this->testPermission($sender)){
-			return false;
+			return \false;
 		}
 
 		$success = $this->executor->onCommand($sender, $this, $commandLabel, $args);

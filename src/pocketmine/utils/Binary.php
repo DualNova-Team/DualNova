@@ -70,7 +70,7 @@ class Binary{
 
 
 	private static function checkLength($str, $expect){
-		assert(($len = strlen($str)) === $expect, "Expected $expect bytes, got $len");
+		\assert(($len = \strlen($str)) === $expect, "Expected $expect bytes, got $len");
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Binary{
 	 */
 	public static function readByte(string $c) : int{
 		self::checkLength($c, 1);
-		return ord($c{0});
+		return \ord($c{0});
 	}
 
 	/**
@@ -111,7 +111,7 @@ class Binary{
 	 * @return int
 	 */
 	public static function readSignedByte(string $c) : int{
-		return self::signByte(ord($c{0}));
+		return self::signByte(\ord($c{0}));
 	}
 
 	/**
@@ -121,7 +121,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeByte(int $c) : string{
-		return chr($c);
+		return \chr($c);
 	}
 
 	/**
@@ -132,7 +132,7 @@ class Binary{
 	 */
 	public static function readShort(string $str) : int{
 		self::checkLength($str, 2);
-		return unpack("n", $str)[1];
+		return \unpack("n", $str)[1];
 	}
 
 	/**
@@ -144,7 +144,7 @@ class Binary{
 	 */
 	public static function readSignedShort(string $str) : int{
 		self::checkLength($str, 2);
-		return self::signShort(unpack("n", $str)[1]);
+		return self::signShort(\unpack("n", $str)[1]);
 	}
 
 	/**
@@ -155,7 +155,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeShort(int $value) : string{
-		return pack("n", $value);
+		return \pack("n", $value);
 	}
 
 	/**
@@ -167,7 +167,7 @@ class Binary{
 	 */
 	public static function readLShort(string $str) : int{
 		self::checkLength($str, 2);
-		return unpack("v", $str)[1];
+		return \unpack("v", $str)[1];
 	}
 
 	/**
@@ -179,7 +179,7 @@ class Binary{
 	 */
 	public static function readSignedLShort(string $str) : int{
 		self::checkLength($str, 2);
-		return self::signShort(unpack("v", $str)[1]);
+		return self::signShort(\unpack("v", $str)[1]);
 	}
 
 	/**
@@ -190,7 +190,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeLShort(int $value) : string{
-		return pack("v", $value);
+		return \pack("v", $value);
 	}
 
 	/**
@@ -201,7 +201,7 @@ class Binary{
 	 */
 	public static function readTriad(string $str) : int{
 		self::checkLength($str, 3);
-		return unpack("N", "\x00" . $str)[1];
+		return \unpack("N", "\x00" . $str)[1];
 	}
 
 	/**
@@ -211,7 +211,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeTriad(int $value) : string{
-		return substr(pack("N", $value), 1);
+		return \substr(\pack("N", $value), 1);
 	}
 
 	/**
@@ -222,7 +222,7 @@ class Binary{
 	 */
 	public static function readLTriad(string $str) : int{
 		self::checkLength($str, 3);
-		return unpack("V", $str . "\x00")[1];
+		return \unpack("V", $str . "\x00")[1];
 	}
 
 	/**
@@ -232,7 +232,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeLTriad(int $value) : string{
-		return substr(pack("V", $value), 0, -1);
+		return \substr(\pack("V", $value), 0, -1);
 	}
 
 	/**
@@ -243,7 +243,7 @@ class Binary{
 	 */
 	public static function readInt(string $str) : int{
 		self::checkLength($str, 4);
-		return self::signInt(unpack("N", $str)[1]);
+		return self::signInt(\unpack("N", $str)[1]);
 	}
 
 	/**
@@ -253,7 +253,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeInt(int $value) : string{
-		return pack("N", $value);
+		return \pack("N", $value);
 	}
 
 	/**
@@ -264,7 +264,7 @@ class Binary{
 	 */
 	public static function readLInt(string $str) : int{
 		self::checkLength($str, 4);
-		return self::signInt(unpack("V", $str)[1]);
+		return self::signInt(\unpack("V", $str)[1]);
 	}
 
 	/**
@@ -274,7 +274,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeLInt(int $value) : string{
-		return pack("V", $value);
+		return \pack("V", $value);
 	}
 
 	/**
@@ -285,7 +285,7 @@ class Binary{
 	 */
 	public static function readFloat(string $str) : float{
 		self::checkLength($str, 4);
-		return (ENDIANNESS === self::BIG_ENDIAN ? unpack("f", $str)[1] : unpack("f", strrev($str))[1]);
+		return \unpack("G", $str)[1];
 	}
 
 	/**
@@ -297,7 +297,7 @@ class Binary{
 	 * @return float
 	 */
 	public static function readRoundedFloat(string $str, int $accuracy) : float{
-		return round(self::readFloat($str), $accuracy);
+		return \round(self::readFloat($str), $accuracy);
 	}
 
 	/**
@@ -307,7 +307,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeFloat(float $value) : string{
-		return ENDIANNESS === self::BIG_ENDIAN ? pack("f", $value) : strrev(pack("f", $value));
+		return \pack("G", $value);
 	}
 
 	/**
@@ -318,7 +318,7 @@ class Binary{
 	 */
 	public static function readLFloat(string $str) : float{
 		self::checkLength($str, 4);
-		return (ENDIANNESS === self::BIG_ENDIAN ? unpack("f", strrev($str))[1] : unpack("f", $str)[1]);
+		return \unpack("g", $str)[1];
 	}
 
 	/**
@@ -330,7 +330,7 @@ class Binary{
 	 * @return float
 	 */
 	public static function readRoundedLFloat(string $str, int $accuracy) : float{
-		return round(self::readLFloat($str), $accuracy);
+		return \round(self::readLFloat($str), $accuracy);
 	}
 
 	/**
@@ -340,7 +340,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeLFloat(float $value) : string{
-		return ENDIANNESS === self::BIG_ENDIAN ? strrev(pack("f", $value)) : pack("f", $value);
+		return \pack("g", $value);
 	}
 
 	/**
@@ -350,7 +350,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function printFloat(float $value) : string{
-		return preg_replace("/(\\.\\d+?)0+$/", "$1", sprintf("%F", $value));
+		return \preg_replace("/(\\.\\d+?)0+$/", "$1", \sprintf("%F", $value));
 	}
 
 	/**
@@ -361,7 +361,7 @@ class Binary{
 	 */
 	public static function readDouble(string $str) : float{
 		self::checkLength($str, 8);
-		return ENDIANNESS === self::BIG_ENDIAN ? unpack("d", $str)[1] : unpack("d", strrev($str))[1];
+		return \unpack("E", $str)[1];
 	}
 
 	/**
@@ -371,7 +371,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeDouble(float $value) : string{
-		return ENDIANNESS === self::BIG_ENDIAN ? pack("d", $value) : strrev(pack("d", $value));
+		return \pack("E", $value);
 	}
 
 	/**
@@ -382,7 +382,7 @@ class Binary{
 	 */
 	public static function readLDouble(string $str) : float{
 		self::checkLength($str, 8);
-		return ENDIANNESS === self::BIG_ENDIAN ? unpack("d", strrev($str))[1] : unpack("d", $str)[1];
+		return \unpack("e", $str)[1];
 	}
 
 	/**
@@ -391,7 +391,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeLDouble(float $value) : string{
-		return ENDIANNESS === self::BIG_ENDIAN ? strrev(pack("d", $value)) : pack("d", $value);
+		return \pack("e", $value);
 	}
 
 	/**
@@ -402,7 +402,7 @@ class Binary{
 	 */
 	public static function readLong(string $x) : int{
 		self::checkLength($x, 8);
-		$int = unpack("N*", $x);
+		$int = \unpack("N*", $x);
 		return ($int[1] << 32) | $int[2];
 	}
 
@@ -413,7 +413,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeLong(int $value) : string{
-		return pack("NN", $value >> 32, $value & 0xFFFFFFFF);
+		return \pack("NN", $value >> 32, $value & 0xFFFFFFFF);
 	}
 
 	/**
@@ -423,7 +423,7 @@ class Binary{
 	 * @return int
 	 */
 	public static function readLLong(string $str) : int{
-		return self::readLong(strrev($str));
+		return self::readLong(\strrev($str));
 	}
 
 	/**
@@ -433,7 +433,7 @@ class Binary{
 	 * @return string
 	 */
 	public static function writeLLong(int $value) : string{
-		return strrev(self::writeLong($value));
+		return \strrev(self::writeLong($value));
 	}
 
 
@@ -464,7 +464,7 @@ class Binary{
 	public static function readUnsignedVarInt(string $buffer, int &$offset) : int{
 		$value = 0;
 		for($i = 0; $i <= 35; $i += 7){
-			$b = ord($buffer{$offset++});
+			$b = \ord($buffer{$offset++});
 			$value |= (($b & 0x7f) << $i);
 
 			if(($b & 0x80) === 0){
@@ -499,13 +499,13 @@ class Binary{
 		$value &= 0xffffffff;
 		for($i = 0; $i < 5; ++$i){
 			if(($value >> 7) !== 0){
-				$buf .= chr($value | 0x80);
+				$buf .= \chr($value | 0x80);
 			}else{
-				$buf .= chr($value & 0x7f);
+				$buf .= \chr($value & 0x7f);
 				return $buf;
 			}
 
-			$value = (($value >> 7) & (PHP_INT_MAX >> 6)); //PHP really needs a logical right-shift operator
+			$value = (($value >> 7) & (\PHP_INT_MAX >> 6)); //PHP really needs a logical right-shift operator
 		}
 
 		throw new \InvalidArgumentException("Value too large to be encoded as a VarInt");
@@ -537,7 +537,7 @@ class Binary{
 	public static function readUnsignedVarLong(string $buffer, int &$offset) : int{
 		$value = 0;
 		for($i = 0; $i <= 63; $i += 7){
-			$b = ord($buffer{$offset++});
+			$b = \ord($buffer{$offset++});
 			$value |= (($b & 0x7f) << $i);
 
 			if(($b & 0x80) === 0){
@@ -570,13 +570,13 @@ class Binary{
 		$buf = "";
 		for($i = 0; $i < 10; ++$i){
 			if(($value >> 7) !== 0){
-				$buf .= chr($value | 0x80); //Let chr() take the last byte of this, it's faster than adding another & 0x7f.
+				$buf .= \chr($value | 0x80); //Let chr() take the last byte of this, it's faster than adding another & 0x7f.
 			}else{
-				$buf .= chr($value & 0x7f);
+				$buf .= \chr($value & 0x7f);
 				return $buf;
 			}
 
-			$value = (($value >> 7) & (PHP_INT_MAX >> 6)); //PHP really needs a logical right-shift operator
+			$value = (($value >> 7) & (\PHP_INT_MAX >> 6)); //PHP really needs a logical right-shift operator
 		}
 
 		throw new \InvalidArgumentException("Value too large to be encoded as a VarLong");

@@ -25,7 +25,7 @@ namespace pocketmine\nbt\tag;
 
 use pocketmine\nbt\NBT;
 
-#include <rules/NBT.h>
+use pocketmine\utils\Binary;
 
 class DoubleTag extends NamedTag{
 
@@ -43,12 +43,12 @@ class DoubleTag extends NamedTag{
 		return NBT::TAG_Double;
 	}
 
-	public function read(NBT $nbt, bool $network = false){
-		$this->value = $nbt->getDouble();
+	public function read(NBT $nbt, bool $network = \false){
+		$this->value = ($nbt->endianness === 1 ? (\unpack("E", $nbt->get(8))[1]) : (\unpack("e", $nbt->get(8))[1]));
 	}
 
-	public function write(NBT $nbt, bool $network = false){
-		$nbt->putDouble($this->value);
+	public function write(NBT $nbt, bool $network = \false){
+		($nbt->buffer .= $nbt->endianness === 1 ? (\pack("E", $this->value)) : (\pack("e", $this->value)));
 	}
 
 	/**
@@ -64,8 +64,8 @@ class DoubleTag extends NamedTag{
 	 * @throws \TypeError
 	 */
 	public function setValue($value){
-		if(!is_float($value) and !is_int($value)){
-			throw new \TypeError("DoubleTag value must be of type double, " . gettype($value) . " given");
+		if(!\is_float($value) and !\is_int($value)){
+			throw new \TypeError("DoubleTag value must be of type double, " . \gettype($value) . " given");
 		}
 		parent::setValue((float) $value);
 	}

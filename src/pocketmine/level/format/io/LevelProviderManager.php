@@ -34,11 +34,11 @@ abstract class LevelProviderManager{
 	 * @throws LevelException
 	 */
 	public static function addProvider(string $class){
-		if(!is_subclass_of($class, LevelProvider::class)){
+		if(!\is_subclass_of($class, LevelProvider::class)){
 			throw new LevelException("Class is not a subclass of LevelProvider");
 		}
 		/** @var LevelProvider $class */
-		self::$providers[strtolower($class::getProviderName())] = $class;
+		self::$providers[\strtolower($class::getProviderName())] = $class;
 	}
 
 	/**
@@ -56,7 +56,7 @@ abstract class LevelProviderManager{
 			}
 		}
 
-		return null;
+		return \null;
 	}
 
 	/**
@@ -67,6 +67,6 @@ abstract class LevelProviderManager{
 	 * @return string|null
 	 */
 	public static function getProviderByName(string $name){
-		return self::$providers[trim(strtolower($name))] ?? null;
+		return self::$providers[\trim(\strtolower($name))] ?? \null;
 	}
 }

@@ -39,32 +39,36 @@ class Vine extends Transparent{
 
 	protected $id = self::VINE;
 
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function isSolid(){
-		return false;
+	public function isSolid() : bool{
+		return \false;
 	}
 
-	public function getName(){
+	public function getName() : string{
 		return "Vines";
 	}
 
-	public function getHardness(){
+	public function getHardness() : float{
 		return 0.2;
 	}
 
-	public function canPassThrough(){
-		return true;
+	public function canPassThrough() : bool{
+		return \true;
 	}
 
-	public function hasEntityCollision(){
-		return true;
+	public function hasEntityCollision() : bool{
+		return \true;
 	}
 
 	public function canClimb() : bool{
-		return true;
+		return \true;
+	}
+
+	public function ticksRandomly() : bool{
+		return \true;
 	}
 
 	public function onEntityCollide(Entity $entity){
@@ -83,37 +87,37 @@ class Vine extends Transparent{
 		$flag = $this->meta > 0;
 
 		if(($this->meta & self::FLAG_WEST) > 0){
-			$f4 = max($f4, 0.0625);
+			$f4 = \max($f4, 0.0625);
 			$f1 = 0;
 			$f2 = 0;
 			$f5 = 1;
 			$f3 = 0;
 			$f6 = 1;
-			$flag = true;
+			$flag = \true;
 		}
 
 		if(($this->meta & self::FLAG_EAST) > 0){
-			$f1 = min($f1, 0.9375);
+			$f1 = \min($f1, 0.9375);
 			$f4 = 1;
 			$f2 = 0;
 			$f5 = 1;
 			$f3 = 0;
 			$f6 = 1;
-			$flag = true;
+			$flag = \true;
 		}
 
 		if(($this->meta & self::FLAG_SOUTH) > 0){
-			$f3 = min($f3, 0.9375);
+			$f3 = \min($f3, 0.9375);
 			$f6 = 1;
 			$f1 = 0;
 			$f4 = 1;
 			$f2 = 0;
 			$f5 = 1;
-			$flag = true;
+			$flag = \true;
 		}
 
 		if(!$flag and $this->getSide(Vector3::SIDE_UP)->isSolid()){
-			$f2 = min($f2, 0.9375);
+			$f2 = \min($f2, 0.9375);
 			$f5 = 1;
 			$f1 = 0;
 			$f4 = 1;
@@ -132,27 +136,27 @@ class Vine extends Transparent{
 	}
 
 
-	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $facePos, Player $player = \null) : bool{
 		//TODO: multiple sides
-		if($target->isSolid()){
+		if($blockClicked->isSolid()){
 			$faces = [
 				2 => self::FLAG_SOUTH,
 				3 => self::FLAG_NORTH,
 				4 => self::FLAG_EAST,
-				5 => self::FLAG_WEST,
+				5 => self::FLAG_WEST
 			];
 			if(isset($faces[$face])){
 				$this->meta = $faces[$face];
-				$this->getLevel()->setBlock($block, $this, true, true);
+				$this->getLevel()->setBlock($blockReplace, $this, \true, \true);
 
-				return true;
+				return \true;
 			}
 		}
 
-		return false;
+		return \false;
 	}
 
-	public function onUpdate($type){
+	public function onUpdate(int $type){
 		if($type === Level::BLOCK_UPDATE_NORMAL){
 			$sides = [
 				1 => 3,
@@ -162,29 +166,33 @@ class Vine extends Transparent{
 			];
 
 			if(!isset($sides[$this->meta])){
-				return false; //TODO: remove this once placing on multiple sides is supported (these are bitflags, not actual meta values
+				return \false; //TODO: remove this once placing on multiple sides is supported (these are bitflags, not actual meta values
 			}
 
 			if(!$this->getSide($sides[$this->meta])->isSolid()){ //Replace with common break method
 				$this->level->useBreakOn($this);
 				return Level::BLOCK_UPDATE_NORMAL;
 			}
+		}elseif($type === Level::BLOCK_UPDATE_RANDOM){
+			//TODO: vine growth
 		}
 
-		return false;
+		return \false;
 	}
 
-	public function getDrops(Item $item){
+	public function getVariantBitmask() : int{
+		return 0;
+	}
+
+	public function getDrops(Item $item) : array{
 		if($item->isShears()){
-			return [
-				[$this->id, 0, 1],
-			];
-		}else{
-			return [];
+			return parent::getDrops($item);
 		}
+
+		return [];
 	}
 
-	public function getToolType(){
+	public function getToolType() : int{
 		return Tool::TYPE_AXE;
 	}
 }

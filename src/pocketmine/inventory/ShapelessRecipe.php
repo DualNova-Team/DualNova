@@ -24,15 +24,14 @@ declare(strict_types=1);
 namespace pocketmine\inventory;
 
 use pocketmine\item\Item;
-use pocketmine\Server;
 use pocketmine\utils\UUID;
 
-class ShapelessRecipe implements Recipe{
+class ShapelessRecipe implements CraftingRecipe{
 	/** @var Item */
 	private $output;
 
 	/** @var UUID|null */
-	private $id = null;
+	private $id = \null;
 
 	/** @var Item[] */
 	private $ingredients = [];
@@ -44,7 +43,7 @@ class ShapelessRecipe implements Recipe{
 	/**
 	 * @return UUID|null
 	 */
-	public function getId(){
+	public function getId() : ?UUID{
 		return $this->id;
 	}
 
@@ -52,7 +51,7 @@ class ShapelessRecipe implements Recipe{
 	 * @param UUID $id
 	 */
 	public function setId(UUID $id){
-		if($this->id !== null){
+		if($this->id !== \null){
 			throw new \InvalidStateException("Id is already set");
 		}
 
@@ -63,6 +62,14 @@ class ShapelessRecipe implements Recipe{
 		return clone $this->output;
 	}
 
+	public function getExtraResults() : array{
+		return []; //TODO
+	}
+
+	public function getAllResults() : array{
+		return [$this->getResult()]; //TODO
+	}
+
 	/**
 	 * @param Item $item
 	 *
@@ -71,7 +78,7 @@ class ShapelessRecipe implements Recipe{
 	 * @throws \InvalidArgumentException
 	 */
 	public function addIngredient(Item $item) : ShapelessRecipe{
-		if(count($this->ingredients) >= 9){
+		if(\count($this->ingredients) >= 9){
 			throw new \InvalidArgumentException("Shapeless recipes cannot have more than 9 ingredients");
 		}
 
@@ -129,7 +136,11 @@ class ShapelessRecipe implements Recipe{
 		return $count;
 	}
 
-	public function registerToCraftingManager(){
-		Server::getInstance()->getCraftingManager()->registerShapelessRecipe($this);
+	public function registerToCraftingManager(CraftingManager $manager) : void{
+		$manager->registerShapelessRecipe($this);
+	}
+
+	public function requiresCraftingTable() : bool{
+		return \count($this->ingredients) > 4;
 	}
 }

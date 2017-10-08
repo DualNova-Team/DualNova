@@ -30,7 +30,7 @@ use pocketmine\item\Item;
 use pocketmine\Player;
 
 class CraftItemEvent extends Event implements Cancellable{
-	public static $handlerList = null;
+	public static $handlerList = \null;
 
 	/** @var Item[] */
 	private $input;
@@ -55,7 +55,7 @@ class CraftItemEvent extends Event implements Cancellable{
 	 * @return Item[]
 	 */
 	public function getInput() : array{
-		return array_map(function(Item $item) : Item{
+		return \array_map(function(Item $item) : Item{
 			return clone $item;
 		}, $this->input);
 	}

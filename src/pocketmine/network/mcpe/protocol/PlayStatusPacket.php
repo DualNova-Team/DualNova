@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -39,18 +39,19 @@ class PlayStatusPacket extends DataPacket{
 	const LOGIN_FAILED_VANILLA_EDU = 5;
 	const LOGIN_FAILED_EDU_VANILLA = 6;
 
+	/** @var int */
 	public $status;
 
-	public function decodePayload(){
-		$this->status = $this->getInt();
+	protected function decodePayload(){
+		$this->status = ((\unpack("N", $this->get(4))[1] << 32 >> 32));
 	}
 
 	public function canBeSentBeforeLogin() : bool{
-		return true;
+		return \true;
 	}
 
-	public function encodePayload(){
-		$this->putInt($this->status);
+	protected function encodePayload(){
+		($this->buffer .= (\pack("N", $this->status)));
 	}
 
 	public function handle(NetworkSession $session) : bool{

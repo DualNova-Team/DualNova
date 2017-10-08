@@ -58,7 +58,7 @@ abstract class Tile extends Position{
 	public $id;
 	public $attach;
 	public $metadata;
-	public $closed = false;
+	public $closed = \false;
 	public $namedtag;
 	protected $lastUpdate;
 	protected $server;
@@ -92,7 +92,7 @@ abstract class Tile extends Position{
 			return new $class($level, $nbt, ...$args);
 		}
 
-		return null;
+		return \null;
 	}
 
 	/**
@@ -102,13 +102,13 @@ abstract class Tile extends Position{
 	 */
 	public static function registerTile($className) : bool{
 		$class = new \ReflectionClass($className);
-		if(is_a($className, Tile::class, true) and !$class->isAbstract()){
+		if(\is_a($className, Tile::class, \true) and !$class->isAbstract()){
 			self::$knownTiles[$class->getShortName()] = $className;
 			self::$shortNames[$className] = $class->getShortName();
-			return true;
+			return \true;
 		}
 
-		return false;
+		return \false;
 	}
 
 	/**
@@ -125,11 +125,11 @@ abstract class Tile extends Position{
 		$this->namedtag = $nbt;
 		$this->server = $level->getServer();
 		$this->setLevel($level);
-		$this->chunk = $level->getChunk($this->namedtag->x->getValue() >> 4, $this->namedtag->z->getValue() >> 4, false);
-		assert($this->chunk !== null);
+		$this->chunk = $level->getChunk($this->namedtag->x->getValue() >> 4, $this->namedtag->z->getValue() >> 4, \false);
+		\assert($this->chunk !== \null);
 
 		$this->name = "";
-		$this->lastUpdate = microtime(true);
+		$this->lastUpdate = \microtime(\true);
 		$this->id = Tile::$tileCount++;
 		$this->x = $this->namedtag->x->getValue();
 		$this->y = $this->namedtag->y->getValue();
@@ -158,7 +158,7 @@ abstract class Tile extends Position{
 		if($tag->getCount() > 0){
 			return $tag;
 		}else{
-			return null;
+			return \null;
 		}
 	}
 
@@ -173,11 +173,15 @@ abstract class Tile extends Position{
 	 * @return bool
 	 */
 	public function onUpdate() : bool{
-		return false;
+		return \false;
 	}
 
 	final public function scheduleUpdate(){
 		$this->level->updateTiles[$this->id] = $this;
+	}
+
+	public function isClosed() : bool{
+		return $this->closed;
 	}
 
 	public function __destruct(){
@@ -186,18 +190,18 @@ abstract class Tile extends Position{
 
 	public function close(){
 		if(!$this->closed){
-			$this->closed = true;
+			$this->closed = \true;
 			unset($this->level->updateTiles[$this->id]);
 			if($this->chunk instanceof Chunk){
 				$this->chunk->removeTile($this);
-				$this->chunk = null;
+				$this->chunk = \null;
 			}
 			if(($level = $this->getLevel()) instanceof Level){
 				$level->removeTile($this);
-				$this->setLevel(null);
+				$this->setLevel(\null);
 			}
 
-			$this->namedtag = null;
+			$this->namedtag = \null;
 		}
 	}
 

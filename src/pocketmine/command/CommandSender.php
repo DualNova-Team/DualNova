@@ -42,7 +42,7 @@ interface CommandSender extends Permissible{
 	/**
 	 * @return string
 	 */
-	public function getName();
+	public function getName() : string;
 
 	/**
 	 * Returns the line height of the command-sender's screen. Used for determining sizes for command output pagination
@@ -56,5 +56,5 @@ interface CommandSender extends Permissible{
 	 * Sets the line height used for command output pagination for this command sender. `null` will reset it to default.
 	 * @param int|null $height
 	 */
-	public function setScreenLineHeight(int $height = null);
+	public function setScreenLineHeight(int $height = \null);
 }

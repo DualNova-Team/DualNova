@@ -23,33 +23,38 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 use pocketmine\network\mcpe\NetworkSession;
 
 class UpdateEquipPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::UPDATE_EQUIP_PACKET;
 
+	/** @var int */
 	public $windowId;
+	/** @var int */
 	public $windowType;
+	/** @var int */
 	public $unknownVarint; //TODO: find out what this is (vanilla always sends 0)
+	/** @var int */
 	public $entityUniqueId;
+	/** @var string */
 	public $namedtag;
 
-	public function decodePayload(){
-		$this->windowId = $this->getByte();
-		$this->windowType = $this->getByte();
+	protected function decodePayload(){
+		$this->windowId = (\ord($this->get(1)));
+		$this->windowType = (\ord($this->get(1)));
 		$this->unknownVarint = $this->getVarInt();
 		$this->entityUniqueId = $this->getEntityUniqueId();
-		$this->namedtag = $this->get(true);
+		$this->namedtag = $this->get(\true);
 	}
 
-	public function encodePayload(){
-		$this->putByte($this->windowId);
-		$this->putByte($this->windowType);
+	protected function encodePayload(){
+		($this->buffer .= \chr($this->windowId));
+		($this->buffer .= \chr($this->windowType));
 		$this->putVarInt($this->unknownVarint);
 		$this->putEntityUniqueId($this->entityUniqueId);
-		$this->put($this->namedtag);
+		($this->buffer .= $this->namedtag);
 	}
 
 	public function handle(NetworkSession $session) : bool{

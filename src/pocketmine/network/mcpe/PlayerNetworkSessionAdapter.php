@@ -33,33 +33,35 @@ use pocketmine\network\mcpe\protocol\BlockPickRequestPacket;
 use pocketmine\network\mcpe\protocol\BossEventPacket;
 use pocketmine\network\mcpe\protocol\ClientToServerHandshakePacket;
 use pocketmine\network\mcpe\protocol\CommandBlockUpdatePacket;
-use pocketmine\network\mcpe\protocol\CommandStepPacket;
+use pocketmine\network\mcpe\protocol\CommandRequestPacket;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
-use pocketmine\network\mcpe\protocol\ContainerSetSlotPacket;
 use pocketmine\network\mcpe\protocol\CraftingEventPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\DropItemPacket;
 use pocketmine\network\mcpe\protocol\EntityEventPacket;
 use pocketmine\network\mcpe\protocol\EntityFallPacket;
+use pocketmine\network\mcpe\protocol\EntityPickRequestPacket;
 use pocketmine\network\mcpe\protocol\InteractPacket;
+use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\ItemFrameDropItemPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\MapInfoRequestPacket;
 use pocketmine\network\mcpe\protocol\MobArmorEquipmentPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
+use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
+use pocketmine\network\mcpe\protocol\PlayerHotbarPacket;
 use pocketmine\network\mcpe\protocol\PlayerInputPacket;
-use pocketmine\network\mcpe\protocol\RemoveBlockPacket;
+use pocketmine\network\mcpe\protocol\PlayerSkinPacket;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\mcpe\protocol\ResourcePackChunkRequestPacket;
 use pocketmine\network\mcpe\protocol\ResourcePackClientResponsePacket;
+use pocketmine\network\mcpe\protocol\ServerSettingsRequestPacket;
 use pocketmine\network\mcpe\protocol\SetPlayerGameTypePacket;
 use pocketmine\network\mcpe\protocol\ShowCreditsPacket;
 use pocketmine\network\mcpe\protocol\SpawnExperienceOrbPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
-use pocketmine\network\mcpe\protocol\UseItemPacket;
 use pocketmine\Player;
 use pocketmine\Server;
 
@@ -76,23 +78,18 @@ class PlayerNetworkSessionAdapter extends NetworkSession{
 	}
 
 	public function handleDataPacket(DataPacket $packet){
-		//TODO: Remove this hack once InteractPacket spam issue is fixed
-		if($packet->buffer === "\x21\x04\x00"){
-			return;
-		}
-
 		$timings = Timings::getReceiveDataPacketTimings($packet);
 		$timings->startTiming();
 
 		$packet->decode();
 		if(!$packet->feof()){
-			$remains = substr($packet->buffer, $packet->offset);
-			$this->server->getLogger()->debug("Still " . strlen($remains) . " bytes unread in " . $packet->getName() . ": 0x" . bin2hex($remains));
+			$remains = \substr($packet->buffer, $packet->offset);
+			$this->server->getLogger()->debug("Still " . \strlen($remains) . " bytes unread in " . $packet->getName() . ": 0x" . \bin2hex($remains));
 		}
 
 		$this->server->getPluginManager()->callEvent($ev = new DataPacketReceiveEvent($this->player, $packet));
 		if(!$ev->isCancelled() and !$packet->handle($this)){
-			$this->server->getLogger()->debug("Unhandled " . $packet->getName() . " received from " . $this->player->getName() . ": 0x" . bin2hex($packet->buffer));
+			$this->server->getLogger()->debug("Unhandled " . $packet->getName() . " received from " . $this->player->getName() . ": 0x" . \bin2hex($packet->buffer));
 		}
 
 		$timings->stopTiming();
@@ -111,15 +108,15 @@ class PlayerNetworkSessionAdapter extends NetworkSession{
 	}
 
 	public function handleText(TextPacket $packet) : bool{
-		return $this->player->handleText($packet);
+		if($packet->type === TextPacket::TYPE_CHAT){
+			return $this->player->chat($packet->message);
+		}
+
+		return \false;
 	}
 
 	public function handleMovePlayer(MovePlayerPacket $packet) : bool{
 		return $this->player->handleMovePlayer($packet);
-	}
-
-	public function handleRemoveBlock(RemoveBlockPacket $packet) : bool{
-		return $this->player->handleRemoveBlock($packet);
 	}
 
 	public function handleLevelSoundEvent(LevelSoundEventPacket $packet) : bool{
@@ -130,12 +127,16 @@ class PlayerNetworkSessionAdapter extends NetworkSession{
 		return $this->player->handleEntityEvent($packet);
 	}
 
+	public function handleInventoryTransaction(InventoryTransactionPacket $packet) : bool{
+		return $this->player->handleInventoryTransaction($packet); //TODO
+	}
+
 	public function handleMobEquipment(MobEquipmentPacket $packet) : bool{
 		return $this->player->handleMobEquipment($packet);
 	}
 
 	public function handleMobArmorEquipment(MobArmorEquipmentPacket $packet) : bool{
-		return true; //Not used
+		return \true; //Not used
 	}
 
 	public function handleInteract(InteractPacket $packet) : bool{
@@ -146,8 +147,8 @@ class PlayerNetworkSessionAdapter extends NetworkSession{
 		return $this->player->handleBlockPickRequest($packet);
 	}
 
-	public function handleUseItem(UseItemPacket $packet) : bool{
-		return $this->player->handleUseItem($packet);
+	public function handleEntityPickRequest(EntityPickRequestPacket $packet) : bool{
+		return \false; //TODO
 	}
 
 	public function handlePlayerAction(PlayerActionPacket $packet) : bool{
@@ -155,23 +156,19 @@ class PlayerNetworkSessionAdapter extends NetworkSession{
 	}
 
 	public function handleEntityFall(EntityFallPacket $packet) : bool{
-		return true; //Not used
+		return \true; //Not used
 	}
 
 	public function handleAnimate(AnimatePacket $packet) : bool{
 		return $this->player->handleAnimate($packet);
 	}
 
-	public function handleDropItem(DropItemPacket $packet) : bool{
-		return $this->player->handleDropItem($packet);
-	}
-
 	public function handleContainerClose(ContainerClosePacket $packet) : bool{
 		return $this->player->handleContainerClose($packet);
 	}
 
-	public function handleContainerSetSlot(ContainerSetSlotPacket $packet) : bool{
-		return $this->player->handleContainerSetSlot($packet);
+	public function handlePlayerHotbar(PlayerHotbarPacket $packet) : bool{
+		return $this->player->handlePlayerHotbar($packet);
 	}
 
 	public function handleCraftingEvent(CraftingEventPacket $packet) : bool{
@@ -218,8 +215,8 @@ class PlayerNetworkSessionAdapter extends NetworkSession{
 		return $this->player->handleShowCredits($packet);
 	}
 
-	public function handleCommandStep(CommandStepPacket $packet) : bool{
-		return $this->player->handleCommandStep($packet);
+	public function handleCommandRequest(CommandRequestPacket $packet) : bool{
+		return $this->player->chat($packet->command);
 	}
 
 	public function handleCommandBlockUpdate(CommandBlockUpdatePacket $packet) : bool{
@@ -228,5 +225,17 @@ class PlayerNetworkSessionAdapter extends NetworkSession{
 
 	public function handleResourcePackChunkRequest(ResourcePackChunkRequestPacket $packet) : bool{
 		return $this->player->handleResourcePackChunkRequest($packet);
+	}
+
+	public function handlePlayerSkin(PlayerSkinPacket $packet) : bool{
+		return \false; //TODO
+	}
+
+	public function handleModalFormResponse(ModalFormResponsePacket $packet) : bool{
+		return \false; //TODO: GUI stuff
+	}
+
+	public function handleServerSettingsRequest(ServerSettingsRequestPacket $packet) : bool{
+		return \false; //TODO: GUI stuff
 	}
 }

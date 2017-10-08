@@ -34,47 +34,47 @@ class Air extends Transparent{
 	protected $id = self::AIR;
 	protected $meta = 0;
 
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function getName(){
+	public function getName() : string{
 		return "Air";
 	}
 
-	public function canPassThrough(){
-		return true;
+	public function canPassThrough() : bool{
+		return \true;
 	}
 
-	public function isBreakable(Item $item){
-		return false;
+	public function isBreakable(Item $item) : bool{
+		return \false;
 	}
 
-	public function canBeFlowedInto(){
-		return true;
+	public function canBeFlowedInto() : bool{
+		return \true;
 	}
 
-	public function canBeReplaced(){
-		return true;
+	public function canBeReplaced() : bool{
+		return \true;
 	}
 
-	public function canBePlaced(){
-		return false;
+	public function canBePlaced() : bool{
+		return \false;
 	}
 
-	public function isSolid(){
-		return false;
+	public function isSolid() : bool{
+		return \false;
 	}
 
 	public function getBoundingBox(){
-		return null;
+		return \null;
 	}
 
-	public function getHardness(){
+	public function getHardness() : float{
 		return -1;
 	}
 
-	public function getResistance(){
+	public function getBlastResistance() : float{
 		return 0;
 	}
 

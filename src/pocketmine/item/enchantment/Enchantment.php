@@ -103,7 +103,7 @@ class Enchantment{
 		if(isset(self::$enchantments[$id])){
 			return clone self::$enchantments[$id];
 		}
-		return null;
+		return \null;
 	}
 
 	/**
@@ -112,10 +112,10 @@ class Enchantment{
 	 * @return Enchantment|null
 	 */
 	public static function getEnchantmentByName(string $name){
-		if(defined(Enchantment::class . "::" . strtoupper($name))){
-			return self::getEnchantment(constant(Enchantment::class . "::" . strtoupper($name)));
+		if(\defined(Enchantment::class . "::" . \strtoupper($name))){
+			return self::getEnchantment(\constant(Enchantment::class . "::" . \strtoupper($name)));
 		}
-		return null;
+		return \null;
 	}
 
 	private $id;

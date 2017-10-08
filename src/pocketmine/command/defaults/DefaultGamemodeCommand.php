@@ -30,7 +30,7 @@ use pocketmine\Server;
 
 class DefaultGamemodeCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.defaultgamemode.description",
@@ -41,10 +41,10 @@ class DefaultGamemodeCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
-		if(count($args) === 0){
+		if(\count($args) === 0){
 			throw new InvalidCommandSyntaxException();
 		}
 
@@ -57,6 +57,6 @@ class DefaultGamemodeCommand extends VanillaCommand{
 			$sender->sendMessage("Unknown game mode");
 		}
 
-		return true;
+		return \true;
 	}
 }

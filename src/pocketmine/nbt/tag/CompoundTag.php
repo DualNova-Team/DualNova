@@ -25,7 +25,7 @@ namespace pocketmine\nbt\tag;
 
 use pocketmine\nbt\NBT;
 
-#include <rules/NBT.h>
+use pocketmine\utils\Binary;
 
 class CompoundTag extends NamedTag implements \ArrayAccess{
 
@@ -56,16 +56,16 @@ class CompoundTag extends NamedTag implements \ArrayAccess{
 	 * @throws \TypeError
 	 */
 	public function setValue($value){
-		if(is_array($value)){
+		if(\is_array($value)){
 			foreach($value as $name => $tag){
 				if($tag instanceof NamedTag){
 					$this->{$tag->getName()} = $tag;
 				}else{
-					throw new \TypeError("CompoundTag members must be NamedTags, got " . gettype($tag) . " in given array");
+					throw new \TypeError("CompoundTag members must be NamedTags, got " . \gettype($tag) . " in given array");
 				}
 			}
 		}else{
-			throw new \TypeError("CompoundTag value must be NamedTag[], " . gettype($value) . " given");
+			throw new \TypeError("CompoundTag value must be NamedTag[], " . \gettype($value) . " given");
 		}
 	}
 
@@ -82,9 +82,9 @@ class CompoundTag extends NamedTag implements \ArrayAccess{
 			}
 		}
 
-		assert(false, "Offset $offset not found");
+		\assert(\false, "Offset $offset not found");
 
-		return null;
+		return \null;
 	}
 
 	public function offsetSet($offset, $value){
@@ -103,7 +103,7 @@ class CompoundTag extends NamedTag implements \ArrayAccess{
 		return NBT::TAG_Compound;
 	}
 
-	public function read(NBT $nbt, bool $network = false){
+	public function read(NBT $nbt, bool $network = \false){
 		$this->value = [];
 		do{
 			$tag = $nbt->readTag($network);
@@ -113,7 +113,7 @@ class CompoundTag extends NamedTag implements \ArrayAccess{
 		}while(!($tag instanceof EndTag) and !$nbt->feof());
 	}
 
-	public function write(NBT $nbt, bool $network = false){
+	public function write(NBT $nbt, bool $network = \false){
 		foreach($this as $tag){
 			if($tag instanceof Tag and !($tag instanceof EndTag)){
 				$nbt->writeTag($tag, $network);
@@ -123,10 +123,10 @@ class CompoundTag extends NamedTag implements \ArrayAccess{
 	}
 
 	public function __toString(){
-		$str = get_class($this) . "{\n";
+		$str = \get_class($this) . "{\n";
 		foreach($this as $tag){
 			if($tag instanceof Tag){
-				$str .= get_class($tag) . ":" . $tag->__toString() . "\n";
+				$str .= \get_class($tag) . ":" . $tag->__toString() . "\n";
 			}
 		}
 		return $str . "}";

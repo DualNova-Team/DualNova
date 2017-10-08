@@ -58,7 +58,7 @@ class ChunkRequestTask extends AsyncTask{
 		foreach($chunk->getTiles() as $tile){
 			if($tile instanceof Spawnable){
 				$nbt->setData($tile->getSpawnCompound());
-				$tiles .= $nbt->write(true);
+				$tiles .= $nbt->write(\true);
 			}
 		}
 
@@ -78,7 +78,7 @@ class ChunkRequestTask extends AsyncTask{
 		$batch->setCompressionLevel($this->compressionLevel);
 		$batch->encode();
 
-		$this->setResult($batch->buffer, false);
+		$this->setResult($batch->buffer, \false);
 	}
 
 	public function onCompletion(Server $server){
@@ -86,8 +86,8 @@ class ChunkRequestTask extends AsyncTask{
 		if($level instanceof Level){
 			if($this->hasResult()){
 				$batch = new BatchPacket($this->getResult());
-				assert(strlen($batch->buffer) > 0);
-				$batch->isEncoded = true;
+				\assert(\strlen($batch->buffer) > 0);
+				$batch->isEncoded = \true;
 				$level->chunkRequestCallback($this->chunkX, $this->chunkZ, $batch);
 			}else{
 				$server->getLogger()->error("Chunk request for level #" . $this->levelId . ", x=" . $this->chunkX . ", z=" . $this->chunkZ . " doesn't have any result data");

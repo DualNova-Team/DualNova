@@ -37,30 +37,30 @@ class TNT extends Solid{
 
 	protected $id = self::TNT;
 
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function getName(){
+	public function getName() : string{
 		return "TNT";
 	}
 
-	public function getHardness(){
+	public function getHardness() : float{
 		return 0;
 	}
 
-	public function onActivate(Item $item, Player $player = null){
+	public function onActivate(Item $item, Player $player = \null) : bool{
 		if($item->getId() === Item::FLINT_STEEL){
 			$item->useOn($this);
 			$this->ignite();
-			return true;
+			return \true;
 		}
 
-		return false;
+		return \false;
 	}
 
 	public function ignite(int $fuse = 80){
-		$this->getLevel()->setBlock($this, new Air(), true);
+		$this->getLevel()->setBlock($this, BlockFactory::get(Block::AIR), \true);
 
 		$mot = (new Random())->nextSignedFloat() * M_PI * 2;
 		$tnt = Entity::createEntity("PrimedTNT", $this->getLevel(), new CompoundTag("", [
@@ -70,9 +70,9 @@ class TNT extends Solid{
 				new DoubleTag("", $this->z + 0.5)
 			]),
 			new ListTag("Motion", [
-				new DoubleTag("", -sin($mot) * 0.02),
+				new DoubleTag("", -\sin($mot) * 0.02),
 				new DoubleTag("", 0.2),
-				new DoubleTag("", -cos($mot) * 0.02)
+				new DoubleTag("", -\cos($mot) * 0.02)
 			]),
 			new ListTag("Rotation", [
 				new FloatTag("", 0),

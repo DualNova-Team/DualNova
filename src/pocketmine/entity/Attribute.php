@@ -46,7 +46,7 @@ class Attribute{
 	protected $name;
 	protected $shouldSend;
 
-	protected $desynchronized = true;
+	protected $desynchronized = \true;
 
 	/** @var Attribute[] */
 	protected static $attributes = [];
@@ -58,9 +58,9 @@ class Attribute{
 		self::addAttribute(self::KNOCKBACK_RESISTANCE, "minecraft:knockback_resistance", 0.00, 1.00, 0.00);
 		self::addAttribute(self::HEALTH, "minecraft:health", 0.00, 20.00, 20.00);
 		self::addAttribute(self::MOVEMENT_SPEED, "minecraft:movement", 0.00, 340282346638528859811704183484516925440.00, 0.10);
-		self::addAttribute(self::FOLLOW_RANGE, "minecraft:follow_range", 0.00, 2048.00, 16.00, false);
+		self::addAttribute(self::FOLLOW_RANGE, "minecraft:follow_range", 0.00, 2048.00, 16.00, \false);
 		self::addAttribute(self::HUNGER, "minecraft:player.hunger", 0.00, 20.00, 20.00);
-		self::addAttribute(self::ATTACK_DAMAGE, "minecraft:attack_damage", 0.00, 340282346638528859811704183484516925440.00, 1.00, false);
+		self::addAttribute(self::ATTACK_DAMAGE, "minecraft:attack_damage", 0.00, 340282346638528859811704183484516925440.00, 1.00, \false);
 		self::addAttribute(self::EXPERIENCE_LEVEL, "minecraft:player.level", 0.00, 24791.00, 0.00);
 		self::addAttribute(self::EXPERIENCE, "minecraft:player.experience", 0.00, 1.00, 0.00);
 		//TODO: minecraft:luck (for fishing?)
@@ -79,7 +79,7 @@ class Attribute{
 	 *
 	 * @throws \InvalidArgumentException
 	 */
-	public static function addAttribute(int $id, string $name, float $minValue, float $maxValue, float $defaultValue, bool $shouldSend = true) : Attribute{
+	public static function addAttribute(int $id, string $name, float $minValue, float $maxValue, float $defaultValue, bool $shouldSend = \true) : Attribute{
 		if($minValue > $maxValue or $defaultValue > $maxValue or $defaultValue < $minValue){
 			throw new \InvalidArgumentException("Invalid ranges: min value: $minValue, max value: $maxValue, $defaultValue: $defaultValue");
 		}
@@ -93,7 +93,7 @@ class Attribute{
 	 * @return Attribute|null
 	 */
 	public static function getAttribute(int $id){
-		return isset(self::$attributes[$id]) ? clone self::$attributes[$id] : null;
+		return isset(self::$attributes[$id]) ? clone self::$attributes[$id] : \null;
 	}
 
 	/**
@@ -108,10 +108,10 @@ class Attribute{
 			}
 		}
 
-		return null;
+		return \null;
 	}
 
-	private function __construct(int $id, string $name, float $minValue, float $maxValue, float $defaultValue, bool $shouldSend = true){
+	private function __construct(int $id, string $name, float $minValue, float $maxValue, float $defaultValue, bool $shouldSend = \true){
 		$this->id = $id;
 		$this->name = $name;
 		$this->minValue = $minValue;
@@ -132,7 +132,7 @@ class Attribute{
 		}
 
 		if($this->minValue != $minValue){
-			$this->desynchronized = true;
+			$this->desynchronized = \true;
 			$this->minValue = $minValue;
 		}
 		return $this;
@@ -148,7 +148,7 @@ class Attribute{
 		}
 
 		if($this->maxValue != $maxValue){
-			$this->desynchronized = true;
+			$this->desynchronized = \true;
 			$this->maxValue = $maxValue;
 		}
 		return $this;
@@ -164,7 +164,7 @@ class Attribute{
 		}
 
 		if($this->defaultValue !== $defaultValue){
-			$this->desynchronized = true;
+			$this->desynchronized = \true;
 			$this->defaultValue = $defaultValue;
 		}
 		return $this;
@@ -185,19 +185,19 @@ class Attribute{
 	 *
 	 * @return $this
 	 */
-	public function setValue(float $value, bool $fit = false, bool $forceSend = false){
+	public function setValue(float $value, bool $fit = \false, bool $forceSend = \false){
 		if($value > $this->getMaxValue() or $value < $this->getMinValue()){
 			if(!$fit){
 				throw new \InvalidArgumentException("Value $value exceeds the range!");
 			}
-			$value = min(max($value, $this->getMinValue()), $this->getMaxValue());
+			$value = \min(\max($value, $this->getMinValue()), $this->getMaxValue());
 		}
 
 		if($this->currentValue != $value){
-			$this->desynchronized = true;
+			$this->desynchronized = \true;
 			$this->currentValue = $value;
 		}elseif($forceSend){
-			$this->desynchronized = true;
+			$this->desynchronized = \true;
 		}
 
 		return $this;
@@ -219,7 +219,7 @@ class Attribute{
 		return $this->shouldSend and $this->desynchronized;
 	}
 
-	public function markSynchronized(bool $synced = true){
+	public function markSynchronized(bool $synced = \true){
 		$this->desynchronized = !$synced;
 	}
 }

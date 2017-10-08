@@ -32,7 +32,7 @@ use pocketmine\Player;
  * Called when a player places a block
  */
 class BlockPlaceEvent extends BlockEvent implements Cancellable{
-	public static $handlerList = null;
+	public static $handlerList = \null;
 
 	/** @var Player */
 	protected $player;
@@ -40,36 +40,46 @@ class BlockPlaceEvent extends BlockEvent implements Cancellable{
 	/** @var Item */
 	protected $item;
 
-
+	/** @var Block */
 	protected $blockReplace;
+	/** @var Block */
 	protected $blockAgainst;
 
 	public function __construct(Player $player, Block $blockPlace, Block $blockReplace, Block $blockAgainst, Item $item){
-		$this->block = $blockPlace;
+		parent::__construct($blockPlace);
 		$this->blockReplace = $blockReplace;
 		$this->blockAgainst = $blockAgainst;
 		$this->item = $item;
 		$this->player = $player;
 	}
 
-	public function getPlayer(){
+	/**
+	 * Returns the player who is placing the block.
+	 * @return Player
+	 */
+	public function getPlayer() : Player{
 		return $this->player;
 	}
 
 	/**
 	 * Gets the item in hand
-	 *
-	 * @return mixed
+	 * @return Item
 	 */
-	public function getItem(){
+	public function getItem() : Item{
 		return $this->item;
 	}
 
-	public function getBlockReplaced(){
+	/**
+	 * @return Block
+	 */
+	public function getBlockReplaced() : Block{
 		return $this->blockReplace;
 	}
 
-	public function getBlockAgainst(){
+	/**
+	 * @return Block
+	 */
+	public function getBlockAgainst() : Block{
 		return $this->blockAgainst;
 	}
 }

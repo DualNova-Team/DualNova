@@ -25,7 +25,7 @@ namespace pocketmine\nbt\tag;
 
 use pocketmine\nbt\NBT;
 
-#include <rules/NBT.h>
+use pocketmine\utils\Binary;
 
 class IntArrayTag extends NamedTag{
 
@@ -43,19 +43,19 @@ class IntArrayTag extends NamedTag{
 		return NBT::TAG_IntArray;
 	}
 
-	public function read(NBT $nbt, bool $network = false){
-		$size = $nbt->getInt($network);
-		$this->value = array_values(unpack($nbt->endianness === NBT::LITTLE_ENDIAN ? "V*" : "N*", $nbt->get($size * 4)));
+	public function read(NBT $nbt, bool $network = \false){
+		$size = ($network === \true ? Binary::readVarInt($nbt->buffer, $nbt->offset) : ($nbt->endianness === 1 ? (\unpack("N", $nbt->get(4))[1] << 32 >> 32) : (\unpack("V", $nbt->get(4))[1] << 32 >> 32)));
+		$this->value = \array_values(\unpack($nbt->endianness === NBT::LITTLE_ENDIAN ? "V*" : "N*", $nbt->get($size * 4)));
 	}
 
-	public function write(NBT $nbt, bool $network = false){
-		$nbt->putInt(count($this->value), $network);
-		$nbt->put(pack($nbt->endianness === NBT::LITTLE_ENDIAN ? "V*" : "N*", ...$this->value));
+	public function write(NBT $nbt, bool $network = \false){
+		($nbt->buffer .=  $network === \true ? Binary::writeVarInt(\count($this->value)) : ($nbt->endianness === 1 ? (\pack("N", \count($this->value))) : (\pack("V", \count($this->value)))));
+		($nbt->buffer .= \pack($nbt->endianness === NBT::LITTLE_ENDIAN ? "V*" : "N*", ...$this->value));
 	}
 
 	public function __toString(){
-		$str = get_class($this) . "{\n";
-		$str .= implode(", ", $this->value);
+		$str = \get_class($this) . "{\n";
+		$str .= \implode(", ", $this->value);
 		return $str . "}";
 	}
 
@@ -72,11 +72,11 @@ class IntArrayTag extends NamedTag{
 	 * @throws \TypeError
 	 */
 	public function setValue($value){
-		if(!is_array($value)){
-			throw new \TypeError("IntArrayTag value must be of type int[], " . gettype($value) . " given");
+		if(!\is_array($value)){
+			throw new \TypeError("IntArrayTag value must be of type int[], " . \gettype($value) . " given");
 		}
-		assert(count(array_filter($value, function($v){
-			return !is_int($v);
+		\assert(\count(\array_filter($value, function($v){
+			return !\is_int($v);
 		})) === 0);
 
 		parent::setValue($value);

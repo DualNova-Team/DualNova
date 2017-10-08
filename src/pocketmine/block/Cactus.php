@@ -38,19 +38,19 @@ class Cactus extends Transparent{
 
 	protected $id = self::CACTUS;
 
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function getHardness(){
+	public function getHardness() : float{
 		return 0.4;
 	}
 
-	public function hasEntityCollision(){
-		return true;
+	public function hasEntityCollision() : bool{
+		return \true;
 	}
 
-	public function getName(){
+	public function getName() : string{
 		return "Cactus";
 	}
 
@@ -66,12 +66,16 @@ class Cactus extends Transparent{
 		);
 	}
 
-	public function onEntityCollide(Entity $entity){
-		$ev = new EntityDamageByBlockEvent($this, $entity, EntityDamageEvent::CAUSE_CONTACT, 1);
-		$entity->attack($ev->getFinalDamage(), $ev);
+	public function ticksRandomly() : bool{
+		return \true;
 	}
 
-	public function onUpdate($type){
+	public function onEntityCollide(Entity $entity){
+		$ev = new EntityDamageByBlockEvent($this, $entity, EntityDamageEvent::CAUSE_CONTACT, 1);
+		$entity->attack($ev);
+	}
+
+	public function onUpdate(int $type){
 		if($type === Level::BLOCK_UPDATE_NORMAL){
 			$down = $this->getSide(Vector3::SIDE_DOWN);
 			if($down->getId() !== self::SAND and $down->getId() !== self::CACTUS){
@@ -90,9 +94,9 @@ class Cactus extends Transparent{
 					for($y = 1; $y < 3; ++$y){
 						$b = $this->getLevel()->getBlock(new Vector3($this->x, $this->y + $y, $this->z));
 						if($b->getId() === self::AIR){
-							Server::getInstance()->getPluginManager()->callEvent($ev = new BlockGrowEvent($b, new Cactus()));
+							Server::getInstance()->getPluginManager()->callEvent($ev = new BlockGrowEvent($b, BlockFactory::get(Block::CACTUS)));
 							if(!$ev->isCancelled()){
-								$this->getLevel()->setBlock($b, $ev->getNewState(), true);
+								$this->getLevel()->setBlock($b, $ev->getNewState(), \true);
 							}
 						}
 					}
@@ -105,29 +109,27 @@ class Cactus extends Transparent{
 			}
 		}
 
-		return false;
+		return \false;
 	}
 
-	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+	public function place(Item $item, Block $blockReplace, Block $blockClicked, int $face, Vector3 $facePos, Player $player = \null) : bool{
 		$down = $this->getSide(Vector3::SIDE_DOWN);
 		if($down->getId() === self::SAND or $down->getId() === self::CACTUS){
 			$block0 = $this->getSide(Vector3::SIDE_NORTH);
 			$block1 = $this->getSide(Vector3::SIDE_SOUTH);
 			$block2 = $this->getSide(Vector3::SIDE_WEST);
 			$block3 = $this->getSide(Vector3::SIDE_EAST);
-			if($block0->isTransparent() === true and $block1->isTransparent() === true and $block2->isTransparent() === true and $block3->isTransparent() === true){
-				$this->getLevel()->setBlock($this, $this, true);
+			if($block0->isTransparent() === \true and $block1->isTransparent() === \true and $block2->isTransparent() === \true and $block3->isTransparent() === \true){
+				$this->getLevel()->setBlock($this, $this, \true);
 
-				return true;
+				return \true;
 			}
 		}
 
-		return false;
+		return \false;
 	}
 
-	public function getDrops(Item $item){
-		return [
-			[$this->id, 0, 1],
-		];
+	public function getVariantBitmask() : int{
+		return 0;
 	}
 }

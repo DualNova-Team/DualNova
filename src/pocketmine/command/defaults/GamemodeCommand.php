@@ -33,7 +33,7 @@ use pocketmine\utils\TextFormat;
 
 class GamemodeCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.gamemode.description",
@@ -44,10 +44,10 @@ class GamemodeCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
-		if(count($args) === 0){
+		if(\count($args) === 0){
 			throw new InvalidCommandSyntaxException();
 		}
 
@@ -56,16 +56,16 @@ class GamemodeCommand extends VanillaCommand{
 		if($gameMode === -1){
 			$sender->sendMessage("Unknown game mode");
 
-			return true;
+			return \true;
 		}
 
 		$target = $sender;
 		if(isset($args[1])){
 			$target = $sender->getServer()->getPlayer($args[1]);
-			if($target === null){
+			if($target === \null){
 				$sender->sendMessage(new TranslationContainer(TextFormat::RED . "%commands.generic.player.notFound"));
 
-				return true;
+				return \true;
 			}
 		}elseif(!($sender instanceof Player)){
 			throw new InvalidCommandSyntaxException();
@@ -76,13 +76,13 @@ class GamemodeCommand extends VanillaCommand{
 			$sender->sendMessage("Game mode change for " . $target->getName() . " failed!");
 		}else{
 			if($target === $sender){
-				Command::broadcastCommandMessage($sender, new TranslationContainer("commands.gamemode.success.self", ['blame', 'mojang', Server::getGamemodeString($gameMode)]));
+				Command::broadcastCommandMessage($sender, new TranslationContainer("commands.gamemode.success.self", [Server::getGamemodeString($gameMode)]));
 			}else{
 				$target->sendMessage(new TranslationContainer("gameMode.changed", [Server::getGamemodeString($gameMode)]));
-				Command::broadcastCommandMessage($sender, new TranslationContainer("commands.gamemode.success.other", ['blame mojang', $target->getName(), Server::getGamemodeString($gameMode)]));
+				Command::broadcastCommandMessage($sender, new TranslationContainer("commands.gamemode.success.other", [$target->getName(), Server::getGamemodeString($gameMode)]));
 			}
 		}
 
-		return true;
+		return \true;
 	}
 }

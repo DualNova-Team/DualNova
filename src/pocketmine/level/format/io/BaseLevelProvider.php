@@ -47,11 +47,11 @@ abstract class BaseLevelProvider implements LevelProvider{
 	public function __construct(Level $level, string $path){
 		$this->level = $level;
 		$this->path = $path;
-		if(!file_exists($this->path)){
-			mkdir($this->path, 0777, true);
+		if(!\file_exists($this->path)){
+			\mkdir($this->path, 0777, \true);
 		}
 		$nbt = new NBT(NBT::BIG_ENDIAN);
-		$nbt->readCompressed(file_get_contents($this->getPath() . "level.dat"));
+		$nbt->readCompressed(\file_get_contents($this->getPath() . "level.dat"));
 		$levelData = $nbt->getData();
 		if($levelData->Data instanceof CompoundTag){
 			$this->levelData = $levelData->Data;
@@ -84,19 +84,19 @@ abstract class BaseLevelProvider implements LevelProvider{
 		return (string) $this->levelData["LevelName"];
 	}
 
-	public function getTime(){
+	public function getTime() : int{
 		return $this->levelData["Time"];
 	}
 
-	public function setTime($value){
+	public function setTime(int $value){
 		$this->levelData->Time = new LongTag("Time", $value);
 	}
 
-	public function getSeed(){
+	public function getSeed() : int{
 		return $this->levelData["RandomSeed"];
 	}
 
-	public function setSeed($value){
+	public function setSeed(int $value){
 		$this->levelData->RandomSeed = new LongTag("RandomSeed", $value);
 	}
 
@@ -127,11 +127,11 @@ abstract class BaseLevelProvider implements LevelProvider{
 			$this->levelData
 		]));
 		$buffer = $nbt->writeCompressed();
-		file_put_contents($this->getPath() . "level.dat", $buffer);
+		\file_put_contents($this->getPath() . "level.dat", $buffer);
 	}
 
 	public function requestChunkTask(int $x, int $z) : AsyncTask{
-		$chunk = $this->getChunk($x, $z, false);
+		$chunk = $this->getChunk($x, $z, \false);
 		if(!($chunk instanceof Chunk)){
 			throw new ChunkException("Invalid Chunk sent");
 		}

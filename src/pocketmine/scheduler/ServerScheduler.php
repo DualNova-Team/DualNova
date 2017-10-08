@@ -24,6 +24,7 @@ declare(strict_types=1);
 /**
  * Task scheduling related classes
  */
+
 namespace pocketmine\scheduler;
 
 use pocketmine\plugin\Plugin;
@@ -75,16 +76,16 @@ class ServerScheduler{
 	 *
 	 * @param AsyncTask $task
 	 *
-	 * @return void
+	 * @return int
 	 */
-	public function scheduleAsyncTask(AsyncTask $task){
-		if($task->getTaskId() !== null){
+	public function scheduleAsyncTask(AsyncTask $task) : int{
+		if($task->getTaskId() !== \null){
 			throw new \UnexpectedValueException("Attempt to schedule the same AsyncTask instance twice");
 		}
 		$id = $this->nextId();
 		$task->setTaskId($id);
 		$task->progressUpdates = new \Threaded;
-		$this->asyncPool->submitTask($task);
+		return $this->asyncPool->submitTask($task);
 	}
 
 	/**
@@ -96,7 +97,7 @@ class ServerScheduler{
 	 * @return void
 	 */
 	public function scheduleAsyncTaskToWorker(AsyncTask $task, int $worker){
-		if($task->getTaskId() !== null){
+		if($task->getTaskId() !== \null){
 			throw new \UnexpectedValueException("Attempt to schedule the same AsyncTask instance twice");
 		}
 		$id = $this->nextId();
@@ -173,11 +174,11 @@ class ServerScheduler{
 	 */
 	public function removeLocalComplex(AsyncTask $for) : bool{
 		if(isset($this->objectStore[$for])){
-			Server::getInstance()->getLogger()->notice("AsyncTask " . get_class($for) . " stored local complex data but did not remove them after completion");
+			Server::getInstance()->getLogger()->notice("AsyncTask " . \get_class($for) . " stored local complex data but did not remove them after completion");
 			unset($this->objectStore[$for]);
-			return false;
+			return \false;
 		}
-		return true;
+		return \true;
 	}
 
 	public function getAsyncTaskPoolSize() : int{
@@ -223,7 +224,7 @@ class ServerScheduler{
 	 * @param int $taskId
 	 */
 	public function cancelTask(int $taskId){
-		if($taskId !== null and isset($this->tasks[$taskId])){
+		if($taskId !== \null and isset($this->tasks[$taskId])){
 			$this->tasks[$taskId]->cancel();
 			unset($this->tasks[$taskId]);
 		}
@@ -275,7 +276,7 @@ class ServerScheduler{
 	private function addTask(Task $task, int $delay, int $period){
 		if($task instanceof PluginTask){
 			if(!($task->getOwner() instanceof Plugin)){
-				throw new PluginException("Invalid owner of PluginTask " . get_class($task));
+				throw new PluginException("Invalid owner of PluginTask " . \get_class($task));
 			}elseif(!$task->getOwner()->isEnabled()){
 				throw new PluginException("Plugin '" . $task->getOwner()->getName() . "' attempted to register a task while disabled");
 			}
@@ -291,7 +292,7 @@ class ServerScheduler{
 			$period = 1;
 		}
 
-		return $this->handle(new TaskHandler(get_class($task), $task, $this->nextId(), $delay, $period));
+		return $this->handle(new TaskHandler(\get_class($task), $task, $this->nextId(), $delay, $period));
 	}
 
 	private function handle(TaskHandler $handler) : TaskHandler{
@@ -342,7 +343,7 @@ class ServerScheduler{
 	}
 
 	private function isReady(int $currentTicks) : bool{
-		return count($this->tasks) > 0 and $this->queue->current()->getNextRun() <= $currentTicks;
+		return \count($this->tasks) > 0 and $this->queue->current()->getNextRun() <= $currentTicks;
 	}
 
 	/**

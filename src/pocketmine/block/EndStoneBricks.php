@@ -2,12 +2,11 @@
 
 /*
  *
- *  ____               _   ___     _
- * |  _ \             |　| |   \   | |
- * | | | |_   _  ____ | | | |\ \  | | _____    ______
- * | | | | | | |/ _  \| | | | \ \ | |/ _ \ \  / / _  \
- * | |_| | |_| | (_)  | |_| |  \ \| | (_) \ \/ / (_)  |
- * |____/\_____|\___|_\___|_|   \___|\___/ \__/ \___|_|
+ *  ____               _   ___    _
+ * |  _ \ _   _  ____ | | |   \  | | _____    ______
+ * | | | | | | |/ _  \| | | |\ \ | |/ _ \ \  / / _  \
+ * | |_| | |_| | (_)  | |_| | \ \| | (_) \ \/ / (_)  |
+ * |____/\_____|\___|_\___|_|  \___|\___/ \__/ \___|_|
  *
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,13 +26,13 @@ use pocketmine\item\Tool;
 
 class EndStoneBricks extends Solid{
 
-	protected $id = self::END_STONE_BRICKS;
+	protected $id = self::END_BRICKS;
 
 	public function __construct($meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function getHardness() {
+	public function getHardness() : float{
 		return 1.5;
 	}
 
@@ -41,7 +40,7 @@ class EndStoneBricks extends Solid{
 		return "End Stone Bricks";
 	}
 	
-	public function getToolType(){
+	public function getToolType() : int{
 		return Tool::TYPE_PICKAXE;
 	}
 }

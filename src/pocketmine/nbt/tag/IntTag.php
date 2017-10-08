@@ -25,7 +25,7 @@ namespace pocketmine\nbt\tag;
 
 use pocketmine\nbt\NBT;
 
-#include <rules/NBT.h>
+use pocketmine\utils\Binary;
 
 class IntTag extends NamedTag{
 
@@ -41,12 +41,12 @@ class IntTag extends NamedTag{
 		return NBT::TAG_Int;
 	}
 
-	public function read(NBT $nbt, bool $network = false){
-		$this->value = $nbt->getInt($network);
+	public function read(NBT $nbt, bool $network = \false){
+		$this->value = ($network === \true ? Binary::readVarInt($nbt->buffer, $nbt->offset) : ($nbt->endianness === 1 ? (\unpack("N", $nbt->get(4))[1] << 32 >> 32) : (\unpack("V", $nbt->get(4))[1] << 32 >> 32)));
 	}
 
-	public function write(NBT $nbt, bool $network = false){
-		$nbt->putInt($this->value, $network);
+	public function write(NBT $nbt, bool $network = \false){
+		($nbt->buffer .=  $network === \true ? Binary::writeVarInt($this->value) : ($nbt->endianness === 1 ? (\pack("N", $this->value)) : (\pack("V", $this->value))));
 	}
 
 	/**
@@ -62,8 +62,8 @@ class IntTag extends NamedTag{
 	 * @throws \TypeError
 	 */
 	public function setValue($value){
-		if(!is_int($value)){
-			throw new \TypeError("IntTag value must be of type int, " . gettype($value) . " given");
+		if(!\is_int($value)){
+			throw new \TypeError("IntTag value must be of type int, " . \gettype($value) . " given");
 		}elseif($value < -(2 ** 31) or $value > ((2 ** 31) - 1)){
 			throw new \InvalidArgumentException("Value $value is too large!");
 		}

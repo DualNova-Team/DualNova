@@ -25,7 +25,7 @@ namespace pocketmine\nbt\tag;
 
 use pocketmine\nbt\NBT;
 
-#include <rules/NBT.h>
+use pocketmine\utils\Binary;
 
 class ListTag extends NamedTag implements \ArrayAccess, \Countable{
 
@@ -61,16 +61,16 @@ class ListTag extends NamedTag implements \ArrayAccess, \Countable{
 	 * @throws \TypeError
 	 */
 	public function setValue($value){
-		if(is_array($value)){
+		if(\is_array($value)){
 			foreach($value as $name => $tag){
 				if($tag instanceof NamedTag){
 					$this->{$name} = $tag;
 				}else{
-					throw new \TypeError("ListTag members must be NamedTags, got " . gettype($tag) . " in given array");
+					throw new \TypeError("ListTag members must be NamedTags, got " . \gettype($tag) . " in given array");
 				}
 			}
 		}else{
-			throw new \TypeError("ListTag value must be NamedTag[], " . gettype($value) . " given");
+			throw new \TypeError("ListTag value must be NamedTag[], " . \gettype($value) . " given");
 		}
 	}
 
@@ -98,7 +98,7 @@ class ListTag extends NamedTag implements \ArrayAccess, \Countable{
 			}
 		}
 
-		return null;
+		return \null;
 	}
 
 	public function offsetSet($offset, $value){
@@ -117,7 +117,7 @@ class ListTag extends NamedTag implements \ArrayAccess, \Countable{
 		$count = 0;
 		for($i = 0; isset($this->{$i}); $i++){
 			if($mode === COUNT_RECURSIVE and $this->{$i} instanceof \Countable){
-				$count += count($this->{$i});
+				$count += \count($this->{$i});
 			}else{
 				$count++;
 			}
@@ -138,10 +138,10 @@ class ListTag extends NamedTag implements \ArrayAccess, \Countable{
 		return $this->tagType;
 	}
 
-	public function read(NBT $nbt, bool $network = false){
+	public function read(NBT $nbt, bool $network = \false){
 		$this->value = [];
-		$this->tagType = $nbt->getByte();
-		$size = $nbt->getInt($network);
+		$this->tagType = (\ord($nbt->get(1)));
+		$size = ($network === \true ? Binary::readVarInt($nbt->buffer, $nbt->offset) : ($nbt->endianness === 1 ? (\unpack("N", $nbt->get(4))[1] << 32 >> 32) : (\unpack("V", $nbt->get(4))[1] << 32 >> 32)));
 
 		$tagBase = NBT::createTag($this->tagType);
 		for($i = 0; $i < $size and !$nbt->feof(); ++$i){
@@ -151,7 +151,7 @@ class ListTag extends NamedTag implements \ArrayAccess, \Countable{
 		}
 	}
 
-	public function write(NBT $nbt, bool $network = false){
+	public function write(NBT $nbt, bool $network = \false){
 		if($this->tagType === NBT::TAG_End){ //previously empty list, try detecting type from tag children
 			$id = NBT::TAG_End;
 			foreach($this as $tag){
@@ -159,14 +159,14 @@ class ListTag extends NamedTag implements \ArrayAccess, \Countable{
 					if($id === NBT::TAG_End){
 						$id = $tag->getType();
 					}elseif($id !== $tag->getType()){
-						return false;
+						return \false;
 					}
 				}
 			}
 			$this->tagType = $id;
 		}
 
-		$nbt->putByte($this->tagType);
+		($nbt->buffer .= \chr($this->tagType));
 
 		/** @var Tag[] $tags */
 		$tags = [];
@@ -175,19 +175,19 @@ class ListTag extends NamedTag implements \ArrayAccess, \Countable{
 				$tags[] = $tag;
 			}
 		}
-		$nbt->putInt(count($tags), $network);
+		($nbt->buffer .=  $network === \true ? Binary::writeVarInt(\count($tags)) : ($nbt->endianness === 1 ? (\pack("N", \count($tags))) : (\pack("V", \count($tags)))));
 		foreach($tags as $tag){
 			$tag->write($nbt, $network);
 		}
 
-		return true;
+		return \true;
 	}
 
 	public function __toString(){
-		$str = get_class($this) . "{\n";
+		$str = \get_class($this) . "{\n";
 		foreach($this as $tag){
 			if($tag instanceof Tag){
-				$str .= get_class($tag) . ":" . $tag->__toString() . "\n";
+				$str .= \get_class($tag) . ":" . $tag->__toString() . "\n";
 			}
 		}
 		return $str . "}";

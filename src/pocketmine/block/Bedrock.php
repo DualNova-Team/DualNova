@@ -29,24 +29,24 @@ class Bedrock extends Solid{
 
 	protected $id = self::BEDROCK;
 
-	public function __construct($meta = 0){
+	public function __construct(int $meta = 0){
 		$this->meta = $meta;
 	}
 
-	public function getName(){
+	public function getName() : string{
 		return "Bedrock";
 	}
 
-	public function getHardness(){
+	public function getHardness() : float{
 		return -1;
 	}
 
-	public function getResistance(){
+	public function getBlastResistance() : float{
 		return 18000000;
 	}
 
-	public function isBreakable(Item $item){
-		return false;
+	public function isBreakable(Item $item) : bool{
+		return \false;
 	}
 
 }

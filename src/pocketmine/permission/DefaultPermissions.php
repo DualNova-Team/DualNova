@@ -34,9 +34,9 @@ abstract class DefaultPermissions{
 	 *
 	 * @return Permission
 	 */
-	public static function registerPermission(Permission $perm, Permission $parent = null) : Permission{
+	public static function registerPermission(Permission $perm, Permission $parent = \null) : Permission{
 		if($parent instanceof Permission){
-			$parent->getChildren()[$perm->getName()] = true;
+			$parent->getChildren()[$perm->getName()] = \true;
 
 			return self::registerPermission($perm);
 		}

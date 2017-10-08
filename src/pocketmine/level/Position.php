@@ -29,7 +29,7 @@ use pocketmine\utils\MainLogger;
 class Position extends Vector3{
 
 	/** @var Level */
-	public $level = null;
+	public $level = \null;
 
 	/**
 	 * @param int   $x
@@ -37,14 +37,14 @@ class Position extends Vector3{
 	 * @param int   $z
 	 * @param Level $level
 	 */
-	public function __construct($x = 0, $y = 0, $z = 0, Level $level = null){
+	public function __construct($x = 0, $y = 0, $z = 0, Level $level = \null){
 		$this->x = $x;
 		$this->y = $y;
 		$this->z = $z;
 		$this->level = $level;
 	}
 
-	public static function fromObject(Vector3 $pos, Level $level = null){
+	public static function fromObject(Vector3 $pos, Level $level = \null){
 		return new Position($pos->x, $pos->y, $pos->z, $level);
 	}
 
@@ -64,9 +64,9 @@ class Position extends Vector3{
 	 * @return Level|null
 	 */
 	public function getLevel(){
-		if($this->level !== null and $this->level->isClosed()){
+		if($this->level !== \null and $this->level->isClosed()){
 			MainLogger::getLogger()->debug("Position was holding a reference to an unloaded Level");
-			$this->level = null;
+			$this->level = \null;
 		}
 
 		return $this->level;
@@ -81,8 +81,8 @@ class Position extends Vector3{
 	 *
 	 * @throws \InvalidArgumentException if the specified Level has been closed
 	 */
-	public function setLevel(Level $level = null){
-		if($level !== null and $level->isClosed()){
+	public function setLevel(Level $level = \null){
+		if($level !== \null and $level->isClosed()){
 			throw new \InvalidArgumentException("Specified level has been unloaded and cannot be used");
 		}
 
@@ -110,7 +110,7 @@ class Position extends Vector3{
 	 * @throws LevelException
 	 */
 	public function getSide($side, $step = 1){
-		assert($this->isValid());
+		\assert($this->isValid());
 
 		return Position::fromObject(parent::getSide($side, $step), $this->level);
 	}

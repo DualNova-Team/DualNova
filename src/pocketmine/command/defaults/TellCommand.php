@@ -31,7 +31,7 @@ use pocketmine\utils\TextFormat;
 
 class TellCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.tell.description",
@@ -43,30 +43,30 @@ class TellCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
-		if(count($args) < 2){
+		if(\count($args) < 2){
 			throw new InvalidCommandSyntaxException();
 		}
 
-		$name = strtolower(array_shift($args));
+		$name = \strtolower(\array_shift($args));
 
 		$player = $sender->getServer()->getPlayer($name);
 
 		if($player === $sender){
 			$sender->sendMessage(new TranslationContainer(TextFormat::RED . "%commands.message.sameTarget"));
-			return true;
+			return \true;
 		}
 
 		if($player instanceof Player){
-			$sender->sendMessage("[{$sender->getName()} -> {$player->getDisplayName()}] " . implode(" ", $args));
+			$sender->sendMessage("[{$sender->getName()} -> {$player->getDisplayName()}] " . \implode(" ", $args));
 			$name = $sender instanceof Player ? $sender->getDisplayName() : $sender->getName();
-			$player->sendMessage("[$name -> {$player->getName()}] " . implode(" ", $args));
+			$player->sendMessage("[$name -> {$player->getName()}] " . \implode(" ", $args));
 		}else{
 			$sender->sendMessage(new TranslationContainer("commands.generic.player.notFound"));
 		}
 
-		return true;
+		return \true;
 	}
 }

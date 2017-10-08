@@ -29,7 +29,7 @@ namespace pocketmine\scheduler;
 abstract class Task{
 
 	/** @var TaskHandler */
-	private $taskHandler = null;
+	private $taskHandler = \null;
 
 	/**
 	 * @return TaskHandler|null
@@ -42,7 +42,7 @@ abstract class Task{
 	 * @return int
 	 */
 	final public function getTaskId() : int{
-		if($this->taskHandler !== null){
+		if($this->taskHandler !== \null){
 			return $this->taskHandler->getTaskId();
 		}
 
@@ -52,8 +52,8 @@ abstract class Task{
 	/**
 	 * @param TaskHandler|null $taskHandler
 	 */
-	final public function setHandler(TaskHandler $taskHandler = null){
-		if($this->taskHandler === null or $taskHandler === null){
+	final public function setHandler(TaskHandler $taskHandler = \null){
+		if($this->taskHandler === \null or $taskHandler === \null){
 			$this->taskHandler = $taskHandler;
 		}
 	}

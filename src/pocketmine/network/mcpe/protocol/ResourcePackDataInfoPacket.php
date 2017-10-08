@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace pocketmine\network\mcpe\protocol;
 
-#include <rules/DataPacket.h>
+use pocketmine\utils\Binary;
 
 
 use pocketmine\network\mcpe\NetworkSession;
@@ -32,25 +32,30 @@ use pocketmine\network\mcpe\NetworkSession;
 class ResourcePackDataInfoPacket extends DataPacket{
 	const NETWORK_ID = ProtocolInfo::RESOURCE_PACK_DATA_INFO_PACKET;
 
+	/** @var string */
 	public $packId;
+	/** @var int */
 	public $maxChunkSize;
+	/** @var int */
 	public $chunkCount;
+	/** @var int */
 	public $compressedPackSize;
+	/** @var string */
 	public $sha256;
 
-	public function decodePayload(){
+	protected function decodePayload(){
 		$this->packId = $this->getString();
-		$this->maxChunkSize = $this->getLInt();
-		$this->chunkCount = $this->getLInt();
-		$this->compressedPackSize = $this->getLLong();
+		$this->maxChunkSize = ((\unpack("V", $this->get(4))[1] << 32 >> 32));
+		$this->chunkCount = ((\unpack("V", $this->get(4))[1] << 32 >> 32));
+		$this->compressedPackSize = (Binary::readLLong($this->get(8)));
 		$this->sha256 = $this->getString();
 	}
 
-	public function encodePayload(){
+	protected function encodePayload(){
 		$this->putString($this->packId);
-		$this->putLInt($this->maxChunkSize);
-		$this->putLInt($this->chunkCount);
-		$this->putLLong($this->compressedPackSize);
+		($this->buffer .= (\pack("V", $this->maxChunkSize)));
+		($this->buffer .= (\pack("V", $this->chunkCount)));
+		($this->buffer .= (\pack("VV", $this->compressedPackSize & 0xFFFFFFFF, $this->compressedPackSize >> 32)));
 		$this->putString($this->sha256);
 	}
 

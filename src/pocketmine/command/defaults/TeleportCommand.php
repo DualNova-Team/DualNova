@@ -33,7 +33,7 @@ use pocketmine\utils\TextFormat;
 
 class TeleportCommand extends VanillaCommand{
 
-	public function __construct($name){
+	public function __construct(string $name){
 		parent::__construct(
 			$name,
 			"%pocketmine.command.tp.description",
@@ -44,60 +44,60 @@ class TeleportCommand extends VanillaCommand{
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
 		if(!$this->testPermission($sender)){
-			return true;
+			return \true;
 		}
 
-		$args = array_filter($args, function($arg){
-			return strlen($arg) > 0;
+		$args = \array_filter($args, function($arg){
+			return \strlen($arg) > 0;
 		});
-		if(count($args) < 1 or count($args) > 6){
+		if(\count($args) < 1 or \count($args) > 6){
 			throw new InvalidCommandSyntaxException();
 		}
 
-		$target = null;
+		$target = \null;
 		$origin = $sender;
 
-		if(count($args) === 1 or count($args) === 3){
+		if(\count($args) === 1 or \count($args) === 3){
 			if($sender instanceof Player){
 				$target = $sender;
 			}else{
 				$sender->sendMessage(TextFormat::RED . "Please provide a player!");
 
-				return true;
+				return \true;
 			}
-			if(count($args) === 1){
+			if(\count($args) === 1){
 				$target = $sender->getServer()->getPlayer($args[0]);
-				if($target === null){
+				if($target === \null){
 					$sender->sendMessage(TextFormat::RED . "Can't find player " . $args[0]);
 
-					return true;
+					return \true;
 				}
 			}
 		}else{
 			$target = $sender->getServer()->getPlayer($args[0]);
-			if($target === null){
+			if($target === \null){
 				$sender->sendMessage(TextFormat::RED . "Can't find player " . $args[0]);
 
-				return true;
+				return \true;
 			}
-			if(count($args) === 2){
+			if(\count($args) === 2){
 				$origin = $target;
 				$target = $sender->getServer()->getPlayer($args[1]);
-				if($target === null){
+				if($target === \null){
 					$sender->sendMessage(TextFormat::RED . "Can't find player " . $args[1]);
 
-					return true;
+					return \true;
 				}
 			}
 		}
 
-		if(count($args) < 3){
+		if(\count($args) < 3){
 			$origin->teleport($target);
 			Command::broadcastCommandMessage($sender, new TranslationContainer("commands.tp.success", [$origin->getName(), $target->getName()]));
 
-			return true;
-		}elseif($target->getLevel() !== null){
-			if(count($args) === 4 or count($args) === 6){
+			return \true;
+		}elseif($target->getLevel() !== \null){
+			if(\count($args) === 4 or \count($args) === 6){
 				$pos = 1;
 			}else{
 				$pos = 0;
@@ -109,15 +109,15 @@ class TeleportCommand extends VanillaCommand{
 			$yaw = $target->getYaw();
 			$pitch = $target->getPitch();
 
-			if(count($args) === 6 or (count($args) === 5 and $pos === 3)){
+			if(\count($args) === 6 or (\count($args) === 5 and $pos === 3)){
 				$yaw = (float) $args[$pos++];
 				$pitch = (float) $args[$pos++];
 			}
 
 			$target->teleport(new Vector3($x, $y, $z), $yaw, $pitch);
-			Command::broadcastCommandMessage($sender, new TranslationContainer("commands.tp.success.coordinates", [$target->getName(), round($x, 2), round($y, 2), round($z, 2)]));
+			Command::broadcastCommandMessage($sender, new TranslationContainer("commands.tp.success.coordinates", [$target->getName(), \round($x, 2), \round($y, 2), \round($z, 2)]));
 
-			return true;
+			return \true;
 		}
 
 		throw new InvalidCommandSyntaxException();

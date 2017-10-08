@@ -37,7 +37,7 @@ class RCONInstance extends Thread{
 	private $waiting;
 
 	public function isWaiting(){
-		return $this->waiting === true;
+		return $this->waiting === \true;
 	}
 
 	/**
@@ -46,14 +46,14 @@ class RCONInstance extends Thread{
 	 * @param int      $maxClients
 	 */
 	public function __construct($socket, string $password, int $maxClients = 50){
-		$this->stop = false;
+		$this->stop = \false;
 		$this->cmd = "";
 		$this->response = "";
 		$this->socket = $socket;
 		$this->password = $password;
 		$this->maxClients = $maxClients;
 		for($n = 0; $n < $this->maxClients; ++$n){
-			$this->{"client" . $n} = null;
+			$this->{"client" . $n} = \null;
 			$this->{"status" . $n} = 0;
 			$this->{"timeout" . $n} = 0;
 		}
@@ -62,80 +62,80 @@ class RCONInstance extends Thread{
 	}
 
 	private function writePacket($client, $requestID, $packetType, $payload){
-		$pk = Binary::writeLInt((int) $requestID)
-			. Binary::writeLInt((int) $packetType)
+		$pk = (\pack("V", (int) $requestID))
+			. (\pack("V", (int) $packetType))
 			. $payload
 			. "\x00\x00"; //Terminate payload and packet
-		return socket_write($client, Binary::writeLInt(strlen($pk)) . $pk);
+		return \socket_write($client, (\pack("V", \strlen($pk))) . $pk);
 	}
 
 	private function readPacket($client, &$size, &$requestID, &$packetType, &$payload){
-		socket_set_nonblock($client);
-		$d = socket_read($client, 4);
-		if($this->stop === true){
-			return false;
-		}elseif($d === false){
-			return null;
-		}elseif($d === "" or strlen($d) < 4){
-			return false;
+		\socket_set_nonblock($client);
+		$d = \socket_read($client, 4);
+		if($this->stop === \true){
+			return \false;
+		}elseif($d === \false){
+			return \null;
+		}elseif($d === "" or \strlen($d) < 4){
+			return \false;
 		}
-		socket_set_block($client);
-		$size = Binary::readLInt($d);
+		\socket_set_block($client);
+		$size = (\unpack("V", $d)[1] << 32 >> 32);
 		if($size < 0 or $size > 65535){
-			return false;
+			return \false;
 		}
-		$requestID = Binary::readLInt(socket_read($client, 4));
-		$packetType = Binary::readLInt(socket_read($client, 4));
-		$payload = rtrim(socket_read($client, $size + 2)); //Strip two null bytes
-		return true;
+		$requestID = (\unpack("V", \socket_read($client, 4))[1] << 32 >> 32);
+		$packetType = (\unpack("V", \socket_read($client, 4))[1] << 32 >> 32);
+		$payload = \rtrim(\socket_read($client, $size + 2)); //Strip two null bytes
+		return \true;
 	}
 
 	public function close(){
-		$this->stop = true;
+		$this->stop = \true;
 	}
 
 	public function run(){
 
-		while($this->stop !== true){
+		while($this->stop !== \true){
 			$this->synchronized(function(){
 				$this->wait(2000);
 			});
 			$r = [$socket = $this->socket];
-			$w = null;
-			$e = null;
-			if(socket_select($r, $w, $e, 0) === 1){
-				if(($client = socket_accept($this->socket)) !== false){
-					socket_set_block($client);
-					socket_set_option($client, SOL_SOCKET, SO_KEEPALIVE, 1);
-					$done = false;
+			$w = \null;
+			$e = \null;
+			if(\socket_select($r, $w, $e, 0) === 1){
+				if(($client = \socket_accept($this->socket)) !== \false){
+					\socket_set_block($client);
+					\socket_set_option($client, SOL_SOCKET, SO_KEEPALIVE, 1);
+					$done = \false;
 					for($n = 0; $n < $this->maxClients; ++$n){
-						if($this->{"client" . $n} === null){
+						if($this->{"client" . $n} === \null){
 							$this->{"client" . $n} = $client;
 							$this->{"status" . $n} = 0;
-							$this->{"timeout" . $n} = microtime(true) + 5;
-							$done = true;
+							$this->{"timeout" . $n} = \microtime(\true) + 5;
+							$done = \true;
 							break;
 						}
 					}
-					if($done === false){
-						@socket_close($client);
+					if($done === \false){
+						@\socket_close($client);
 					}
 				}
 			}
 
 			for($n = 0; $n < $this->maxClients; ++$n){
 				$client = &$this->{"client" . $n};
-				if($client !== null){
-					if($this->{"status" . $n} !== -1 and $this->stop !== true){
-						if($this->{"status" . $n} === 0 and $this->{"timeout" . $n} < microtime(true)){ //Timeout
+				if($client !== \null){
+					if($this->{"status" . $n} !== -1 and $this->stop !== \true){
+						if($this->{"status" . $n} === 0 and $this->{"timeout" . $n} < \microtime(\true)){ //Timeout
 							$this->{"status" . $n} = -1;
 							continue;
 						}
 						$p = $this->readPacket($client, $size, $requestID, $packetType, $payload);
-						if($p === false){
+						if($p === \false){
 							$this->{"status" . $n} = -1;
 							continue;
-						}elseif($p === null){
+						}elseif($p === \null){
 							continue;
 						}
 
@@ -146,13 +146,13 @@ class RCONInstance extends Thread{
 									continue;
 								}
 								if($payload === $this->password){
-									socket_getpeername($client, $addr, $port);
+									\socket_getpeername($client, $addr, $port);
 									$this->response = "[INFO] Successful Rcon connection from: /$addr:$port";
 									$this->synchronized(function(){
-										$this->waiting = true;
+										$this->waiting = \true;
 										$this->wait();
 									});
-									$this->waiting = false;
+									$this->waiting = \false;
 									$this->response = "";
 									$this->writePacket($client, $requestID, 2, "");
 									$this->{"status" . $n} = 1;
@@ -167,14 +167,14 @@ class RCONInstance extends Thread{
 									$this->{"status" . $n} = -1;
 									continue;
 								}
-								if(strlen($payload) > 0){
-									$this->cmd = ltrim($payload);
+								if(\strlen($payload) > 0){
+									$this->cmd = \ltrim($payload);
 									$this->synchronized(function(){
-										$this->waiting = true;
+										$this->waiting = \true;
 										$this->wait();
 									});
-									$this->waiting = false;
-									$this->writePacket($client, $requestID, 0, str_replace("\n", "\r\n", trim($this->response)));
+									$this->waiting = \false;
+									$this->writePacket($client, $requestID, 0, \str_replace("\n", "\r\n", \trim($this->response)));
 									$this->response = "";
 									$this->cmd = "";
 								}
@@ -182,13 +182,13 @@ class RCONInstance extends Thread{
 						}
 
 					}else{
-						@socket_set_option($client, SOL_SOCKET, SO_LINGER, ["l_onoff" => 1, "l_linger" => 1]);
-						@socket_shutdown($client, 2);
-						@socket_set_block($client);
-						@socket_read($client, 1);
-						@socket_close($client);
+						@\socket_set_option($client, SOL_SOCKET, SO_LINGER, ["l_onoff" => 1, "l_linger" => 1]);
+						@\socket_shutdown($client, 2);
+						@\socket_set_block($client);
+						@\socket_read($client, 1);
+						@\socket_close($client);
 						$this->{"status" . $n} = 0;
-						$this->{"client" . $n} = null;
+						$this->{"client" . $n} = \null;
 					}
 				}
 			}
